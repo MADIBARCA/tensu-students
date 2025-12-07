@@ -9,10 +9,8 @@ import {
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; 
 import { useI18n } from "@/i18n/i18n";
-import OnboardingPage from "./pages/onboarding/Onboarding";
 import StudentMainPage from "./pages/student-pages/main/StudentMainPage";
 import SchedulePage from "./pages/student-pages/schedule/SchedulePage";
-import GroupsPage from "./pages/student-pages/groups/GroupsPage";
 import ProfilePage from "./pages/student-pages/profile/ProfilePage";
 import ClubsPage from "./pages/student-pages/clubs/ClubsPage";
 import PrivacyPolicy from "./pages/PrivacyPolicy";

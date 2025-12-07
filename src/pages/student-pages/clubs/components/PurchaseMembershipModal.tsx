@@ -27,7 +27,6 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
   club,
   plan,
   onClose,
-  onSuccess,
 }) => {
   const { t } = useI18n();
   const navigate = useNavigate();

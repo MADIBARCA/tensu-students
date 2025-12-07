@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Layout, PageContainer, SectionHeader } from '@/components/Layout';
+import { useState, useEffect, useMemo } from 'react';
+import { Layout, PageContainer } from '@/components/Layout';
 import { useI18n } from '@/i18n/i18n';
 import { Search, Filter, ChevronDown } from 'lucide-react';
 import { ClubCard } from './components/ClubCard';

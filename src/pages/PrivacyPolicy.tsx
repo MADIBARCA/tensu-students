@@ -1,4 +1,3 @@
-import React from 'react';
 import { Layout, PageContainer } from '@/components/Layout';
 import { useI18n } from '@/i18n/i18n';
 
