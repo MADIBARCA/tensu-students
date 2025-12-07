@@ -38,8 +38,6 @@ export const MembershipsSection: React.FC<MembershipsSectionProps> = ({
   useEffect(() => {
     const loadMemberships = async () => {
       try {
-        const tg = window.Telegram?.WebApp;
-        const token = tg?.initData || null;
         // TODO: Replace with actual API call
         // const response = await studentsApi.getMemberships(token);
         // setMemberships(response.data);

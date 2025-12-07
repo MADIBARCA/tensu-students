@@ -35,7 +35,7 @@ export const UserInfoSection: React.FC<UserInfoSectionProps> = ({ student, onEdi
     : 'Пользователь';
 
   const displayPhone = student?.phone_number || user?.phone_number || 'Не указан';
-  const photoUrl = student?.photo_url || user?.photo_url || '';
+  const photoUrl = student?.photo_url || (user?.photo_url && typeof user.photo_url === 'string' ? user.photo_url : '') || '';
 
   return (
     <div className="bg-white rounded-lg p-4 border border-gray-200 mb-4">

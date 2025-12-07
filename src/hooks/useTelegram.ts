@@ -2,7 +2,7 @@
 import { useEffect, useState, useCallback } from 'react';
 
 export type TelegramUser = {
-  photo_url(photo_url: unknown): unknown;
+  photo_url?: string;
   id: number;
   is_bot: boolean;
   first_name: string;
@@ -22,6 +22,7 @@ declare global {
         initDataUnsafe: { user: TelegramUser };
         ready: () => void;
         sendData: (data: string) => void;
+        showAlert: (message: string) => void;
         openLink?: (url: string, options?: { try_instant_view?: boolean }) => void;
       };
     };

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { X, CreditCard } from 'lucide-react';
-import { useI18n } from '@/i18n/i18n';
 
 interface PaymentModalProps {
   membership: any;
@@ -8,7 +7,6 @@ interface PaymentModalProps {
 }
 
 export const PaymentModal: React.FC<PaymentModalProps> = ({ membership, onClose }) => {
-  const { t } = useI18n();
   const [cardNumber, setCardNumber] = useState('');
   const [expiryDate, setExpiryDate] = useState('');
   const [cvv, setCvv] = useState('');

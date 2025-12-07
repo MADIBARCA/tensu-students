@@ -1,26 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Layout, PageContainer } from '@/components/Layout';
 import { useI18n } from '@/i18n/i18n';
-import { useTelegram } from '@/hooks/useTelegram';
 import { CheckInSlider } from './components/CheckInSlider';
 import { NextSessionsSection } from './components/NextSessionsSection';
 import { LocationDistance } from './components/LocationDistance';
 import { NoMembershipBanner } from './components/NoMembershipBanner';
-import { studentsApi, checkInApi } from '@/functions/axios/axiosFunctions';
+import { checkInApi } from '@/functions/axios/axiosFunctions';
 
 export default function StudentMainPage() {
   const { t } = useI18n();
-  const { user } = useTelegram();
   const [hasActiveMembership, setHasActiveMembership] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const checkMembership = async () => {
       try {
-        const tg = window.Telegram?.WebApp;
-        const token = tg?.initData || null;
-        
         // TODO: Replace with actual API call
+        // const tg = window.Telegram?.WebApp;
+        // const token = tg?.initData || null;
         // const response = await studentsApi.getActiveMemberships(token);
         // setHasActiveMembership(response.data.length > 0);
         

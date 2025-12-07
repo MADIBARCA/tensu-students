@@ -27,7 +27,7 @@ interface ClubDetailsModalProps {
   onClose: () => void;
 }
 
-export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, isMember, onClose }) => {
+export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, isMember: _isMember, onClose }) => {
   const { t } = useI18n();
   const [sections, setSections] = useState<Section[]>([]);
   const [membershipPlans, setMembershipPlans] = useState<MembershipPlan[]>([]);

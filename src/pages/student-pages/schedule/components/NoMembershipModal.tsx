@@ -1,7 +1,7 @@
 import React from 'react';
 import { useI18n } from '@/i18n/i18n';
 import { useNavigate } from 'react-router-dom';
-import { X, CreditCard, ShoppingBag } from 'lucide-react';
+import { CreditCard, ShoppingBag } from 'lucide-react';
 
 interface NoMembershipModalProps {
   onClose: () => void;

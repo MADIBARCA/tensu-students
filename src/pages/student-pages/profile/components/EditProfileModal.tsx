@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
-import { useI18n } from '@/i18n/i18n';
 import type { StudentResponse } from '@/functions/axios/responses';
 
 interface EditProfileModalProps {
@@ -14,7 +13,6 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
   onClose,
   onSave,
 }) => {
-  const { t } = useI18n();
   const [firstName, setFirstName] = useState(student.first_name);
   const [lastName, setLastName] = useState(student.last_name || '');
   const [error, setError] = useState('');

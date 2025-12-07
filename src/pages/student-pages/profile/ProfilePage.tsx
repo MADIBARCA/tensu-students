@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Layout, PageContainer } from '@/components/Layout';
 import { useI18n } from '@/i18n/i18n';
 import { useTelegram } from '@/hooks/useTelegram';
@@ -43,7 +43,7 @@ export default function ProfilePage() {
           last_name: user?.last_name || 'Иванов',
           phone_number: user?.phone_number || '+7 777 123 45 67',
           username: user?.username || 'ivan_ivanov',
-          photo_url: user?.photo_url || '',
+          photo_url: (user?.photo_url && typeof user.photo_url === 'string') ? user.photo_url : '',
           preferences: {},
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
@@ -84,7 +84,7 @@ export default function ProfilePage() {
     setShowFreezeModal(true);
   };
 
-  const handleClubClick = (clubId: number) => {
+  const handleClubClick = () => {
     setShowClubDetailsModal(true);
     // TODO: Load club details
   };

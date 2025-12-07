@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { X, Snowflake, Calendar } from 'lucide-react';
-import { useI18n } from '@/i18n/i18n';
 
 interface FreezeMembershipModalProps {
   membership: any;
@@ -11,13 +10,11 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
   membership,
   onClose,
 }) => {
-  const { t } = useI18n();
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [processing, setProcessing] = useState(false);
 
   const freezeDaysAvailable = membership.freeze_days_available || 0;
-  const freezeDaysUsed = membership.freeze_days_used || 0;
   const isFrozen = membership.status === 'frozen';
 
   const calculateFreezeDays = () => {

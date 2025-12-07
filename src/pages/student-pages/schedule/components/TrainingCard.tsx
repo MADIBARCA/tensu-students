@@ -1,7 +1,7 @@
 import React from 'react';
 import { useI18n } from '@/i18n/i18n';
 import { Card } from '@/components/ui';
-import { Clock, MapPin, Users, MessageSquare, ChevronDown, Bell, X as XIcon, Eye } from 'lucide-react';
+import { Clock, MapPin, Users, MessageSquare, Bell, X as XIcon, Eye } from 'lucide-react';
 import type { Training } from '../SchedulePage';
 
 interface TrainingCardProps {
