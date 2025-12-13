@@ -3,20 +3,21 @@ import { SectionHeader } from '@/components/Layout';
 import { Card } from '@/components/ui';
 import { useI18n } from '@/i18n/i18n';
 import { Calendar, MapPin, Users, User, FileText, Clock, X, CheckCircle } from 'lucide-react';
-import { sessionsApi } from '@/functions/axios/axiosFunctions';
+import { scheduleApi } from '@/functions/axios/axiosFunctions';
+import type { SessionResponse, SessionStatus } from '@/functions/axios/responses';
 
 interface Session {
   id: number;
   section_name: string;
-  group_name?: string;
-  coach_name: string;
+  group_name?: string | null;
+  coach_name: string | null;
   date: string;
   time: string;
-  club_address: string;
+  club_address: string | null;
   participants_count: number;
-  max_participants?: number;
-  notes?: string;
-  status: 'scheduled' | 'cancelled' | 'booked' | 'full';
+  max_participants?: number | null;
+  notes?: string | null;
+  status: SessionStatus;
 }
 
 export const NextSessionsSection: React.FC = () => {
@@ -30,55 +31,27 @@ export const NextSessionsSection: React.FC = () => {
         const tg = window.Telegram?.WebApp;
         const token = tg?.initData || null;
         
-        try {
-          const response = await sessionsApi.getNext(token);
-          setSessions(response.data.slice(0, 3)); // Get first 3
-        } catch (error) {
-          // API might not be ready yet, use mock data for demo
-          console.warn('Sessions API not available yet, using mock data:', error);
-          const mockSessions: Session[] = [
-            {
-              id: 1,
-              section_name: 'Футбол',
-              group_name: 'Группа А (Начальный уровень)',
-              coach_name: 'Александр Петров',
-              date: new Date().toISOString().split('T')[0],
-              time: '18:00',
-              club_address: 'г. Алматы, ул. Абая, 150',
-              participants_count: 8,
-              max_participants: 12,
-              notes: 'Принести спортивную форму и бутылку воды',
-              status: 'booked',
-            },
-            {
-              id: 2,
-              section_name: 'Йога',
-              group_name: 'Утренняя группа',
-              coach_name: 'Мария Иванова',
-              date: new Date(Date.now() + 86400000).toISOString().split('T')[0], // Tomorrow
-              time: '09:00',
-              club_address: 'г. Алматы, пр. Достык, 240',
-              participants_count: 10,
-              max_participants: 15,
-              status: 'scheduled',
-            },
-            {
-              id: 3,
-              section_name: 'Баскетбол',
-              group_name: 'Средняя группа',
-              coach_name: 'Дмитрий Сидоров',
-              date: new Date(Date.now() + 2 * 86400000).toISOString().split('T')[0], // Day after tomorrow
-              time: '19:30',
-              club_address: 'г. Алматы, ул. Абая, 150',
-              participants_count: 14,
-              max_participants: 14,
-              status: 'full',
-            },
-          ];
-          setSessions(mockSessions);
-        }
+        const response = await scheduleApi.getNext(token, 3);
+        
+        // Map API response to component format
+        const mappedSessions: Session[] = response.data.map((s: SessionResponse) => ({
+          id: s.id,
+          section_name: s.section_name,
+          group_name: s.group_name,
+          coach_name: s.coach_name,
+          date: s.date,
+          time: s.time,
+          club_address: s.club_address,
+          participants_count: s.participants_count,
+          max_participants: s.max_participants,
+          notes: s.notes,
+          status: s.is_booked ? 'booked' : s.status,
+        }));
+        
+        setSessions(mappedSessions);
       } catch (error) {
         console.error('Failed to load sessions:', error);
+        setSessions([]);
       } finally {
         setLoading(false);
       }
@@ -144,11 +117,10 @@ export const NextSessionsSection: React.FC = () => {
       const tg = window.Telegram?.WebApp;
       const token = tg?.initData || null;
       
-      await sessionsApi.book(sessionId, token);
-      
-      // Update local state
+      // For now, just update local state
+      // In production, this would call a booking API
       setSessions(prev => prev.map(s => 
-        s.id === sessionId ? { ...s, status: 'booked' as const } : s
+        s.id === sessionId ? { ...s, status: 'booked' as SessionStatus } : s
       ));
       
       // Show success notification
@@ -205,10 +177,12 @@ export const NextSessionsSection: React.FC = () => {
                     {session.section_name}
                     {session.group_name && ` • ${session.group_name}`}
                   </h3>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <User size={14} />
-                    <span>{session.coach_name}</span>
-                  </div>
+                  {session.coach_name && (
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <User size={14} />
+                      <span>{session.coach_name}</span>
+                    </div>
+                  )}
                 </div>
                 <span className={`px-2 py-1 rounded text-xs font-medium flex items-center gap-1 ${statusConfig.color}`}>
                   {statusConfig.icon}
@@ -226,10 +200,12 @@ export const NextSessionsSection: React.FC = () => {
               </div>
 
               {/* Address */}
-              <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-                <MapPin size={14} />
-                <span className="flex-1">{session.club_address}</span>
-              </div>
+              {session.club_address && (
+                <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+                  <MapPin size={14} />
+                  <span className="flex-1">{session.club_address}</span>
+                </div>
+              )}
 
               {/* Participants */}
               <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">

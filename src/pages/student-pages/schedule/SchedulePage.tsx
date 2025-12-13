@@ -7,22 +7,24 @@ import { CalendarView } from './components/CalendarView';
 import { FiltersModal } from './components/FiltersModal';
 import { NoMembershipModal } from './components/NoMembershipModal';
 import { ParticipantsModal } from './components/ParticipantsModal';
+import { scheduleApi, membershipsApi, clubsApi } from '@/functions/axios/axiosFunctions';
+import type { SessionResponse, TrainerResponse, ClubResponse } from '@/functions/axios/responses';
 
 export interface Training {
   id: number;
   section_name: string;
-  group_name?: string;
-  trainer_name: string;
-  trainer_id: number;
+  group_name?: string | null;
+  trainer_name: string | null;
+  trainer_id: number | null;
   club_id: number;
-  club_name: string;
+  club_name: string | null;
   date: string;
   time: string;
-  location: string;
-  max_participants: number;
+  location: string | null;
+  max_participants: number | null;
   current_participants: number;
   participants?: string[];
-  notes?: string;
+  notes?: string | null;
   is_booked: boolean;
   is_in_waitlist: boolean;
 }
@@ -35,7 +37,7 @@ export interface Club {
 export interface Trainer {
   id: number;
   name: string;
-  club_id: number;
+  club_id: number | null;
 }
 
 export interface Filters {
@@ -78,141 +80,54 @@ export default function SchedulePage() {
     setLoading(true);
     setError(null);
     try {
-      // TODO: Replace with actual API calls
-      // const trainingsResponse = await scheduleApi.getTrainings(token);
-      // const clubsResponse = await clubsApi.getAll(token);
-      // const trainersResponse = await trainersApi.getAll(token);
+      const tg = window.Telegram?.WebApp;
+      const token = tg?.initData || null;
+      
+      // Load all data in parallel
+      const [sessionsResponse, trainersResponse, clubsResponse, membershipResponse] = await Promise.all([
+        scheduleApi.getSessions(token, 1, 100, { only_my_sessions: filters.sectionsType === 'my' }),
+        scheduleApi.getTrainers(token),
+        clubsApi.getAll(token, 1, 100),
+        membershipsApi.checkActive(token),
+      ]);
 
-      // Mock clubs
-      const mockClubs: Club[] = [
-        { id: 1, name: 'Спортивный клуб "Чемпион"' },
-        { id: 2, name: 'Фитнес центр "Сила"' },
-        { id: 3, name: 'Бассейн "Волна"' },
-      ];
+      // Map sessions to trainings
+      const mappedTrainings: Training[] = sessionsResponse.data.sessions.map((s: SessionResponse) => ({
+        id: s.id,
+        section_name: s.section_name,
+        group_name: s.group_name,
+        trainer_name: s.coach_name,
+        trainer_id: s.coach_id,
+        club_id: s.club_id,
+        club_name: s.club_name,
+        date: s.date,
+        time: s.time,
+        location: s.location || s.club_address,
+        max_participants: s.max_participants,
+        current_participants: s.participants_count,
+        participants: [],
+        notes: s.notes,
+        is_booked: s.is_booked,
+        is_in_waitlist: s.is_in_waitlist,
+      }));
 
-      // Mock trainers
-      const mockTrainers: Trainer[] = [
-        { id: 1, name: 'Александр Петров', club_id: 1 },
-        { id: 2, name: 'Мария Иванова', club_id: 2 },
-        { id: 3, name: 'Дмитрий Сидоров', club_id: 1 },
-        { id: 4, name: 'Елена Козлова', club_id: 3 },
-      ];
+      // Map clubs
+      const mappedClubs: Club[] = clubsResponse.data.clubs.map((c: ClubResponse) => ({
+        id: c.id,
+        name: c.name,
+      }));
 
-      // Mock trainings
-      const today = new Date();
-      const mockTrainings: Training[] = [
-        {
-          id: 1,
-          section_name: 'Футбол',
-          group_name: 'Группа А',
-          trainer_name: 'Александр Петров',
-          trainer_id: 1,
-          club_id: 1,
-          club_name: 'Спортивный клуб "Чемпион"',
-          date: formatDate(today),
-          time: '18:00',
-          location: 'Зал 1, ул. Абая 150',
-          max_participants: 15,
-          current_participants: 12,
-          participants: ['Иван И.', 'Петр П.', 'Сергей С.', 'Андрей А.', 'Николай Н.', 'Алексей А.', 'Михаил М.', 'Владимир В.', 'Евгений Е.', 'Дмитрий Д.', 'Артем А.', 'Максим М.'],
-          notes: 'Принести форму и бутсы',
-          is_booked: true,
-          is_in_waitlist: false,
-        },
-        {
-          id: 2,
-          section_name: 'Йога',
-          group_name: 'Утренняя группа',
-          trainer_name: 'Мария Иванова',
-          trainer_id: 2,
-          club_id: 2,
-          club_name: 'Фитнес центр "Сила"',
-          date: formatDate(addDays(today, 1)),
-          time: '09:00',
-          location: 'Зал йоги, пр. Достык 240',
-          max_participants: 20,
-          current_participants: 18,
-          participants: [],
-          notes: 'Коврики предоставляются',
-          is_booked: false,
-          is_in_waitlist: false,
-        },
-        {
-          id: 3,
-          section_name: 'Баскетбол',
-          group_name: 'Продвинутые',
-          trainer_name: 'Дмитрий Сидоров',
-          trainer_id: 3,
-          club_id: 1,
-          club_name: 'Спортивный клуб "Чемпион"',
-          date: formatDate(addDays(today, 2)),
-          time: '19:30',
-          location: 'Большой зал, ул. Абая 150',
-          max_participants: 10,
-          current_participants: 10,
-          participants: [],
-          is_booked: false,
-          is_in_waitlist: false,
-        },
-        {
-          id: 4,
-          section_name: 'Плавание',
-          group_name: 'Взрослые',
-          trainer_name: 'Елена Козлова',
-          trainer_id: 4,
-          club_id: 3,
-          club_name: 'Бассейн "Волна"',
-          date: formatDate(addDays(today, 3)),
-          time: '07:00',
-          location: 'Бассейн, ул. Жандосова 58',
-          max_participants: 8,
-          current_participants: 5,
-          participants: [],
-          notes: 'Шапочка обязательна',
-          is_booked: false,
-          is_in_waitlist: false,
-        },
-        {
-          id: 5,
-          section_name: 'Футбол',
-          group_name: 'Группа Б',
-          trainer_name: 'Александр Петров',
-          trainer_id: 1,
-          club_id: 1,
-          club_name: 'Спортивный клуб "Чемпион"',
-          date: formatDate(addDays(today, 5)),
-          time: '17:00',
-          location: 'Зал 2, ул. Абая 150',
-          max_participants: 15,
-          current_participants: 8,
-          participants: [],
-          is_booked: false,
-          is_in_waitlist: false,
-        },
-        {
-          id: 6,
-          section_name: 'Пилатес',
-          trainer_name: 'Мария Иванова',
-          trainer_id: 2,
-          club_id: 2,
-          club_name: 'Фитнес центр "Сила"',
-          date: formatDate(addDays(today, 7)),
-          time: '11:00',
-          location: 'Зал пилатеса, пр. Достык 240',
-          max_participants: 12,
-          current_participants: 6,
-          participants: [],
-          is_booked: false,
-          is_in_waitlist: false,
-        },
-        // Add more trainings for calendar view
-        ...generateCalendarTrainings(today),
-      ];
+      // Map trainers
+      const mappedTrainers: Trainer[] = trainersResponse.data.map((t: TrainerResponse) => ({
+        id: t.id,
+        name: t.name,
+        club_id: t.club_id,
+      }));
 
-      setClubs(mockClubs);
-      setTrainers(mockTrainers);
-      setTrainings(mockTrainings);
-      setHasActiveMembership(true); // Mock: user has membership
+      setTrainings(mappedTrainings);
+      setClubs(mappedClubs);
+      setTrainers(mappedTrainers);
+      setHasActiveMembership(membershipResponse.data.has_active_membership);
     } catch (err) {
       console.error('Failed to load schedule:', err);
       setError(t('schedule.error'));
@@ -224,36 +139,6 @@ export default function SchedulePage() {
   // Helper functions
   function formatDate(date: Date): string {
     return date.toISOString().split('T')[0];
-  }
-
-  function addDays(date: Date, days: number): Date {
-    const result = new Date(date);
-    result.setDate(result.getDate() + days);
-    return result;
-  }
-
-  function generateCalendarTrainings(startDate: Date): Training[] {
-    const trainings: Training[] = [];
-    for (let i = 8; i <= 25; i += 3) {
-      const date = addDays(startDate, i);
-      trainings.push({
-        id: 100 + i,
-        section_name: i % 2 === 0 ? 'Футбол' : 'Йога',
-        trainer_name: i % 2 === 0 ? 'Александр Петров' : 'Мария Иванова',
-        trainer_id: i % 2 === 0 ? 1 : 2,
-        club_id: i % 2 === 0 ? 1 : 2,
-        club_name: i % 2 === 0 ? 'Спортивный клуб "Чемпион"' : 'Фитнес центр "Сила"',
-        date: formatDate(date),
-        time: i % 2 === 0 ? '18:00' : '10:00',
-        location: i % 2 === 0 ? 'Зал 1' : 'Зал йоги',
-        max_participants: 15,
-        current_participants: Math.floor(Math.random() * 10) + 3,
-        participants: [],
-        is_booked: false,
-        is_in_waitlist: false,
-      });
-    }
-    return trainings;
   }
 
   // Filter trainings
@@ -283,7 +168,7 @@ export default function SchedulePage() {
     const today = formatDate(new Date());
     return filteredTrainings
       .filter(t => t.date >= today)
-      .slice(0, 3);
+      .slice(0, 10);
   }, [filteredTrainings]);
 
   // Get trainings for selected date in calendar
@@ -316,6 +201,12 @@ export default function SchedulePage() {
       }
       return t;
     }));
+    
+    // Show success notification
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+      tg.showAlert('Вы успешно записались на тренировку!');
+    }
   };
 
   const handleCancelBooking = (trainingId: number) => {
@@ -328,7 +219,10 @@ export default function SchedulePage() {
     const hoursDiff = (trainingDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
 
     if (hoursDiff < 1) {
-      alert(t('schedule.cancelTooLate'));
+      const tg = window.Telegram?.WebApp;
+      if (tg) {
+        tg.showAlert(t('schedule.cancelTooLate'));
+      }
       return;
     }
 
@@ -343,6 +237,12 @@ export default function SchedulePage() {
       }
       return t;
     }));
+    
+    // Show success notification
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+      tg.showAlert('Запись на тренировку отменена');
+    }
   };
 
   const handleWaitlist = (trainingId: number) => {
@@ -357,6 +257,12 @@ export default function SchedulePage() {
       }
       return t;
     }));
+    
+    // Show success notification
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+      tg.showAlert('Вы добавлены в лист ожидания');
+    }
   };
 
   const handleShowParticipants = (training: Training) => {

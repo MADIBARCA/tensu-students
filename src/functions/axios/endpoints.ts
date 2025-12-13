@@ -1,5 +1,4 @@
 // Endpoints for student API
-// TODO: Add actual student endpoints when provided
 export const ENDPOINTS = {
   STUDENTS: {
     BASE: '/students/',
@@ -9,37 +8,40 @@ export const ENDPOINTS = {
     PREFERENCES: '/students/preferences',
     PREFERENCE: (telegramId: string, key: string) =>
       `/students/${telegramId}/preferences/${key}`,
-    // Add more student-specific endpoints here
   },
   
-  // Add other endpoints as needed (groups, schedule, etc.)
-  GROUPS: {
-    BASE: '/groups/',
-    MY: '/groups/my',
-    BY_ID: (groupId: number) => `/groups/${groupId}`,
+  MEMBERSHIPS: {
+    BASE: '/students/memberships/',
+    ACTIVE: '/students/memberships/active',
+    CHECK: '/students/memberships/check',
+    HISTORY: '/students/memberships/history',
+    STATS: '/students/memberships/stats',
+    FREEZE: '/students/memberships/freeze',
+    UNFREEZE: '/students/memberships/unfreeze',
+  },
+
+  ATTENDANCE: {
+    BASE: '/students/attendance/',
+    CHECKIN: '/students/attendance/checkin',
+    STATS: '/students/attendance/stats',
+  },
+
+  PAYMENTS: {
+    BASE: '/students/payments/',
+    INITIATE: '/students/payments/initiate',
+    STATS: '/students/payments/stats',
   },
 
   SCHEDULE: {
-    LESSONS: {
-      LIST: '/schedule/lessons',
-      GET_BY_ID: (lessonId: string | number) => `/schedule/lessons/${lessonId}`,
-    },
-    CALENDAR: {
-      DAY: (targetDate: string) => `/schedule/calendar/day/${targetDate}`,
-      WEEK: (targetDate: string) => `/schedule/calendar/week/${targetDate}`,
-    },
-  },
-
-  CHECKIN: {
-    CHECK_IN: '/students/checkin',
-  },
-
-  SESSIONS: {
-    NEXT: '/students/sessions/next',
-    BOOK: (sessionId: number) => `/students/sessions/${sessionId}/book`,
+    NEXT: '/students/schedule/next',
+    SESSIONS: '/students/schedule/sessions',
+    TRAINERS: '/students/schedule/trainers',
   },
 
   CLUBS: {
+    BASE: '/students/clubs/',
+    MY: '/students/clubs/my',
     NEAREST: '/students/clubs/nearest',
+    BY_ID: (clubId: number | string) => `/students/clubs/${clubId}`,
   },
 } as const;

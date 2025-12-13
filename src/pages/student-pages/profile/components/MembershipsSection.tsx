@@ -4,15 +4,17 @@ import { useI18n } from '@/i18n/i18n';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui';
 import { Calendar, MapPin, Users, CreditCard, Snowflake, ChevronRight } from 'lucide-react';
+import { membershipsApi } from '@/functions/axios/axiosFunctions';
+import type { MembershipResponse, MembershipStatus } from '@/functions/axios/responses';
 
 interface Membership {
   id: number;
   club_name: string;
-  section_name?: string;
-  group_name?: string;
+  section_name?: string | null;
+  group_name?: string | null;
   training_type: 'Group' | 'Personal';
-  level?: string;
-  status: 'active' | 'frozen' | 'expired' | 'canceled';
+  level?: string | null;
+  status: MembershipStatus;
   start_date: string;
   end_date: string;
   freeze_days_available?: number;
@@ -38,40 +40,27 @@ export const MembershipsSection: React.FC<MembershipsSectionProps> = ({
   useEffect(() => {
     const loadMemberships = async () => {
       try {
-        // TODO: Replace with actual API call
-        // const response = await studentsApi.getMemberships(token);
-        // setMemberships(response.data);
+        const tg = window.Telegram?.WebApp;
+        const token = tg?.initData || null;
         
-        // Mock data for demo
-        const mockMemberships: Membership[] = [
-          {
-            id: 1,
-            club_name: 'Спортивный клуб "Чемпион"',
-            section_name: 'Футбол',
-            group_name: 'Группа А (Начальный уровень)',
-            training_type: 'Group',
-            level: 'Начальный',
-            status: 'active',
-            start_date: '2024-01-15',
-            end_date: '2024-02-15',
-            freeze_days_available: 5,
-            freeze_days_used: 0,
-          },
-          {
-            id: 2,
-            club_name: 'Фитнес центр "Сила"',
-            section_name: 'Йога',
-            group_name: 'Утренняя группа',
-            training_type: 'Group',
-            level: 'Средний',
-            status: 'frozen',
-            start_date: '2024-01-10',
-            end_date: '2024-02-10',
-            freeze_days_available: 3,
-            freeze_days_used: 2,
-          },
-        ];
-        setMemberships(mockMemberships);
+        const response = await membershipsApi.getActive(token);
+        
+        // Map API response to component format
+        const mappedMemberships: Membership[] = response.data.memberships.map((m: MembershipResponse) => ({
+          id: m.id,
+          club_name: m.club_name,
+          section_name: m.section_name,
+          group_name: m.group_name,
+          training_type: m.training_type,
+          level: m.level,
+          status: m.status,
+          start_date: m.start_date,
+          end_date: m.end_date,
+          freeze_days_available: m.freeze_days_available,
+          freeze_days_used: m.freeze_days_used,
+        }));
+        
+        setMemberships(mappedMemberships);
       } catch (error) {
         console.error('Failed to load memberships:', error);
         setMemberships([]);
@@ -88,7 +77,8 @@ export const MembershipsSection: React.FC<MembershipsSectionProps> = ({
       active: 'Активен',
       frozen: 'Заморожен',
       expired: 'Истёк',
-      canceled: 'Отменён',
+      cancelled: 'Отменён',
+      new: 'Новый',
     };
     return labels[status] || status;
   };
@@ -98,7 +88,8 @@ export const MembershipsSection: React.FC<MembershipsSectionProps> = ({
       active: 'bg-green-100 text-green-800',
       frozen: 'bg-blue-100 text-blue-800',
       expired: 'bg-gray-100 text-gray-800',
-      canceled: 'bg-red-100 text-red-800',
+      cancelled: 'bg-red-100 text-red-800',
+      new: 'bg-yellow-100 text-yellow-800',
     };
     return colors[status] || 'bg-gray-100 text-gray-800';
   };

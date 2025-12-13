@@ -1,18 +1,27 @@
 import React, { useState } from 'react';
 import { X, Snowflake, Calendar } from 'lucide-react';
+import { membershipsApi } from '@/functions/axios/axiosFunctions';
 
 interface FreezeMembershipModalProps {
-  membership: any;
+  membership: {
+    id: number;
+    status: string;
+    freeze_days_available?: number;
+    freeze_days_used?: number;
+  };
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
 export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
   membership,
   onClose,
+  onSuccess,
 }) => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [processing, setProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const freezeDaysAvailable = membership.freeze_days_available || 0;
   const isFrozen = membership.status === 'frozen';
@@ -33,38 +42,58 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
     if (!isValid) return;
 
     setProcessing(true);
+    setError(null);
+    
     try {
-      // TODO: Implement freeze API
-      // await studentsApi.freezeMembership(membership.id, {
-      //   start_date: startDate,
-      //   end_date: endDate,
-      //   days: freezeDays,
-      // }, token);
+      const tg = window.Telegram?.WebApp;
+      const token = tg?.initData || null;
       
-      console.log('Freezing membership...');
-      setTimeout(() => {
-        setProcessing(false);
-        onClose();
-      }, 1000);
-    } catch (error) {
-      console.error('Freeze failed:', error);
+      await membershipsApi.freeze({
+        enrollment_id: membership.id,
+        start_date: startDate,
+        end_date: endDate,
+      }, token);
+      
+      // Show success message
+      if (tg) {
+        tg.showAlert('Абонемент успешно заморожен');
+      }
+      
+      onSuccess?.();
+      onClose();
+    } catch (err: unknown) {
+      console.error('Freeze failed:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Ошибка при заморозке абонемента';
+      setError(errorMessage);
+    } finally {
       setProcessing(false);
     }
   };
 
   const handleUnfreeze = async () => {
     setProcessing(true);
+    setError(null);
+    
     try {
-      // TODO: Implement unfreeze API
-      // await studentsApi.unfreezeMembership(membership.id, token);
+      const tg = window.Telegram?.WebApp;
+      const token = tg?.initData || null;
       
-      console.log('Unfreezing membership...');
-      setTimeout(() => {
-        setProcessing(false);
-        onClose();
-      }, 1000);
-    } catch (error) {
-      console.error('Unfreeze failed:', error);
+      await membershipsApi.unfreeze({
+        enrollment_id: membership.id,
+      }, token);
+      
+      // Show success message
+      if (tg) {
+        tg.showAlert('Абонемент успешно разморожен');
+      }
+      
+      onSuccess?.();
+      onClose();
+    } catch (err: unknown) {
+      console.error('Unfreeze failed:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Ошибка при разморозке абонемента';
+      setError(errorMessage);
+    } finally {
       setProcessing(false);
     }
   };
@@ -86,6 +115,12 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
             <X size={20} />
           </button>
         </div>
+
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm">
+            {error}
+          </div>
+        )}
 
         {isFrozen ? (
           <div className="space-y-4">
