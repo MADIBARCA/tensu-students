@@ -182,6 +182,20 @@ const RU: Dict = {
   'schedule.participants.you': 'Вы',
   'schedule.participants.empty': 'Пока нет записавшихся',
   'schedule.participants.count': '{current} из {max} участников',
+  // Onboarding
+  'onboarding.welcome': 'Добро пожаловать',
+  'onboarding.subtitle': 'Для начала работы подтвердите ваш номер телефона',
+  'onboarding.sharePhone': 'Поделиться номером',
+  'onboarding.continue': 'Продолжить',
+  'onboarding.loading': 'Загружаем данные...',
+  'onboarding.processing': 'Создаём ваш профиль...',
+  'onboarding.error.title': 'Ошибка регистрации',
+  'onboarding.error.retry': 'Попробовать снова',
+  'onboarding.phoneRequired': 'Для использования приложения необходимо подтвердить номер телефона',
+  'onboarding.success': 'Профиль успешно создан!',
+  'onboarding.features.training': 'Записывайтесь на тренировки',
+  'onboarding.features.schedule': 'Следите за расписанием',
+  'onboarding.features.progress': 'Отслеживайте прогресс',
 };
 
 const KK: Dict = {
@@ -362,6 +376,20 @@ const KK: Dict = {
   'schedule.participants.you': 'Сіз',
   'schedule.participants.empty': 'Әзірге жазылғандар жоқ',
   'schedule.participants.count': '{max} қатысушының {current}',
+  // Onboarding
+  'onboarding.welcome': 'Қош келдіңіз',
+  'onboarding.subtitle': 'Жұмысты бастау үшін телефон нөміріңізді растаңыз',
+  'onboarding.sharePhone': 'Нөмірді бөлісу',
+  'onboarding.continue': 'Жалғастыру',
+  'onboarding.loading': 'Деректер жүктелуде...',
+  'onboarding.processing': 'Профиліңіз жасалуда...',
+  'onboarding.error.title': 'Тіркелу қатесі',
+  'onboarding.error.retry': 'Қайтадан көріңіз',
+  'onboarding.phoneRequired': 'Қолданбаны пайдалану үшін телефон нөміріңізді растау қажет',
+  'onboarding.success': 'Профиль сәтті жасалды!',
+  'onboarding.features.training': 'Жаттығуларға жазылыңыз',
+  'onboarding.features.schedule': 'Кестені қадағалаңыз',
+  'onboarding.features.progress': 'Прогресті бақылаңыз',
 };
 
 const dictionaries: Record<Lang, Dict> = { ru: RU, kk: KK };

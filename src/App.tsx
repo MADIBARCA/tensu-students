@@ -9,6 +9,7 @@ import {
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; 
 import { useI18n } from "@/i18n/i18n";
+import OnboardingPage from "./pages/onboarding/Onboarding";
 import StudentMainPage from "./pages/student-pages/main/StudentMainPage";
 import SchedulePage from "./pages/student-pages/schedule/SchedulePage";
 import ProfilePage from "./pages/student-pages/profile/ProfilePage";
@@ -18,18 +19,20 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 function AppRoutes() {
   const location = useLocation();
   const isOnboarding = location.pathname === "/onboarding";
+  const isPrivacy = location.pathname === "/privacy";
 
   return (
-    <div className={isOnboarding ? "" : "pt-20"}>
+    <div className={isOnboarding || isPrivacy ? "" : "pt-20"}>
       <Routes>
+        <Route path="/onboarding" element={<OnboardingPage />} />
         <Route path="/student/main" element={<StudentMainPage />} />
         <Route path="/student/schedule" element={<SchedulePage />} />
         <Route path="/student/groups" element={<ClubsPage />} />
         <Route path="/student/profile" element={<ProfilePage />} />
         <Route path="/student/clubs" element={<ClubsPage />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
-        {/* <Route path="/onboarding" element={<OnboardingPage />} /> */}
-        <Route path="*" element={<Navigate to="/student/main" replace />} />
+        {/* Default route - go to onboarding first */}
+        <Route path="*" element={<Navigate to="/onboarding" replace />} />
       </Routes>
       <ToastContainer position="top-right" autoClose={3000} />
     </div>
