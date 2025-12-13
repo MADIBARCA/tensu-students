@@ -4,7 +4,7 @@ import { Card } from '@/components/ui';
 import { useI18n } from '@/i18n/i18n';
 import { ChevronDown, ChevronUp, Calendar, MapPin, TrendingUp, BarChart3 } from 'lucide-react';
 import { attendanceApi } from '@/functions/axios/axiosFunctions';
-import type { AttendanceRecordResponse, AttendanceStatsResponse } from '@/functions/axios/responses';
+import type { AttendanceRecordResponse } from '@/functions/axios/responses';
 
 interface AttendanceRecord {
   id: number;

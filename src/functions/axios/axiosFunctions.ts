@@ -25,7 +25,6 @@ import type {
   SessionResponse,
   SessionListResponse,
   TrainerResponse,
-  ClubResponse,
   ClubDetailResponse,
   ClubListResponse,
   NearestClubResponse,

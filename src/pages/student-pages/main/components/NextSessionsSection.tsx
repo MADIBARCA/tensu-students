@@ -114,9 +114,6 @@ export const NextSessionsSection: React.FC = () => {
 
   const handleBookSession = async (sessionId: number) => {
     try {
-      const tg = window.Telegram?.WebApp;
-      const token = tg?.initData || null;
-      
       // For now, just update local state
       // In production, this would call a booking API
       setSessions(prev => prev.map(s => 
@@ -124,9 +121,9 @@ export const NextSessionsSection: React.FC = () => {
       ));
       
       // Show success notification
-      const tgApp = window.Telegram?.WebApp;
-      if (tgApp) {
-        tgApp.showAlert('Вы успешно записались на тренировку!');
+      const tg = window.Telegram?.WebApp;
+      if (tg) {
+        tg.showAlert('Вы успешно записались на тренировку!');
       }
     } catch (error) {
       console.error('Failed to book session:', error);
