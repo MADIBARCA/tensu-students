@@ -3,12 +3,14 @@ import { SectionHeader } from '@/components/Layout';
 import { Card } from '@/components/ui';
 import { useI18n } from '@/i18n/i18n';
 import { ChevronDown, ChevronUp, Calendar, MapPin, TrendingUp, BarChart3 } from 'lucide-react';
+import { attendanceApi } from '@/functions/axios/axiosFunctions';
+import type { AttendanceRecordResponse } from '@/functions/axios/responses';
 
 interface AttendanceRecord {
   id: number;
   checkin_date: string;
-  club_name: string;
-  section_name?: string;
+  club_name: string | null;
+  section_name?: string | null;
 }
 
 interface AttendanceStats {
@@ -27,53 +29,29 @@ export const AttendanceHistorySection: React.FC = () => {
   useEffect(() => {
     const loadAttendance = async () => {
       try {
-        // TODO: Replace with actual API call
-        // const response = await studentsApi.getAttendance(token);
-        // setAttendance(response.data.records);
-        // setStats(response.data.stats);
+        const tg = window.Telegram?.WebApp;
+        const token = tg?.initData || null;
         
-        // Mock data for demo
-        const mockAttendance: AttendanceRecord[] = [
-          {
-            id: 1,
-            checkin_date: new Date().toISOString(),
-            club_name: 'Спортивный клуб "Чемпион"',
-            section_name: 'Футбол',
-          },
-          {
-            id: 2,
-            checkin_date: new Date(Date.now() - 86400000).toISOString(), // Yesterday
-            club_name: 'Спортивный клуб "Чемпион"',
-            section_name: 'Футбол',
-          },
-          {
-            id: 3,
-            checkin_date: new Date(Date.now() - 2 * 86400000).toISOString(), // 2 days ago
-            club_name: 'Фитнес центр "Сила"',
-            section_name: 'Йога',
-          },
-          {
-            id: 4,
-            checkin_date: new Date(Date.now() - 3 * 86400000).toISOString(), // 3 days ago
-            club_name: 'Спортивный клуб "Чемпион"',
-            section_name: 'Футбол',
-          },
-          {
-            id: 5,
-            checkin_date: new Date(Date.now() - 5 * 86400000).toISOString(), // 5 days ago
-            club_name: 'Фитнес центр "Сила"',
-            section_name: 'Йога',
-          },
-        ];
+        // Load attendance records and stats in parallel
+        const [recordsResponse, statsResponse] = await Promise.all([
+          attendanceApi.getHistory(token, 1, 10),
+          attendanceApi.getStats(token),
+        ]);
         
-        const mockStats: AttendanceStats = {
-          visits_this_month: 12,
-          missed_this_month: 3,
-          average_attendance: 80,
-        };
+        // Map API response to component format
+        const mappedAttendance: AttendanceRecord[] = recordsResponse.data.records.map((r: AttendanceRecordResponse) => ({
+          id: r.id,
+          checkin_date: r.checkin_date + (r.checkin_time ? `T${r.checkin_time}` : ''),
+          club_name: r.club_name,
+          section_name: r.section_name,
+        }));
         
-        setAttendance(mockAttendance);
-        setStats(mockStats);
+        setAttendance(mappedAttendance);
+        setStats({
+          visits_this_month: statsResponse.data.visits_this_month,
+          missed_this_month: statsResponse.data.missed_this_month,
+          average_attendance: statsResponse.data.average_attendance,
+        });
       } catch (error) {
         console.error('Failed to load attendance:', error);
         setAttendance([]);
@@ -164,7 +142,7 @@ export const AttendanceHistorySection: React.FC = () => {
               <div key={record.id} className="flex items-center gap-3 text-sm">
                 <Calendar size={16} className="text-gray-400" />
                 <div className="flex-1">
-                  <p className="text-gray-900">{record.club_name}</p>
+                  <p className="text-gray-900">{record.club_name || 'Клуб'}</p>
                   {record.section_name && (
                     <p className="text-gray-500 text-xs">{record.section_name}</p>
                   )}
@@ -185,7 +163,7 @@ export const AttendanceHistorySection: React.FC = () => {
                 <div className="flex items-start gap-3">
                   <Calendar size={16} className="text-gray-400 mt-0.5" />
                   <div className="flex-1">
-                    <p className="font-medium text-gray-900">{record.club_name}</p>
+                    <p className="font-medium text-gray-900">{record.club_name || 'Клуб'}</p>
                     {record.section_name && (
                       <div className="flex items-center gap-1 text-sm text-gray-600 mt-1">
                         <MapPin size={12} />

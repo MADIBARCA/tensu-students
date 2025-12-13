@@ -64,7 +64,7 @@ export const ParticipantsModal: React.FC<ParticipantsModalProps> = ({ training, 
             <p className="text-sm text-gray-600 text-center">
               {t('schedule.participants.count', {
                 current: training.current_participants,
-                max: training.max_participants,
+                max: training.max_participants ?? '∞',
               })}
             </p>
           </div>

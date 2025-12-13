@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useI18n } from '@/i18n/i18n';
 import { X, CreditCard, Check, AlertCircle, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { paymentsApi } from '@/functions/axios/axiosFunctions';
 import type { Club } from '../ClubsPage';
 
 interface MembershipPlan {
@@ -9,8 +10,8 @@ interface MembershipPlan {
   name: string;
   type: string;
   price: number;
-  duration_days: number;
-  description?: string;
+  duration_days: number | null;
+  description?: string | null;
   features: string[];
 }
 
@@ -37,6 +38,7 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
   const [cvv, setCvv] = useState('');
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>('idle');
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [paymentError, setPaymentError] = useState<string | null>(null);
 
   const formatCardNumber = (value: string) => {
     const cleaned = value.replace(/\D/g, '');
@@ -96,39 +98,37 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
     if (!validateForm()) return;
 
     setPaymentStatus('processing');
+    setPaymentError(null);
 
     try {
-      // TODO: Replace with actual payment API
-      // const paymentData = {
-      //   club_id: club.id,
-      //   plan_id: plan.id,
-      //   customer_name: customerName,
-      //   card_number: cardNumber.replace(/\s/g, ''),
-      //   expiry_date: expiryDate,
-      //   cvv: cvv,
-      // };
-      // const response = await paymentApi.initiatePayment(paymentData, token);
-      // Poll for status...
-
-      // Mock payment processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      // Mock success (80% chance)
-      if (Math.random() > 0.2) {
+      const tg = window.Telegram?.WebApp;
+      const token = tg?.initData || null;
+      
+      // Initiate payment through our API
+      const response = await paymentsApi.initiate({
+        club_id: club.id,
+        tariff_id: plan.id,
+        payment_method: 'card',
+      }, token);
+      
+      // If we get a redirect URL, we'd normally redirect to it
+      // For now, simulate success
+      if (response.data.payment_id) {
+        // Simulate payment processing
+        await new Promise(resolve => setTimeout(resolve, 1500));
         setPaymentStatus('success');
         
-        // Auto redirect after 5 seconds
+        // Auto redirect after 3 seconds
         setTimeout(() => {
           navigate('/student/profile');
-        }, 5000);
+        }, 3000);
       } else {
-        setPaymentStatus('error');
-        // Log error
-        console.error('Payment failed');
+        throw new Error('Payment initiation failed');
       }
     } catch (error) {
       console.error('Payment error:', error);
       setPaymentStatus('error');
+      setPaymentError('Произошла ошибка при обработке платежа. Попробуйте еще раз.');
     }
   };
 
@@ -180,7 +180,7 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
             {t('clubs.payment.error.title')}
           </h2>
           <p className="text-gray-600 mb-6">
-            {t('clubs.payment.error.description')}
+            {paymentError || t('clubs.payment.error.description')}
           </p>
           <button
             onClick={() => setPaymentStatus('idle')}

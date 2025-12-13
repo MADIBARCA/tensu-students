@@ -3,12 +3,14 @@ import { useI18n } from '@/i18n/i18n';
 import { Card } from '@/components/ui';
 import { X, MapPin, Clock, Phone, MessageCircle, Layers, CreditCard } from 'lucide-react';
 import { PurchaseMembershipModal } from './PurchaseMembershipModal';
+import { clubsApi } from '@/functions/axios/axiosFunctions';
+import type { ClubDetailResponse, ClubSectionResponse, ClubTariffResponse } from '@/functions/axios/responses';
 import type { Club } from '../ClubsPage';
 
 interface Section {
   id: number;
   name: string;
-  description?: string;
+  description?: string | null;
 }
 
 interface MembershipPlan {
@@ -16,8 +18,8 @@ interface MembershipPlan {
   name: string;
   type: string;
   price: number;
-  duration_days: number;
-  description?: string;
+  duration_days: number | null;
+  description?: string | null;
   features: string[];
 }
 
@@ -38,61 +40,36 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, isMemb
   useEffect(() => {
     const loadClubDetails = async () => {
       try {
-        // TODO: Replace with actual API calls
-        // const sectionsResponse = await clubsApi.getSections(club.id, token);
-        // const plansResponse = await clubsApi.getMembershipPlans(club.id, token);
+        const tg = window.Telegram?.WebApp;
+        const token = tg?.initData || null;
         
-        // Mock data for demo
-        const mockSections: Section[] = [
-          { id: 1, name: 'Футбол', description: 'Тренировки по футболу для всех возрастов' },
-          { id: 2, name: 'Баскетбол', description: 'Профессиональные занятия баскетболом' },
-          { id: 3, name: 'Волейбол', description: 'Волейбольная секция' },
-          { id: 4, name: 'Фитнес', description: 'Общая физическая подготовка' },
-        ];
+        const response = await clubsApi.getById(club.id, token);
+        const details: ClubDetailResponse = response.data;
+        
+        // Map sections
+        const mappedSections: Section[] = details.sections.map((s: ClubSectionResponse) => ({
+          id: s.id,
+          name: s.name,
+          description: s.description,
+        }));
 
-        const mockPlans: MembershipPlan[] = [
-          {
-            id: 1,
-            name: 'Стартовый',
-            type: 'monthly',
-            price: 15000,
-            duration_days: 30,
-            description: 'Базовый абонемент на месяц',
-            features: ['8 тренировок', 'Доступ к раздевалкам', 'Консультация тренера'],
-          },
-          {
-            id: 2,
-            name: 'Оптимальный',
-            type: 'monthly',
-            price: 25000,
-            duration_days: 30,
-            description: 'Расширенный абонемент',
-            features: ['12 тренировок', 'Доступ к раздевалкам', 'Персональная программа', 'Заморозка до 5 дней'],
-          },
-          {
-            id: 3,
-            name: 'Безлимит',
-            type: 'monthly',
-            price: 40000,
-            duration_days: 30,
-            description: 'Неограниченное посещение',
-            features: ['Безлимитные тренировки', 'Все секции', 'Персональный тренер', 'Заморозка до 10 дней', 'Гостевой визит'],
-          },
-          {
-            id: 4,
-            name: 'Квартальный',
-            type: 'quarterly',
-            price: 100000,
-            duration_days: 90,
-            description: '3 месяца со скидкой',
-            features: ['Безлимитные тренировки', 'Все секции', 'Персональный тренер', 'Заморозка до 20 дней'],
-          },
-        ];
+        // Map tariffs to membership plans
+        const mappedPlans: MembershipPlan[] = details.tariffs.map((t: ClubTariffResponse) => ({
+          id: t.id,
+          name: t.name,
+          type: t.payment_type,
+          price: t.price,
+          duration_days: t.duration_days,
+          description: t.description,
+          features: t.features || [],
+        }));
 
-        setSections(mockSections);
-        setMembershipPlans(mockPlans);
+        setSections(mappedSections);
+        setMembershipPlans(mappedPlans);
       } catch (error) {
         console.error('Failed to load club details:', error);
+        setSections([]);
+        setMembershipPlans([]);
       } finally {
         setLoading(false);
       }
@@ -125,6 +102,21 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, isMemb
     }).format(price);
   };
 
+  const getPlanDuration = (plan: MembershipPlan) => {
+    if (plan.duration_days) {
+      if (plan.duration_days === 30) return '1 месяц';
+      if (plan.duration_days === 90) return '3 месяца';
+      if (plan.duration_days === 180) return '6 месяцев';
+      if (plan.duration_days === 365) return '1 год';
+      return `${plan.duration_days} дней`;
+    }
+    if (plan.type === 'monthly') return '1 месяц';
+    if (plan.type === 'quarterly') return '3 месяца';
+    if (plan.type === 'semi_annual') return '6 месяцев';
+    if (plan.type === 'annual') return '1 год';
+    return plan.type;
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end sm:items-center justify-center">
       <div className="bg-white w-full sm:max-w-lg sm:rounded-xl rounded-t-xl max-h-[90vh] overflow-hidden flex flex-col">
@@ -150,13 +142,15 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, isMemb
                 <h3 className="text-md font-semibold text-gray-900 mb-3">{t('clubs.details.info')}</h3>
                 
                 <div className="space-y-3">
-                  <div className="flex items-start gap-3">
-                    <MapPin size={18} className="text-gray-400 mt-0.5" />
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">{t('clubs.details.address')}</p>
-                      <p className="text-sm text-gray-600">{club.address}</p>
+                  {club.address && (
+                    <div className="flex items-start gap-3">
+                      <MapPin size={18} className="text-gray-400 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">{t('clubs.details.address')}</p>
+                        <p className="text-sm text-gray-600">{club.address}</p>
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   {club.working_hours && (
                     <div className="flex items-start gap-3">
@@ -207,63 +201,77 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, isMemb
               </div>
 
               {/* Sections */}
-              <div className="mb-6">
-                <h3 className="text-md font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                  <Layers size={18} />
-                  {t('clubs.details.sections')}
-                </h3>
-                <div className="space-y-2">
-                  {sections.map((section) => (
-                    <Card key={section.id} className="p-3">
-                      <p className="font-medium text-gray-900">{section.name}</p>
-                      {section.description && (
-                        <p className="text-sm text-gray-500 mt-1">{section.description}</p>
-                      )}
-                    </Card>
-                  ))}
+              {sections.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-md font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <Layers size={18} />
+                    {t('clubs.details.sections')}
+                  </h3>
+                  <div className="space-y-2">
+                    {sections.map((section) => (
+                      <Card key={section.id} className="p-3">
+                        <p className="font-medium text-gray-900">{section.name}</p>
+                        {section.description && (
+                          <p className="text-sm text-gray-500 mt-1">{section.description}</p>
+                        )}
+                      </Card>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Membership Plans */}
-              <div>
-                <h3 className="text-md font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                  <CreditCard size={18} />
-                  {t('clubs.details.memberships')}
-                </h3>
-                <div className="space-y-3">
-                  {membershipPlans.map((plan) => (
-                    <Card key={plan.id} className="p-4">
-                      <div className="flex items-start justify-between mb-2">
-                        <div>
-                          <h4 className="font-semibold text-gray-900">{plan.name}</h4>
-                          <p className="text-xs text-gray-500">{plan.type === 'monthly' ? '1 месяц' : '3 месяца'}</p>
+              {membershipPlans.length > 0 && (
+                <div>
+                  <h3 className="text-md font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <CreditCard size={18} />
+                    {t('clubs.details.memberships')}
+                  </h3>
+                  <div className="space-y-3">
+                    {membershipPlans.map((plan) => (
+                      <Card key={plan.id} className="p-4">
+                        <div className="flex items-start justify-between mb-2">
+                          <div>
+                            <h4 className="font-semibold text-gray-900">{plan.name}</h4>
+                            <p className="text-xs text-gray-500">{getPlanDuration(plan)}</p>
+                          </div>
+                          <p className="text-lg font-bold text-blue-600">{formatPrice(plan.price)}</p>
                         </div>
-                        <p className="text-lg font-bold text-blue-600">{formatPrice(plan.price)}</p>
-                      </div>
-                      
-                      {plan.description && (
-                        <p className="text-sm text-gray-600 mb-3">{plan.description}</p>
-                      )}
+                        
+                        {plan.description && (
+                          <p className="text-sm text-gray-600 mb-3">{plan.description}</p>
+                        )}
 
-                      <ul className="space-y-1 mb-3">
-                        {plan.features.map((feature, index) => (
-                          <li key={index} className="text-sm text-gray-600 flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
-                            {feature}
-                          </li>
-                        ))}
-                      </ul>
+                        {plan.features.length > 0 && (
+                          <ul className="space-y-1 mb-3">
+                            {plan.features.map((feature, index) => (
+                              <li key={index} className="text-sm text-gray-600 flex items-center gap-2">
+                                <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                                {feature}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
 
-                      <button
-                        onClick={() => handlePurchase(plan)}
-                        className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
-                      >
-                        {t('clubs.details.purchase')}
-                      </button>
-                    </Card>
-                  ))}
+                        <button
+                          onClick={() => handlePurchase(plan)}
+                          className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
+                        >
+                          {t('clubs.details.purchase')}
+                        </button>
+                      </Card>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
+
+              {/* No plans message */}
+              {membershipPlans.length === 0 && sections.length === 0 && (
+                <div className="text-center py-8 text-gray-500">
+                  <p>Информация о тарифах недоступна</p>
+                  <p className="text-sm mt-2">Свяжитесь с клубом для получения информации</p>
+                </div>
+              )}
             </>
           )}
         </div>

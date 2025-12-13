@@ -4,14 +4,16 @@ import { Card } from '@/components/ui';
 import { useI18n } from '@/i18n/i18n';
 import { ChevronRight, CreditCard, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { paymentsApi } from '@/functions/axios/axiosFunctions';
+import type { PaymentResponse, PaymentStatus } from '@/functions/axios/responses';
 
 interface Payment {
   id: number;
-  club_name: string;
+  club_name: string | null;
   amount: number;
-  payment_date: string;
-  status: 'paid' | 'pending' | 'failed';
-  payment_method?: string;
+  payment_date: string | null;
+  status: PaymentStatus;
+  payment_method?: string | null;
 }
 
 export const PaymentHistorySection: React.FC = () => {
@@ -23,38 +25,22 @@ export const PaymentHistorySection: React.FC = () => {
   useEffect(() => {
     const loadPayments = async () => {
       try {
-        // TODO: Replace with actual API call
-        // const response = await studentsApi.getPayments(token);
-        // setPayments(response.data.slice(0, 5)); // Show last 5
+        const tg = window.Telegram?.WebApp;
+        const token = tg?.initData || null;
         
-        // Mock data for demo
-        const mockPayments: Payment[] = [
-          {
-            id: 1,
-            club_name: 'Спортивный клуб "Чемпион"',
-            amount: 15000,
-            payment_date: new Date().toISOString(),
-            status: 'paid',
-            payment_method: 'Kaspi',
-          },
-          {
-            id: 2,
-            club_name: 'Фитнес центр "Сила"',
-            amount: 12000,
-            payment_date: new Date(Date.now() - 7 * 86400000).toISOString(),
-            status: 'paid',
-            payment_method: 'Card',
-          },
-          {
-            id: 3,
-            club_name: 'Спортивный клуб "Чемпион"',
-            amount: 15000,
-            payment_date: new Date(Date.now() - 30 * 86400000).toISOString(),
-            status: 'paid',
-            payment_method: 'Kaspi',
-          },
-        ];
-        setPayments(mockPayments);
+        const response = await paymentsApi.getHistory(token, 1, 5);
+        
+        // Map API response to component format
+        const mappedPayments: Payment[] = response.data.payments.map((p: PaymentResponse) => ({
+          id: p.id,
+          club_name: p.club_name,
+          amount: p.amount,
+          payment_date: p.payment_date || p.created_at,
+          status: p.status,
+          payment_method: p.payment_method,
+        }));
+        
+        setPayments(mappedPayments);
       } catch (error) {
         console.error('Failed to load payments:', error);
         setPayments([]);
@@ -84,6 +70,8 @@ export const PaymentHistorySection: React.FC = () => {
       paid: t('payments.status.paid'),
       pending: t('payments.status.pending'),
       failed: t('payments.status.failed'),
+      refunded: 'Возвращён',
+      cancelled: 'Отменён',
     };
     return labels[status] || status;
   };
@@ -93,6 +81,8 @@ export const PaymentHistorySection: React.FC = () => {
       paid: 'text-green-600',
       pending: 'text-yellow-600',
       failed: 'text-red-600',
+      refunded: 'text-blue-600',
+      cancelled: 'text-gray-600',
     };
     return colors[status] || 'text-gray-600';
   };
@@ -137,12 +127,14 @@ export const PaymentHistorySection: React.FC = () => {
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
                   <CreditCard size={16} className="text-gray-400" />
-                  <h4 className="font-medium text-gray-900">{payment.club_name}</h4>
+                  <h4 className="font-medium text-gray-900">{payment.club_name || 'Клуб'}</h4>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Calendar size={14} />
-                  <span>{formatDate(payment.payment_date)}</span>
-                </div>
+                {payment.payment_date && (
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Calendar size={14} />
+                    <span>{formatDate(payment.payment_date)}</span>
+                  </div>
+                )}
               </div>
               <div className="text-right">
                 <p className="font-semibold text-gray-900">{formatAmount(payment.amount)}</p>

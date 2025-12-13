@@ -3,15 +3,17 @@ import { SectionHeader } from '@/components/Layout';
 import { Card } from '@/components/ui';
 import { useI18n } from '@/i18n/i18n';
 import { ChevronDown, ChevronUp, Calendar, MapPin, Users } from 'lucide-react';
+import { membershipsApi } from '@/functions/axios/axiosFunctions';
+import type { MembershipHistoryResponse } from '@/functions/axios/responses';
 
 interface MembershipHistory {
   id: number;
   club_name: string;
-  section_name?: string;
-  group_name?: string;
+  section_name?: string | null;
+  group_name?: string | null;
   training_type: 'Group' | 'Personal';
   deactivation_date: string;
-  reason: 'expired' | 'canceled';
+  reason: 'expired' | 'cancelled';
 }
 
 export const MembershipHistorySection: React.FC = () => {
@@ -23,31 +25,23 @@ export const MembershipHistorySection: React.FC = () => {
   useEffect(() => {
     const loadHistory = async () => {
       try {
-        // TODO: Replace with actual API call
-        // const response = await studentsApi.getMembershipHistory(token);
-        // setHistory(response.data);
+        const tg = window.Telegram?.WebApp;
+        const token = tg?.initData || null;
         
-        // Mock data for demo
-        const mockHistory: MembershipHistory[] = [
-          {
-            id: 1,
-            club_name: 'Бассейн "Волна"',
-            section_name: 'Плавание',
-            group_name: 'Взрослая группа',
-            training_type: 'Group',
-            deactivation_date: '2023-12-31',
-            reason: 'expired',
-          },
-          {
-            id: 2,
-            club_name: 'Теннисный клуб "Ас"',
-            section_name: 'Большой теннис',
-            training_type: 'Personal',
-            deactivation_date: '2023-11-15',
-            reason: 'canceled',
-          },
-        ];
-        setHistory(mockHistory);
+        const response = await membershipsApi.getHistory(token);
+        
+        // Map API response to component format
+        const mappedHistory: MembershipHistory[] = response.data.history.map((h: MembershipHistoryResponse) => ({
+          id: h.id,
+          club_name: h.club_name,
+          section_name: h.section_name,
+          group_name: h.group_name,
+          training_type: h.training_type,
+          deactivation_date: h.deactivation_date,
+          reason: h.reason,
+        }));
+        
+        setHistory(mappedHistory);
       } catch (error) {
         console.error('Failed to load membership history:', error);
         setHistory([]);

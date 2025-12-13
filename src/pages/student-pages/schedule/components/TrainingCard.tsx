@@ -51,8 +51,8 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
     }
   };
 
-  const isFull = training.current_participants >= training.max_participants;
-  const spotsLeft = training.max_participants - training.current_participants;
+  const isFull = training.max_participants !== null && training.current_participants >= training.max_participants;
+  const spotsLeft = training.max_participants !== null ? training.max_participants - training.current_participants : null;
 
   return (
     <Card className="p-4">
@@ -92,8 +92,8 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
         <div className="flex items-center gap-2 text-sm">
           <Users size={16} className="text-gray-400" />
           <span className={isFull ? 'text-red-600' : 'text-gray-600'}>
-            {training.current_participants}/{training.max_participants} {t('schedule.participants')}
-            {!isFull && spotsLeft <= 3 && (
+            {training.current_participants}/{training.max_participants ?? '∞'} {t('schedule.participants')}
+            {!isFull && spotsLeft !== null && spotsLeft <= 3 && (
               <span className="text-orange-500 ml-1">
                 ({spotsLeft} {t('schedule.spotsLeft')})
               </span>

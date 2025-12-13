@@ -6,6 +6,7 @@ import { clubsApi } from '@/functions/axios/axiosFunctions';
 export const LocationDistance: React.FC = () => {
   const { t } = useI18n();
   const [distance, setDistance] = useState<number | null>(null);
+  const [clubName, setClubName] = useState<string | null>(null);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -27,11 +28,11 @@ export const LocationDistance: React.FC = () => {
           calculateDistance();
         } else {
           setHasPermission(false);
+          setLoading(false);
         }
       } catch (error) {
         console.error('Error checking location permission:', error);
         setHasPermission(false);
-      } finally {
         setLoading(false);
       }
     };
@@ -51,76 +52,30 @@ export const LocationDistance: React.FC = () => {
           
           try {
             const response = await clubsApi.getNearest(userLat, userLon, token);
-            const clubLat = response.data.latitude;
-            const clubLon = response.data.longitude;
-
-          // Calculate distance using Haversine formula
-          const R = 6371e3; // Earth radius in meters
-          const φ1 = (userLat * Math.PI) / 180;
-          const φ2 = (clubLat * Math.PI) / 180;
-          const Δφ = ((clubLat - userLat) * Math.PI) / 180;
-          const Δλ = ((clubLon - userLon) * Math.PI) / 180;
-
-          const a =
-            Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-            Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-          const distanceInMeters = R * c;
-          setDistance(Math.round(distanceInMeters));
-          } catch (error) {
-            // API might not be ready yet, use mock distance for demo
-            console.warn('Clubs API not available yet, using mock distance:', error);
-            // Mock club location (Almaty center) for demo
-            const mockClubLat = 43.2220;
-            const mockClubLon = 76.8512;
             
-            // Calculate distance using Haversine formula
-            const R = 6371e3; // Earth radius in meters
-            const φ1 = (userLat * Math.PI) / 180;
-            const φ2 = (mockClubLat * Math.PI) / 180;
-            const Δφ = ((mockClubLat - userLat) * Math.PI) / 180;
-            const Δλ = ((mockClubLon - userLon) * Math.PI) / 180;
-
-            const a =
-              Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-              Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-            const distanceInMeters = R * c;
-            setDistance(Math.round(distanceInMeters));
+            if (response.data.club && response.data.distance_meters !== null) {
+              setDistance(Math.round(response.data.distance_meters));
+              setClubName(response.data.club.name);
+            } else {
+              setDistance(null);
+            }
+          } catch (error) {
+            console.warn('Clubs API not available:', error);
+            setDistance(null);
           }
         } catch (error) {
           console.error('Error calculating distance:', error);
+          setDistance(null);
+        } finally {
+          setLoading(false);
         }
       },
       (error) => {
         console.error('Error getting location:', error);
-        // For demo purposes, if geolocation fails, use mock location
-        if (error.code === error.PERMISSION_DENIED || error.code === error.POSITION_UNAVAILABLE) {
+        if (error.code === error.PERMISSION_DENIED) {
           setHasPermission(false);
-        } else {
-          // Use mock location for demo
-          const mockLat = 43.2389;
-          const mockLon = 76.8897;
-          const clubLat = 43.2220;
-          const clubLon = 76.8512;
-          
-          const R = 6371e3;
-          const φ1 = (mockLat * Math.PI) / 180;
-          const φ2 = (clubLat * Math.PI) / 180;
-          const Δφ = ((clubLat - mockLat) * Math.PI) / 180;
-          const Δλ = ((clubLon - mockLon) * Math.PI) / 180;
-
-          const a =
-            Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-            Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-          const distanceInMeters = R * c;
-          setDistance(Math.round(distanceInMeters));
-          setHasPermission(true);
         }
+        setLoading(false);
       },
       {
         enableHighAccuracy: true,
@@ -151,9 +106,17 @@ export const LocationDistance: React.FC = () => {
       <div className="flex items-center gap-2 text-sm text-gray-700">
         <MapPin size={16} className="text-blue-600" />
         <span>
-          {t('home.location.distance').replace('{distance}', formatDistance(distance))}
+          {clubName 
+            ? t('home.location.distance').replace('{distance}', formatDistance(distance))
+            : formatDistance(distance)
+          }
         </span>
       </div>
+      {clubName && (
+        <div className="text-xs text-gray-500 mt-1 ml-6">
+          {clubName}
+        </div>
+      )}
     </div>
   );
 };
