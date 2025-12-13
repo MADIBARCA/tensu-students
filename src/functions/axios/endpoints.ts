@@ -2,6 +2,7 @@
 export const ENDPOINTS = {
   STUDENTS: {
     BASE: '/students/',
+    CREATE: '/students/',
     ME: '/students/me',
     BY_ID: (userId: string) => `/students/${userId}`,
     BY_TELEGRAM: (telegramId: string) => `/students/by-telegram-id/${telegramId}`,

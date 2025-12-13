@@ -35,6 +35,9 @@ export const studentsApi = {
   getMe: (token: string | null) =>
     axiosRequest<StudentResponse>(ENDPOINTS.STUDENTS.ME, 'GET', token),
 
+  create: (data: { contact_init_data: string; preferences?: Record<string, unknown> }, token: string) =>
+    axiosRequest<StudentResponse>(ENDPOINTS.STUDENTS.CREATE, 'POST', token, data),
+
   updateMe: (data: UpdateStudentRequest, token: string) =>
     axiosRequest<StudentResponse>(ENDPOINTS.STUDENTS.ME, 'PUT', token, data),
 

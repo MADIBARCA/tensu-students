@@ -9,21 +9,35 @@ export type TelegramUser = {
   last_name?: string;
   username?: string;
   phone_number?: string;
+  language_code?: string;
 };
+
+export interface TelegramContactResult {
+  response: string;
+  responseUnsafe?: {
+    contact?: {
+      phone_number?: string;
+      first_name?: string;
+      last_name?: string;
+      user_id?: number;
+    };
+  };
+}
 
 declare global {
   interface Window {
     Telegram?: {
       WebApp: {
-        isVersionAtLeast(arg0: string): unknown;
-        disableVerticalSwipes(): unknown;
-        expand(): unknown;
+        isVersionAtLeast(version: string): boolean;
+        disableVerticalSwipes(): void;
+        expand(): void;
         initData: string;
         initDataUnsafe: { user: TelegramUser };
         ready: () => void;
         sendData: (data: string) => void;
         showAlert: (message: string) => void;
         openLink?: (url: string, options?: { try_instant_view?: boolean }) => void;
+        requestContact: (callback: (granted: boolean, result: TelegramContactResult) => void) => void;
       };
     };
   }
@@ -52,5 +66,15 @@ export function useTelegram() {
     tg.sendData(JSON.stringify(payload));
   }, []);
 
-  return { user, sendData };
+  const requestContact = useCallback((callback: (granted: boolean, result: TelegramContactResult) => void) => {
+    const tg = window.Telegram?.WebApp;
+    if (!tg?.requestContact) {
+      console.error('❌ requestContact is not available');
+      callback(false, { response: '' });
+      return;
+    }
+    tg.requestContact(callback);
+  }, []);
+
+  return { user, sendData, requestContact };
 }
