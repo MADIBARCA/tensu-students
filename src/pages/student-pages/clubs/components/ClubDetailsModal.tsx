@@ -465,7 +465,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, isMemb
                           <p className="text-2xl font-bold text-blue-600">{formatPrice(plan.price)}</p>
                           {plan.duration_days && plan.duration_days >= 30 && (
                             <p className="text-xs text-gray-400">
-                              {formatPrice(Math.round(plan.price / (plan.duration_days / 30))}{t('clubs.details.perMonth')}
+                              {formatPrice(Math.round(plan.price / (plan.duration_days / 30)))}{t('clubs.details.perMonth')}
                             </p>
                           )}
                         </div>
