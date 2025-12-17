@@ -1,8 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useI18n } from '@/i18n/i18n';
-import { X, CreditCard, Check, AlertCircle, Loader2 } from 'lucide-react';
+import { 
+  X, 
+  CreditCard, 
+  Check, 
+  AlertCircle, 
+  Loader2, 
+  Lock, 
+  Calendar, 
+  Building2,
+  Sparkles,
+  ShieldCheck
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { paymentsApi } from '@/functions/axios/axiosFunctions';
 import type { Club } from '../ClubsPage';
 
 interface MembershipPlan {
@@ -39,11 +49,12 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>('idle');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
 
   const formatCardNumber = (value: string) => {
     const cleaned = value.replace(/\D/g, '');
     const formatted = cleaned.match(/.{1,4}/g)?.join(' ') || cleaned;
-    return formatted.slice(0, 19); // Max 16 digits + 3 spaces
+    return formatted.slice(0, 19);
   };
 
   const formatExpiry = (value: string) => {
@@ -53,6 +64,17 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
     }
     return cleaned;
   };
+
+  // Detect card brand based on number
+  const getCardBrand = (number: string) => {
+    const cleaned = number.replace(/\s/g, '');
+    if (cleaned.startsWith('4')) return 'visa';
+    if (/^5[1-5]/.test(cleaned) || /^2[2-7]/.test(cleaned)) return 'mastercard';
+    if (cleaned.startsWith('62')) return 'unionpay';
+    return null;
+  };
+
+  const cardBrand = getCardBrand(cardNumber);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -101,30 +123,20 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
     setPaymentError(null);
 
     try {
-      const tg = window.Telegram?.WebApp;
-      const token = tg?.initData || null;
+      // Mock payment processing - simulates API call
+      // This can be easily replaced with real payment API integration
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Initiate payment through our API
-      const response = await paymentsApi.initiate({
-        club_id: club.id,
-        tariff_id: plan.id,
-        payment_method: 'card',
-      }, token);
+      // Simulate successful payment
+      // In production, replace this with actual payment API call:
+      // const response = await paymentsApi.initiate({
+      //   club_id: club.id,
+      //   tariff_id: plan.id,
+      //   payment_method: 'card',
+      // }, token);
       
-      // If we get a redirect URL, we'd normally redirect to it
-      // For now, simulate success
-      if (response.data.payment_id) {
-        // Simulate payment processing
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        setPaymentStatus('success');
-        
-        // Auto redirect after 3 seconds
-        setTimeout(() => {
-          navigate('/student/profile');
-        }, 3000);
-      } else {
-        throw new Error('Payment initiation failed');
-      }
+      setPaymentStatus('success');
+      setShowSuccessAnimation(true);
     } catch (error) {
       console.error('Payment error:', error);
       setPaymentStatus('error');
@@ -140,147 +152,294 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
     }).format(price);
   };
 
-  // Success Screen
+  const getPlanDuration = (plan: MembershipPlan) => {
+    if (plan.duration_days) {
+      if (plan.duration_days === 30) return t('clubs.details.duration.month');
+      if (plan.duration_days === 90) return t('clubs.details.duration.quarter');
+      if (plan.duration_days === 180) return t('clubs.details.duration.halfYear');
+      if (plan.duration_days === 365) return t('clubs.details.duration.year');
+      return t('clubs.details.duration.days', { days: plan.duration_days });
+    }
+    return plan.type;
+  };
+
+  // Auto redirect after success
+  useEffect(() => {
+    if (paymentStatus === 'success') {
+      const timer = setTimeout(() => {
+        navigate('/student/profile');
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [paymentStatus, navigate]);
+
+  // Success Screen with celebration
   if (paymentStatus === 'success') {
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center p-4">
-        <div className="bg-white w-full max-w-md rounded-xl p-6 text-center">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Check size={32} className="text-green-600" />
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+        <div 
+          className="bg-white w-full max-w-md rounded-2xl p-6 text-center relative overflow-hidden"
+          style={{ animation: 'fadeIn 0.3s ease-out' }}
+        >
+          {/* Confetti-like decorations */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            {showSuccessAnimation && (
+              <>
+                <div className="absolute top-4 left-8 w-3 h-3 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
+                <div className="absolute top-8 right-12 w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
+                <div className="absolute top-12 left-16 w-2 h-2 bg-amber-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                <div className="absolute top-6 right-8 w-3 h-3 bg-violet-400 rounded-full animate-bounce" style={{ animationDelay: '0.15s' }} />
+                <div className="absolute top-16 left-6 w-2 h-2 bg-rose-400 rounded-full animate-bounce" style={{ animationDelay: '0.25s' }} />
+                <div className="absolute top-20 right-16 w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '0.3s' }} />
+              </>
+            )}
           </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            {t('clubs.payment.success.title')}
-          </h2>
-          <p className="text-gray-600 mb-6">
-            {t('clubs.payment.success.description')}
-          </p>
-          <button
-            onClick={() => navigate('/student/profile')}
-            className="w-full px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
+          
+          {/* Success icon with animation */}
+          <div 
+            className="w-20 h-20 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-5 shadow-lg shadow-emerald-200"
+            style={{ animation: 'scaleIn 0.5s ease-out' }}
           >
-            {t('clubs.payment.success.button')}
-          </button>
-          <p className="text-sm text-gray-500 mt-3">
-            {t('clubs.payment.success.redirect')}
-          </p>
+            <Check size={40} className="text-white" strokeWidth={3} />
+          </div>
+          
+          <div style={{ animation: 'slideUp 0.4s ease-out 0.2s both' }}>
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <Sparkles size={20} className="text-amber-500" />
+              <h2 className="text-xl font-bold text-gray-900">
+                {t('clubs.payment.success.title')}
+              </h2>
+              <Sparkles size={20} className="text-amber-500" />
+            </div>
+            
+            <p className="text-gray-600 mb-6">
+              {t('clubs.payment.success.description')}
+            </p>
+
+            {/* Purchase summary */}
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 mb-6 text-left">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                  <Building2 size={18} className="text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500">{t('clubs.payment.club')}</p>
+                  <p className="font-semibold text-gray-900">{club.name}</p>
+                </div>
+              </div>
+              <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+                <div>
+                  <p className="text-xs text-gray-500">{t('clubs.payment.membership')}</p>
+                  <p className="font-medium text-gray-900">{plan.name}</p>
+                </div>
+                <p className="text-lg font-bold text-emerald-600">{formatPrice(plan.price)}</p>
+              </div>
+            </div>
+            
+            <button
+              onClick={() => navigate('/student/profile')}
+              className="w-full px-4 py-3.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all font-semibold shadow-lg shadow-blue-200"
+            >
+              {t('clubs.payment.success.button')}
+            </button>
+            
+            <p className="text-sm text-gray-400 mt-3 flex items-center justify-center gap-1">
+              <Loader2 size={14} className="animate-spin" />
+              {t('clubs.payment.success.redirect')}
+            </p>
+          </div>
         </div>
+        
+        <style>{`
+          @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
+          @keyframes scaleIn {
+            from { transform: scale(0); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+          }
+          @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+          }
+        `}</style>
       </div>
     );
   }
 
-  // Error handling
+  // Error Screen
   if (paymentStatus === 'error') {
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center p-4">
-        <div className="bg-white w-full max-w-md rounded-xl p-6 text-center">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <AlertCircle size={32} className="text-red-600" />
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+        <div className="bg-white w-full max-w-md rounded-2xl p-6 text-center">
+          <div className="w-20 h-20 bg-gradient-to-br from-red-100 to-red-200 rounded-full flex items-center justify-center mx-auto mb-5">
+            <AlertCircle size={40} className="text-red-500" />
           </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+          <h2 className="text-xl font-bold text-gray-900 mb-2">
             {t('clubs.payment.error.title')}
           </h2>
           <p className="text-gray-600 mb-6">
             {paymentError || t('clubs.payment.error.description')}
           </p>
-          <button
-            onClick={() => setPaymentStatus('idle')}
-            className="w-full px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
-          >
-            {t('clubs.payment.error.retry')}
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={onClose}
+              className="flex-1 px-4 py-3 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium"
+            >
+              {t('clubs.payment.cancel')}
+            </button>
+            <button
+              onClick={() => setPaymentStatus('idle')}
+              className="flex-1 px-4 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors font-medium"
+            >
+              {t('clubs.payment.error.retry')}
+            </button>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center p-4">
-      <div className="bg-white w-full max-w-md rounded-xl overflow-hidden relative">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+      <div 
+        className="bg-white w-full max-w-md rounded-2xl overflow-hidden relative shadow-2xl"
+        style={{ animation: 'modalSlide 0.3s ease-out' }}
+      >
         {/* Processing Overlay */}
         {paymentStatus === 'processing' && (
-          <div className="absolute inset-0 bg-white bg-opacity-90 z-10 flex flex-col items-center justify-center">
-            <Loader2 size={48} className="text-blue-500 animate-spin mb-4" />
-            <p className="text-gray-700 font-medium">{t('clubs.payment.processing')}</p>
+          <div className="absolute inset-0 bg-white/95 z-10 flex flex-col items-center justify-center">
+            <div className="relative">
+              <div className="w-16 h-16 border-4 border-blue-100 rounded-full" />
+              <div className="absolute inset-0 w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+            <p className="text-gray-700 font-medium mt-4">{t('clubs.payment.processing')}</p>
+            <p className="text-gray-400 text-sm mt-1">Не закрывайте это окно</p>
           </div>
         )}
 
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">{t('clubs.payment.title')}</h2>
+        <div className="bg-gradient-to-r from-blue-500 to-indigo-600 px-5 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Lock size={18} className="text-blue-100" />
+            <h2 className="text-lg font-semibold text-white">{t('clubs.payment.securePayment')}</h2>
+          </div>
           <button
             onClick={onClose}
             disabled={paymentStatus === 'processing'}
-            className="p-2 text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-50"
+            className="p-1.5 hover:bg-white/20 rounded-lg transition-colors disabled:opacity-50"
           >
-            <X size={20} />
+            <X size={20} className="text-white" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-4 max-h-[70vh] overflow-y-auto">
-          {/* Order Summary */}
-          <div className="mb-6 p-4 bg-blue-50 rounded-lg">
-            <div className="flex items-center justify-between mb-2">
-              <div>
-                <p className="text-sm text-gray-600">{t('clubs.payment.order')}</p>
-                <p className="font-semibold text-gray-900">{plan.name}</p>
-                <p className="text-xs text-gray-500">{club.name}</p>
+        <div className="p-5 max-h-[70vh] overflow-y-auto">
+          {/* Order Summary Card */}
+          <div className="mb-5 p-4 bg-gradient-to-br from-gray-50 to-blue-50/50 rounded-xl border border-blue-100">
+            <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">{t('clubs.payment.order')}</p>
+            
+            <div className="flex items-start gap-3">
+              <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center">
+                <CreditCard size={24} className="text-blue-500" />
               </div>
-              <div className="flex items-center gap-2">
-                <CreditCard size={24} className="text-blue-600" />
+              <div className="flex-1">
+                <p className="font-semibold text-gray-900">{plan.name}</p>
+                <p className="text-sm text-gray-500">{club.name}</p>
+                <div className="flex items-center gap-1 mt-1">
+                  <Calendar size={12} className="text-gray-400" />
+                  <span className="text-xs text-gray-400">{getPlanDuration(plan)}</span>
+                </div>
               </div>
             </div>
-            <div className="flex items-center justify-between pt-2 border-t border-blue-100">
-              <span className="font-medium text-gray-700">{t('clubs.payment.total')}</span>
-              <span className="text-xl font-bold text-blue-600">{formatPrice(plan.price)}</span>
+            
+            <div className="flex items-center justify-between mt-4 pt-3 border-t border-blue-100">
+              <span className="font-medium text-gray-600">{t('clubs.payment.total')}</span>
+              <span className="text-2xl font-bold text-blue-600">{formatPrice(plan.price)}</span>
             </div>
           </div>
 
-          {/* Payment Form */}
+          {/* Card Form */}
           <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-4">
+              <CreditCard size={18} className="text-gray-400" />
+              <p className="text-sm font-medium text-gray-700">{t('clubs.payment.cardInfo')}</p>
+            </div>
+
+            {/* Card Holder Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('clubs.payment.customerName')} *
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                {t('clubs.payment.customerName')}
               </label>
               <input
                 type="text"
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
-                placeholder="Иван Иванов"
-                className={`w-full border rounded-lg p-3 ${
-                  errors.customerName ? 'border-red-500' : 'border-gray-200'
+                placeholder="IVAN IVANOV"
+                className={`w-full border-2 rounded-xl p-3.5 transition-all focus:outline-none focus:ring-0 uppercase ${
+                  errors.customerName 
+                    ? 'border-red-300 focus:border-red-500 bg-red-50' 
+                    : 'border-gray-200 focus:border-blue-500'
                 }`}
                 disabled={paymentStatus === 'processing'}
               />
               {errors.customerName && (
-                <p className="text-red-500 text-xs mt-1">{errors.customerName}</p>
+                <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
+                  <AlertCircle size={12} />
+                  {errors.customerName}
+                </p>
               )}
             </div>
 
+            {/* Card Number */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('clubs.payment.cardNumber')} *
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                {t('clubs.payment.cardNumber')}
               </label>
-              <input
-                type="text"
-                value={cardNumber}
-                onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
-                placeholder="0000 0000 0000 0000"
-                maxLength={19}
-                className={`w-full border rounded-lg p-3 ${
-                  errors.cardNumber ? 'border-red-500' : 'border-gray-200'
-                }`}
-                disabled={paymentStatus === 'processing'}
-              />
+              <div className="relative">
+                <input
+                  type="text"
+                  value={cardNumber}
+                  onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
+                  placeholder="0000 0000 0000 0000"
+                  maxLength={19}
+                  className={`w-full border-2 rounded-xl p-3.5 pr-14 transition-all focus:outline-none focus:ring-0 font-mono ${
+                    errors.cardNumber 
+                      ? 'border-red-300 focus:border-red-500 bg-red-50' 
+                      : 'border-gray-200 focus:border-blue-500'
+                  }`}
+                  disabled={paymentStatus === 'processing'}
+                />
+                {/* Card brand icon */}
+                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                  {cardBrand === 'visa' && (
+                    <div className="text-[#1A1F71] font-bold text-lg italic">VISA</div>
+                  )}
+                  {cardBrand === 'mastercard' && (
+                    <div className="flex">
+                      <div className="w-5 h-5 bg-red-500 rounded-full -mr-2" />
+                      <div className="w-5 h-5 bg-amber-400 rounded-full opacity-80" />
+                    </div>
+                  )}
+                  {!cardBrand && cardNumber.length === 0 && (
+                    <CreditCard size={20} className="text-gray-300" />
+                  )}
+                </div>
+              </div>
               {errors.cardNumber && (
-                <p className="text-red-500 text-xs mt-1">{errors.cardNumber}</p>
+                <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
+                  <AlertCircle size={12} />
+                  {errors.cardNumber}
+                </p>
               )}
             </div>
 
+            {/* Expiry & CVV */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {t('clubs.payment.expiry')} *
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  {t('clubs.payment.expiry')}
                 </label>
                 <input
                   type="text"
@@ -288,34 +447,53 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
                   onChange={(e) => setExpiryDate(formatExpiry(e.target.value))}
                   placeholder="MM/YY"
                   maxLength={5}
-                  className={`w-full border rounded-lg p-3 ${
-                    errors.expiryDate ? 'border-red-500' : 'border-gray-200'
+                  className={`w-full border-2 rounded-xl p-3.5 transition-all focus:outline-none focus:ring-0 font-mono text-center ${
+                    errors.expiryDate 
+                      ? 'border-red-300 focus:border-red-500 bg-red-50' 
+                      : 'border-gray-200 focus:border-blue-500'
                   }`}
                   disabled={paymentStatus === 'processing'}
                 />
                 {errors.expiryDate && (
-                  <p className="text-red-500 text-xs mt-1">{errors.expiryDate}</p>
+                  <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
+                    <AlertCircle size={12} />
+                    {errors.expiryDate}
+                  </p>
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  CVV *
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  CVV
                 </label>
-                <input
-                  type="text"
-                  value={cvv}
-                  onChange={(e) => setCvv(e.target.value.replace(/\D/g, '').slice(0, 3))}
-                  placeholder="123"
-                  maxLength={3}
-                  className={`w-full border rounded-lg p-3 ${
-                    errors.cvv ? 'border-red-500' : 'border-gray-200'
-                  }`}
-                  disabled={paymentStatus === 'processing'}
-                />
+                <div className="relative">
+                  <input
+                    type="password"
+                    value={cvv}
+                    onChange={(e) => setCvv(e.target.value.replace(/\D/g, '').slice(0, 3))}
+                    placeholder="•••"
+                    maxLength={3}
+                    className={`w-full border-2 rounded-xl p-3.5 transition-all focus:outline-none focus:ring-0 font-mono text-center ${
+                      errors.cvv 
+                        ? 'border-red-300 focus:border-red-500 bg-red-50' 
+                        : 'border-gray-200 focus:border-blue-500'
+                    }`}
+                    disabled={paymentStatus === 'processing'}
+                  />
+                  <Lock size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300" />
+                </div>
                 {errors.cvv && (
-                  <p className="text-red-500 text-xs mt-1">{errors.cvv}</p>
+                  <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
+                    <AlertCircle size={12} />
+                    {errors.cvv}
+                  </p>
                 )}
               </div>
+            </div>
+
+            {/* Security badge */}
+            <div className="flex items-center justify-center gap-2 py-2">
+              <ShieldCheck size={16} className="text-emerald-500" />
+              <span className="text-xs text-gray-500">Данные защищены шифрованием SSL</span>
             </div>
           </div>
 
@@ -324,20 +502,34 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
             <button
               onClick={onClose}
               disabled={paymentStatus === 'processing'}
-              className="flex-1 px-4 py-3 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium disabled:opacity-50"
+              className="flex-1 px-4 py-3.5 border-2 border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-all font-medium disabled:opacity-50"
             >
               {t('clubs.payment.cancel')}
             </button>
             <button
               onClick={handlePayment}
               disabled={!isFormValid() || paymentStatus === 'processing'}
-              className="flex-1 px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-4 py-3.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-200 disabled:shadow-none flex items-center justify-center gap-2"
             >
+              <Lock size={16} />
               {t('clubs.payment.pay')}
             </button>
           </div>
         </div>
       </div>
+      
+      <style>{`
+        @keyframes modalSlide {
+          from {
+            transform: translateY(20px);
+            opacity: 0;
+          }
+          to {
+            transform: translateY(0);
+            opacity: 1;
+          }
+        }
+      `}</style>
     </div>
   );
 };
