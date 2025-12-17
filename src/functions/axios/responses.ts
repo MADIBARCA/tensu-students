@@ -221,6 +221,21 @@ export interface CancelBookingResponse {
   message: string;
 }
 
+export interface ParticipantResponse {
+  id: number;
+  first_name: string;
+  last_name: string | null;
+  photo_url: string | null;
+  is_current_user: boolean;
+}
+
+export interface SessionParticipantsResponse {
+  lesson_id: number;
+  participants: ParticipantResponse[];
+  total: number;
+  max_participants: number | null;
+}
+
 export interface TrainerResponse {
   id: number;
   name: string;

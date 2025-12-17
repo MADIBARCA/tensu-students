@@ -41,6 +41,7 @@ export const ENDPOINTS = {
     BOOK: '/students/schedule/book',
     CANCEL: '/students/schedule/cancel',
     WAITLIST: '/students/schedule/waitlist',
+    PARTICIPANTS: (lessonId: number) => `/students/schedule/sessions/${lessonId}/participants`,
   },
 
   CLUBS: {

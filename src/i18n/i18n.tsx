@@ -208,6 +208,7 @@ const RU: Dict = {
   'schedule.participants.title': 'Участники тренировки',
   'schedule.participants.you': 'Вы',
   'schedule.participants.empty': 'Пока нет записавшихся',
+  'schedule.participants.beFirst': 'Станьте первым участником!',
   'schedule.participants.count': '{current} из {max} участников',
   // Onboarding
   'onboarding.welcome': 'Добро пожаловать',
@@ -429,6 +430,7 @@ const KK: Dict = {
   'schedule.participants.title': 'Жаттығу қатысушылары',
   'schedule.participants.you': 'Сіз',
   'schedule.participants.empty': 'Әзірге жазылғандар жоқ',
+  'schedule.participants.beFirst': 'Бірінші қатысушы болыңыз!',
   'schedule.participants.count': '{max} қатысушының {current}',
   // Onboarding
   'onboarding.welcome': 'Қош келдіңіз',

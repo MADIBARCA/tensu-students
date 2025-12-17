@@ -28,6 +28,7 @@ import type {
   TrainerResponse,
   BookSessionResponse,
   CancelBookingResponse,
+  SessionParticipantsResponse,
   ClubDetailResponse,
   ClubListResponse,
   NearestClubResponse,
@@ -209,6 +210,13 @@ export const scheduleApi = {
       'POST',
       token,
       { lesson_id: lessonId }
+    ),
+
+  getParticipants: (lessonId: number, token: string | null) =>
+    axiosRequest<SessionParticipantsResponse>(
+      ENDPOINTS.SCHEDULE.PARTICIPANTS(lessonId),
+      'GET',
+      token
     ),
 };
 
