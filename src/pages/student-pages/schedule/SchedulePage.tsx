@@ -1,14 +1,16 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Layout, PageContainer } from '@/components/Layout';
 import { useI18n } from '@/i18n/i18n';
-import { Filter, List, CalendarDays, X } from 'lucide-react';
+import { Filter, List, CalendarDays, X, CreditCard, ShoppingBag } from 'lucide-react';
 import { TrainingCard } from './components/TrainingCard';
 import { CalendarView } from './components/CalendarView';
 import { FiltersModal } from './components/FiltersModal';
 import { NoMembershipModal } from './components/NoMembershipModal';
 import { ParticipantsModal } from './components/ParticipantsModal';
+import { Card } from '@/components/ui';
 import { scheduleApi, membershipsApi, clubsApi } from '@/functions/axios/axiosFunctions';
-import type { SessionResponse, TrainerResponse, ClubResponse } from '@/functions/axios/responses';
+import type { SessionResponse, TrainerResponse, ClubResponse, MembershipResponse } from '@/functions/axios/responses';
 
 export interface Training {
   id: number;
@@ -48,6 +50,7 @@ export interface Filters {
 
 export default function SchedulePage() {
   const { t } = useI18n();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'list' | 'calendar'>('list');
   const [trainings, setTrainings] = useState<Training[]>([]);
   const [clubs, setClubs] = useState<Club[]>([]);
@@ -55,6 +58,7 @@ export default function SchedulePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hasActiveMembership, setHasActiveMembership] = useState(true);
+  const [membershipClubIds, setMembershipClubIds] = useState<Set<number>>(new Set());
 
   // Filters
   const [filters, setFilters] = useState<Filters>({
@@ -84,50 +88,62 @@ export default function SchedulePage() {
       const token = tg?.initData || null;
       
       // Load all data in parallel
-      const [sessionsResponse, trainersResponse, clubsResponse, membershipResponse] = await Promise.all([
+      const [sessionsResponse, trainersResponse, clubsResponse, membershipsResponse] = await Promise.all([
         scheduleApi.getSessions(token, 1, 100, { only_my_sessions: filters.sectionsType === 'my' }),
         scheduleApi.getTrainers(token),
         clubsApi.getAll(token, 1, 100),
-        membershipsApi.checkActive(token),
+        membershipsApi.getActive(token),
       ]);
 
-      // Map sessions to trainings
-      const mappedTrainings: Training[] = sessionsResponse.data.sessions.map((s: SessionResponse) => ({
-        id: s.id,
-        section_name: s.section_name,
-        group_name: s.group_name,
-        trainer_name: s.coach_name,
-        trainer_id: s.coach_id,
-        club_id: s.club_id,
-        club_name: s.club_name,
-        date: s.date,
-        time: s.time,
-        location: s.location || s.club_address,
-        max_participants: s.max_participants,
-        current_participants: s.participants_count,
-        participants: [],
-        notes: s.notes,
-        is_booked: s.is_booked,
-        is_in_waitlist: s.is_in_waitlist,
-      }));
+      // Extract club IDs from active memberships
+      const activeMembershipClubIds = new Set<number>(
+        membershipsResponse.data.memberships.map((m: MembershipResponse) => m.club_id)
+      );
+      setMembershipClubIds(activeMembershipClubIds);
+      setHasActiveMembership(activeMembershipClubIds.size > 0);
 
-      // Map clubs
-      const mappedClubs: Club[] = clubsResponse.data.clubs.map((c: ClubResponse) => ({
-        id: c.id,
-        name: c.name,
-      }));
+      // Map sessions to trainings - only include sessions from clubs with active memberships
+      const mappedTrainings: Training[] = sessionsResponse.data.sessions
+        .filter((s: SessionResponse) => activeMembershipClubIds.has(s.club_id))
+        .map((s: SessionResponse) => ({
+          id: s.id,
+          section_name: s.section_name,
+          group_name: s.group_name,
+          trainer_name: s.coach_name,
+          trainer_id: s.coach_id,
+          club_id: s.club_id,
+          club_name: s.club_name,
+          date: s.date,
+          time: s.time,
+          location: s.location || s.club_address,
+          max_participants: s.max_participants,
+          current_participants: s.participants_count,
+          participants: [],
+          notes: s.notes,
+          is_booked: s.is_booked,
+          is_in_waitlist: s.is_in_waitlist,
+        }));
 
-      // Map trainers
-      const mappedTrainers: Trainer[] = trainersResponse.data.map((t: TrainerResponse) => ({
-        id: t.id,
-        name: t.name,
-        club_id: t.club_id,
-      }));
+      // Map clubs - only include clubs with active memberships
+      const mappedClubs: Club[] = clubsResponse.data.clubs
+        .filter((c: ClubResponse) => activeMembershipClubIds.has(c.id))
+        .map((c: ClubResponse) => ({
+          id: c.id,
+          name: c.name,
+        }));
+
+      // Map trainers - only from clubs with memberships
+      const mappedTrainers: Trainer[] = trainersResponse.data
+        .filter((t: TrainerResponse) => t.club_id === null || activeMembershipClubIds.has(t.club_id))
+        .map((t: TrainerResponse) => ({
+          id: t.id,
+          name: t.name,
+          club_id: t.club_id,
+        }));
 
       setTrainings(mappedTrainings);
       setClubs(mappedClubs);
       setTrainers(mappedTrainers);
-      setHasActiveMembership(membershipResponse.data.has_active_membership);
     } catch (err) {
       console.error('Failed to load schedule:', err);
       setError(t('schedule.error'));
@@ -336,6 +352,44 @@ export default function SchedulePage() {
               {t('common.retry')}
             </button>
           </div>
+        </PageContainer>
+      </Layout>
+    );
+  }
+
+  // Show empty state if user has no active memberships
+  if (!hasActiveMembership) {
+    return (
+      <Layout title={t('nav.schedule')}>
+        <PageContainer>
+          <Card className="text-center py-10 px-6">
+            {/* Icon */}
+            <div className="w-20 h-20 bg-gradient-to-br from-orange-100 to-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <CreditCard size={40} className="text-orange-500" />
+            </div>
+
+            {/* Content */}
+            <h2 className="text-xl font-semibold text-gray-900 mb-3">
+              {t('schedule.noMembership.title')}
+            </h2>
+            <p className="text-gray-600 mb-8 max-w-xs mx-auto">
+              {t('schedule.noMembership.emptyDescription')}
+            </p>
+
+            {/* CTA Button */}
+            <button
+              onClick={() => navigate('/student/clubs')}
+              className="w-full max-w-xs mx-auto px-6 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors font-medium flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25"
+            >
+              <ShoppingBag size={20} />
+              {t('schedule.noMembership.buyButton')}
+            </button>
+
+            {/* Secondary info */}
+            <p className="mt-6 text-sm text-gray-500">
+              {t('schedule.noMembership.hint')}
+            </p>
+          </Card>
         </PageContainer>
       </Layout>
     );
