@@ -13,12 +13,11 @@ import {
   Award,
   CheckCircle2,
   ChevronRight,
-  Star,
   Building2
 } from 'lucide-react';
 import { PurchaseMembershipModal } from './PurchaseMembershipModal';
 import { clubsApi } from '@/functions/axios/axiosFunctions';
-import type { ClubDetailResponse, ClubSectionResponse, ClubTariffResponse } from '@/functions/axios/responses';
+import type { ClubDetailResponse, ClubSectionResponse, ClubTariffResponse, ClubCoachResponse } from '@/functions/axios/responses';
 import type { Club } from '../ClubsPage';
 
 interface Section {
@@ -38,26 +37,25 @@ interface MembershipPlan {
   sessions_count?: number | null;
 }
 
-// Mock trainer data - will be replaced with real API data
-interface Trainer {
+interface Coach {
   id: number;
-  name: string;
-  avatar_url?: string | null;
-  specialization?: string;
-  rating?: number;
+  first_name: string;
+  last_name: string | null;
+  photo_url: string | null;
+  specialization: string | null;
 }
 
 interface ClubDetailsModalProps {
   club: Club;
-  isMember: boolean;
+  isMember?: boolean;
   onClose: () => void;
 }
 
-export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, isMember: _isMember, onClose }) => {
+export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClose }) => {
   const { t } = useI18n();
   const [sections, setSections] = useState<Section[]>([]);
   const [membershipPlans, setMembershipPlans] = useState<MembershipPlan[]>([]);
-  const [trainers, setTrainers] = useState<Trainer[]>([]);
+  const [coaches, setCoaches] = useState<Coach[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<MembershipPlan | null>(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -91,22 +89,23 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, isMemb
           sessions_count: t.sessions_count,
         }));
 
-        // Mock trainers data - replace with real API when available
-        const mockTrainers: Trainer[] = [
-          { id: 1, name: 'Алексей Петров', specialization: 'Фитнес', rating: 4.9 },
-          { id: 2, name: 'Мария Иванова', specialization: 'Йога', rating: 4.8 },
-          { id: 3, name: 'Дмитрий Козлов', specialization: 'Бокс', rating: 4.7 },
-          { id: 4, name: 'Анна Сидорова', specialization: 'Пилатес', rating: 4.9 },
-        ];
+        // Map coaches from real API data
+        const mappedCoaches: Coach[] = (details.coaches || []).map((c: ClubCoachResponse) => ({
+          id: c.id,
+          first_name: c.first_name,
+          last_name: c.last_name,
+          photo_url: c.photo_url,
+          specialization: c.specialization,
+        }));
 
         setSections(mappedSections);
         setMembershipPlans(mappedPlans);
-        setTrainers(mockTrainers);
+        setCoaches(mappedCoaches);
       } catch (error) {
         console.error('Failed to load club details:', error);
         setSections([]);
         setMembershipPlans([]);
-        setTrainers([]);
+        setCoaches([]);
       } finally {
         setLoading(false);
       }
@@ -175,12 +174,19 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, isMemb
   };
 
   // Generate initials for avatar fallback
-  const getInitials = (name: string) => {
-    return name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+  const getCoachInitials = (coach: Coach) => {
+    const first = coach.first_name?.[0] || '';
+    const last = coach.last_name?.[0] || '';
+    return (first + last).toUpperCase() || '?';
+  };
+
+  // Get full name for coach
+  const getCoachFullName = (coach: Coach) => {
+    return [coach.first_name, coach.last_name].filter(Boolean).join(' ');
   };
 
   // Generate a consistent color based on name
-  const getAvatarColor = (name: string) => {
+  const getAvatarColor = (coach: Coach) => {
     const colors = [
       'bg-gradient-to-br from-blue-400 to-blue-600',
       'bg-gradient-to-br from-emerald-400 to-emerald-600',
@@ -189,6 +195,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, isMemb
       'bg-gradient-to-br from-rose-400 to-rose-600',
       'bg-gradient-to-br from-cyan-400 to-cyan-600',
     ];
+    const name = getCoachFullName(coach);
     const index = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % colors.length;
     return colors[index];
   };
@@ -248,10 +255,12 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, isMemb
               <Users size={14} className="text-emerald-600" />
               <span className="text-xs font-medium text-emerald-700">{t('clubs.details.studentsCount', { count: club.students_count })}</span>
             </div>
-            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-violet-50 rounded-full">
-              <Award size={14} className="text-violet-600" />
-              <span className="text-xs font-medium text-violet-700">{t('clubs.details.trainersCount', { count: trainers.length })}</span>
-            </div>
+            {coaches.length > 0 && (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-violet-50 rounded-full">
+                <Award size={14} className="text-violet-600" />
+                <span className="text-xs font-medium text-violet-700">{t('clubs.details.trainersCount', { count: coaches.length })}</span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -357,49 +366,45 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, isMemb
                 </div>
               )}
 
-              {/* Trainers Section */}
-              {trainers.length > 0 && (
+              {/* Coaches Section */}
+              {coaches.length > 0 && (
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
                       <Award size={16} className="text-violet-500" />
                       {t('clubs.details.trainers')}
                     </h3>
-                    <button className="text-xs text-blue-600 font-medium">
-                      {t('clubs.details.viewAll')}
-                    </button>
+                    {coaches.length > 4 && (
+                      <button className="text-xs text-blue-600 font-medium">
+                        {t('clubs.details.viewAll')}
+                      </button>
+                    )}
                   </div>
                   
                   <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-                    {trainers.map((trainer) => (
+                    {coaches.map((coach) => (
                       <div 
-                        key={trainer.id}
+                        key={coach.id}
                         className="flex-shrink-0 w-20 text-center"
                       >
-                        <div className={`w-16 h-16 mx-auto rounded-2xl ${getAvatarColor(trainer.name)} flex items-center justify-center shadow-md`}>
-                          {trainer.avatar_url ? (
+                        <div className={`w-16 h-16 mx-auto rounded-2xl ${getAvatarColor(coach)} flex items-center justify-center shadow-md overflow-hidden`}>
+                          {coach.photo_url ? (
                             <img 
-                              src={trainer.avatar_url} 
-                              alt={trainer.name}
-                              className="w-full h-full rounded-2xl object-cover"
+                              src={coach.photo_url} 
+                              alt={getCoachFullName(coach)}
+                              className="w-full h-full object-cover"
                             />
                           ) : (
                             <span className="text-white font-semibold text-lg">
-                              {getInitials(trainer.name)}
+                              {getCoachInitials(coach)}
                             </span>
                           )}
                         </div>
                         <p className="text-xs font-medium text-gray-900 mt-2 truncate">
-                          {trainer.name.split(' ')[0]}
+                          {coach.first_name}
                         </p>
-                        {trainer.rating && (
-                          <div className="flex items-center justify-center gap-0.5 mt-0.5">
-                            <Star size={10} className="text-amber-400 fill-amber-400" />
-                            <span className="text-[10px] text-gray-500">{trainer.rating}</span>
-                          </div>
-                        )}
-                        {trainer.specialization && (
-                          <p className="text-[10px] text-gray-400 truncate">{trainer.specialization}</p>
+                        {coach.specialization && (
+                          <p className="text-[10px] text-gray-400 truncate">{coach.specialization}</p>
                         )}
                       </div>
                     ))}

@@ -167,6 +167,13 @@ export interface InitiatePaymentResponse {
   external_id: string | null;
 }
 
+export interface CompletePaymentResponse {
+  success: boolean;
+  payment_id: number;
+  enrollment_id: number | null;
+  message: string;
+}
+
 export interface PaymentStatsResponse {
   total_paid: number;
   pending_payments: number;
@@ -210,6 +217,14 @@ export interface TrainerResponse {
 }
 
 // Club types
+export interface ClubCoachResponse {
+  id: number;
+  first_name: string;
+  last_name: string | null;
+  photo_url: string | null;
+  specialization: string | null;
+}
+
 export interface ClubSectionResponse {
   id: number;
   name: string;
@@ -249,6 +264,7 @@ export interface ClubResponse {
 export interface ClubDetailResponse extends ClubResponse {
   sections: ClubSectionResponse[];
   tariffs: ClubTariffResponse[];
+  coaches: ClubCoachResponse[];
 }
 
 export interface ClubListResponse {

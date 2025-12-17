@@ -13,6 +13,7 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { paymentsApi } from '@/functions/axios/axiosFunctions';
 import type { Club } from '../ClubsPage';
 
 interface MembershipPlan {
@@ -123,20 +124,31 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
     setPaymentError(null);
 
     try {
-      // Mock payment processing - simulates API call
-      // This can be easily replaced with real payment API integration
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Simulate successful payment
-      // In production, replace this with actual payment API call:
-      // const response = await paymentsApi.initiate({
-      //   club_id: club.id,
-      //   tariff_id: plan.id,
-      //   payment_method: 'card',
-      // }, token);
-      
-      setPaymentStatus('success');
-      setShowSuccessAnimation(true);
+      const tg = window.Telegram?.WebApp;
+      const token = tg?.initData || null;
+
+      // Step 1: Initiate payment - creates payment record with pending status
+      const initiateResponse = await paymentsApi.initiate({
+        club_id: club.id,
+        tariff_id: plan.id,
+        payment_method: 'card',
+      }, token);
+
+      const paymentId = initiateResponse.data.payment_id;
+
+      // Step 2: Simulate card processing delay (mock)
+      // In production, this would be replaced with actual payment gateway integration
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      // Step 3: Complete payment - marks as paid and creates enrollment
+      const completeResponse = await paymentsApi.complete(paymentId, token);
+
+      if (completeResponse.data.success) {
+        setPaymentStatus('success');
+        setShowSuccessAnimation(true);
+      } else {
+        throw new Error(completeResponse.data.message || 'Payment completion failed');
+      }
     } catch (error) {
       console.error('Payment error:', error);
       setPaymentStatus('error');

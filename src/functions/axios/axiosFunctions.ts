@@ -21,6 +21,7 @@ import type {
   AttendanceStatsResponse,
   PaymentListResponse,
   InitiatePaymentResponse,
+  CompletePaymentResponse,
   PaymentStatsResponse,
   SessionResponse,
   SessionListResponse,
@@ -140,6 +141,9 @@ export const paymentsApi = {
 
   initiate: (data: InitiatePaymentRequest, token: string | null) =>
     axiosRequest<InitiatePaymentResponse>(ENDPOINTS.PAYMENTS.INITIATE, 'POST', token, data),
+
+  complete: (paymentId: number, token: string | null) =>
+    axiosRequest<CompletePaymentResponse>(ENDPOINTS.PAYMENTS.COMPLETE, 'POST', token, { payment_id: paymentId }),
 
   getStats: (token: string | null) =>
     axiosRequest<PaymentStatsResponse>(ENDPOINTS.PAYMENTS.STATS, 'GET', token),

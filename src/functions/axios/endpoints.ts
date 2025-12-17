@@ -30,6 +30,7 @@ export const ENDPOINTS = {
   PAYMENTS: {
     BASE: '/students/payments/',
     INITIATE: '/students/payments/initiate',
+    COMPLETE: '/students/payments/complete',
     STATS: '/students/payments/stats',
   },
 
