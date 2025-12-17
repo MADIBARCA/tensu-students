@@ -58,7 +58,6 @@ export default function SchedulePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hasActiveMembership, setHasActiveMembership] = useState(true);
-  const [membershipClubIds, setMembershipClubIds] = useState<Set<number>>(new Set());
 
   // Filters
   const [filters, setFilters] = useState<Filters>({
@@ -99,7 +98,6 @@ export default function SchedulePage() {
       const activeMembershipClubIds = new Set<number>(
         membershipsResponse.data.memberships.map((m: MembershipResponse) => m.club_id)
       );
-      setMembershipClubIds(activeMembershipClubIds);
       setHasActiveMembership(activeMembershipClubIds.size > 0);
 
       // Map sessions to trainings - only include sessions from clubs with active memberships
