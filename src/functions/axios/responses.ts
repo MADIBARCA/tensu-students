@@ -210,6 +210,17 @@ export interface SessionListResponse {
   total: number;
 }
 
+export interface BookSessionResponse {
+  success: boolean;
+  message: string;
+  booking_id: number | null;
+}
+
+export interface CancelBookingResponse {
+  success: boolean;
+  message: string;
+}
+
 export interface TrainerResponse {
   id: number;
   name: string;

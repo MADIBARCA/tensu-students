@@ -38,6 +38,9 @@ export const ENDPOINTS = {
     NEXT: '/students/schedule/next',
     SESSIONS: '/students/schedule/sessions',
     TRAINERS: '/students/schedule/trainers',
+    BOOK: '/students/schedule/book',
+    CANCEL: '/students/schedule/cancel',
+    WAITLIST: '/students/schedule/waitlist',
   },
 
   CLUBS: {

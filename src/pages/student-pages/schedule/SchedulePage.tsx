@@ -184,84 +184,119 @@ export default function SchedulePage() {
   }, [filteredTrainings]);
 
   // Actions
-  const handleBook = (trainingId: number) => {
+  const handleBook = async (trainingId: number) => {
     if (!hasActiveMembership) {
       setShowNoMembershipModal(true);
       return;
     }
 
-    setTrainings(prev => prev.map(t => {
-      if (t.id === trainingId) {
-        return {
-          ...t,
-          is_booked: true,
-          current_participants: t.current_participants + 1,
-          participants: [...(t.participants || []), 'Вы'],
-        };
-      }
-      return t;
-    }));
-    
-    // Show success notification
     const tg = window.Telegram?.WebApp;
-    if (tg) {
-      tg.showAlert('Вы успешно записались на тренировку!');
+    const token = tg?.initData || null;
+
+    try {
+      const response = await scheduleApi.book(trainingId, token);
+      
+      if (response.data.success) {
+        // Update local state on success
+        setTrainings(prev => prev.map(t => {
+          if (t.id === trainingId) {
+            return {
+              ...t,
+              is_booked: true,
+              current_participants: t.current_participants + 1,
+              participants: [...(t.participants || []), 'Вы'],
+            };
+          }
+          return t;
+        }));
+        
+        if (tg) {
+          tg.showAlert(response.data.message || t('schedule.bookingSuccess'));
+        }
+      }
+    } catch (err: unknown) {
+      console.error('Failed to book training:', err);
+      if (tg) {
+        const errorMessage = err instanceof Error ? err.message : 
+          (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail || 
+          t('schedule.bookingError');
+        tg.showAlert(errorMessage);
+      }
     }
   };
 
-  const handleCancelBooking = (trainingId: number) => {
-    const training = trainings.find(t => t.id === trainingId);
+  const handleCancelBooking = async (trainingId: number) => {
+    const training = trainings.find(tr => tr.id === trainingId);
     if (!training) return;
 
-    // Check if less than 1 hour before training
-    const trainingDateTime = new Date(`${training.date}T${training.time}`);
-    const now = new Date();
-    const hoursDiff = (trainingDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
-
-    if (hoursDiff < 1) {
-      const tg = window.Telegram?.WebApp;
-      if (tg) {
-        tg.showAlert(t('schedule.cancelTooLate'));
-      }
-      return;
-    }
-
-    setTrainings(prev => prev.map(t => {
-      if (t.id === trainingId) {
-        return {
-          ...t,
-          is_booked: false,
-          current_participants: Math.max(0, t.current_participants - 1),
-          participants: (t.participants || []).filter(p => p !== 'Вы'),
-        };
-      }
-      return t;
-    }));
-    
-    // Show success notification
     const tg = window.Telegram?.WebApp;
-    if (tg) {
-      tg.showAlert('Запись на тренировку отменена');
+    const token = tg?.initData || null;
+
+    try {
+      const response = await scheduleApi.cancel(trainingId, token);
+      
+      if (response.data.success) {
+        // Update local state on success
+        setTrainings(prev => prev.map(tr => {
+          if (tr.id === trainingId) {
+            return {
+              ...tr,
+              is_booked: false,
+              current_participants: Math.max(0, tr.current_participants - 1),
+              participants: (tr.participants || []).filter(p => p !== 'Вы'),
+            };
+          }
+          return tr;
+        }));
+        
+        if (tg) {
+          tg.showAlert(response.data.message || t('schedule.cancelSuccess'));
+        }
+      }
+    } catch (err: unknown) {
+      console.error('Failed to cancel booking:', err);
+      if (tg) {
+        const errorMessage = err instanceof Error ? err.message : 
+          (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail || 
+          t('schedule.cancelError');
+        tg.showAlert(errorMessage);
+      }
     }
   };
 
-  const handleWaitlist = (trainingId: number) => {
+  const handleWaitlist = async (trainingId: number) => {
     if (!hasActiveMembership) {
       setShowNoMembershipModal(true);
       return;
     }
 
-    setTrainings(prev => prev.map(t => {
-      if (t.id === trainingId) {
-        return { ...t, is_in_waitlist: true };
-      }
-      return t;
-    }));
-    
-    // Show success notification
     const tg = window.Telegram?.WebApp;
-    if (tg) {
-      tg.showAlert('Вы добавлены в лист ожидания');
+    const token = tg?.initData || null;
+
+    try {
+      const response = await scheduleApi.joinWaitlist(trainingId, token);
+      
+      if (response.data.success) {
+        // Update local state on success
+        setTrainings(prev => prev.map(tr => {
+          if (tr.id === trainingId) {
+            return { ...tr, is_in_waitlist: true };
+          }
+          return tr;
+        }));
+        
+        if (tg) {
+          tg.showAlert(response.data.message || t('schedule.waitlistSuccess'));
+        }
+      }
+    } catch (err: unknown) {
+      console.error('Failed to join waitlist:', err);
+      if (tg) {
+        const errorMessage = err instanceof Error ? err.message : 
+          (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail || 
+          t('schedule.waitlistError');
+        tg.showAlert(errorMessage);
+      }
     }
   };
 

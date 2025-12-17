@@ -113,23 +113,33 @@ export const NextSessionsSection: React.FC = () => {
   };
 
   const handleBookSession = async (sessionId: number) => {
+    const tg = window.Telegram?.WebApp;
+    const token = tg?.initData || null;
+    
     try {
-      // For now, just update local state
-      // In production, this would call a booking API
-      setSessions(prev => prev.map(s => 
-        s.id === sessionId ? { ...s, status: 'booked' as SessionStatus } : s
-      ));
+      const response = await scheduleApi.book(sessionId, token);
       
-      // Show success notification
-      const tg = window.Telegram?.WebApp;
-      if (tg) {
-        tg.showAlert('Вы успешно записались на тренировку!');
+      if (response.data.success) {
+        // Update local state on success
+        setSessions(prev => prev.map(s => 
+          s.id === sessionId ? { 
+            ...s, 
+            status: 'booked' as SessionStatus,
+            participants_count: s.participants_count + 1
+          } : s
+        ));
+        
+        if (tg) {
+          tg.showAlert(response.data.message || t('home.sessions.bookingSuccess'));
+        }
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Failed to book session:', error);
-      const tgApp = window.Telegram?.WebApp;
-      if (tgApp) {
-        tgApp.showAlert('Ошибка при записи на тренировку. Попробуйте еще раз.');
+      if (tg) {
+        const errorMessage = error instanceof Error ? error.message : 
+          (error as { response?: { data?: { detail?: string } } })?.response?.data?.detail || 
+          t('home.sessions.bookingError');
+        tg.showAlert(errorMessage);
       }
     }
   };

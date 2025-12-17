@@ -26,6 +26,8 @@ import type {
   SessionResponse,
   SessionListResponse,
   TrainerResponse,
+  BookSessionResponse,
+  CancelBookingResponse,
   ClubDetailResponse,
   ClubListResponse,
   NearestClubResponse,
@@ -183,6 +185,31 @@ export const scheduleApi = {
 
   getTrainers: (token: string | null) =>
     axiosRequest<TrainerResponse[]>(ENDPOINTS.SCHEDULE.TRAINERS, 'GET', token),
+
+  // Booking endpoints
+  book: (lessonId: number, token: string | null) =>
+    axiosRequest<BookSessionResponse>(
+      ENDPOINTS.SCHEDULE.BOOK,
+      'POST',
+      token,
+      { lesson_id: lessonId }
+    ),
+
+  cancel: (lessonId: number, token: string | null) =>
+    axiosRequest<CancelBookingResponse>(
+      ENDPOINTS.SCHEDULE.CANCEL,
+      'POST',
+      token,
+      { lesson_id: lessonId }
+    ),
+
+  joinWaitlist: (lessonId: number, token: string | null) =>
+    axiosRequest<BookSessionResponse>(
+      ENDPOINTS.SCHEDULE.WAITLIST,
+      'POST',
+      token,
+      { lesson_id: lessonId }
+    ),
 };
 
 // Legacy sessionsApi for backward compatibility
@@ -191,7 +218,7 @@ export const sessionsApi = {
     scheduleApi.getNext(token, 3),
   
   book: (sessionId: number, token: string | null) =>
-    axiosRequest<void>(`/students/schedule/sessions/${sessionId}/book`, 'POST', token),
+    scheduleApi.book(sessionId, token),
 };
 
 // Clubs API
