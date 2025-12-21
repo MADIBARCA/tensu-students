@@ -261,8 +261,8 @@ export interface ClubTariffResponse {
   id: number;
   name: string;
   description: string | null;
-  type: string;
-  payment_type: string;
+  type: string; // Package type: full_club, full_section, single_group, multiple_groups
+  payment_type: string; // Payment type: monthly, semi_annual, annual, session_pack
   price: number;
   duration_days: number | null;
   sessions_count: number | null;

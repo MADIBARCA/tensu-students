@@ -37,7 +37,8 @@ interface Section {
 interface MembershipPlan {
   id: number;
   name: string;
-  type: string;
+  type: string; // payment_type: monthly, semi_annual, annual, session_pack
+  packageType: string; // access type: full_club, full_section, single_group, multiple_groups
   price: number;
   duration_days: number | null;
   description?: string | null;
@@ -63,10 +64,12 @@ interface ClubDetailsModalProps {
 interface ActiveMembershipInfo {
   membershipId: number;
   tariffId: number;
+  startDate: string;
   endDate: string;
   status: string;
   tariffName: string | null;
   tariffType: string;
+  packageType: string;
   price: number;
   freezeDaysAvailable: number;
   freezeDaysUsed: number;
@@ -87,6 +90,8 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
   const [activeTab, setActiveTab] = useState<'info' | 'memberships'>('info');
   // Current active membership in this club (if any)
   const [activeMembershipForClub, setActiveMembershipForClub] = useState<ActiveMembershipInfo | null>(null);
+  // Track purchased plans during this session (to show "Will be active after...")
+  const [purchasedPlanIds, setPurchasedPlanIds] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     const loadClubDetails = async () => {
@@ -108,30 +113,33 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
           id: t.id,
           name: t.name,
           type: t.payment_type,
+          packageType: t.type, // full_club, full_section, single_group, multiple_groups
           price: t.price,
           duration_days: t.duration_days,
           description: t.description,
           features: t.features || [],
           sessions_count: t.sessions_count,
         }));
-        
+
         // Build map of active tariffs for this club
         const tariffMap = new Map<number, ActiveMembershipInfo>();
         let primaryActiveMembership: ActiveMembershipInfo | null = null;
-        
+
         activeMemberships.forEach((m: MembershipResponse) => {
           // Only consider memberships for this club that are active or frozen
           if (m.club_id === club.id && m.tariff_id && (m.status === 'active' || m.status === 'frozen' || m.status === 'new')) {
             // Find the plan to get features and type
             const plan = mappedPlans.find(p => p.id === m.tariff_id);
-            
+
             const membershipInfo: ActiveMembershipInfo = {
               membershipId: m.id,
               tariffId: m.tariff_id,
+              startDate: m.start_date,
               endDate: m.end_date,
               status: m.status,
               tariffName: m.tariff_name,
               tariffType: plan?.type || 'monthly',
+              packageType: plan?.packageType || 'single_group',
               price: m.price,
               freezeDaysAvailable: m.freeze_days_available,
               freezeDaysUsed: m.freeze_days_used,
@@ -198,6 +206,17 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
     setShowPaymentModal(true);
   };
 
+  const handlePurchaseSuccess = () => {
+    if (selectedPlan) {
+      // Track this plan as purchased
+      setPurchasedPlanIds(prev => new Set([...prev, selectedPlan.id]));
+    }
+    setShowPaymentModal(false);
+    setSelectedPlan(null);
+    // Reload membership data
+    handleFreezeSuccess();
+  };
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('ru-RU', {
       style: 'currency',
@@ -248,6 +267,22 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
     return [coach.first_name, coach.last_name].filter(Boolean).join(' ');
   };
 
+  // Get membership scope label based on package type
+  const getPackageTypeLabel = (packageType: string): string => {
+    switch (packageType) {
+      case 'full_club':
+        return t('clubs.membership.scope.fullClub');
+      case 'full_section':
+        return t('clubs.membership.scope.fullSection');
+      case 'single_group':
+        return t('clubs.membership.scope.singleGroup');
+      case 'multiple_groups':
+        return t('clubs.membership.scope.multipleGroups');
+      default:
+        return t('clubs.membership.scope.singleGroup');
+    }
+  };
+
   // Generate a consistent color based on name
   const getAvatarColor = (coach: Coach) => {
     const colors = [
@@ -266,37 +301,48 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
   // Categorize plans relative to active membership
   const categorizedPlans = useMemo(() => {
     if (!activeMembershipForClub) {
-      // No active membership - all plans are available
+      // No active membership - all plans are available (filter out purchased ones)
+      const purchased = membershipPlans.filter(p => purchasedPlanIds.has(p.id));
+      const available = membershipPlans.filter(p => !purchasedPlanIds.has(p.id));
       return {
         activePlan: null,
         upgrades: [],
-        alternatives: membershipPlans,
+        alternatives: available,
         sameLevel: [],
+        purchased,
       };
     }
 
     const activePrice = activeMembershipForClub.price;
     const activeType = activeMembershipForClub.tariffType;
     const activeTariffId = activeMembershipForClub.tariffId;
-    
+
     const activePlan = membershipPlans.find(p => p.id === activeTariffId) || null;
     const upgrades: MembershipPlan[] = [];
     const alternatives: MembershipPlan[] = [];
     const sameLevel: MembershipPlan[] = [];
+    const purchased: MembershipPlan[] = [];
 
     membershipPlans.forEach(plan => {
       // Skip the active plan itself
       if (plan.id === activeTariffId) return;
-      
+
+      // Check if this plan was purchased during this session
+      if (purchasedPlanIds.has(plan.id)) {
+        purchased.push(plan);
+        return;
+      }
+
       // Determine plan category
       const priceDiff = plan.price - activePrice;
       const isDifferentType = plan.type !== activeType;
-      
-      if (priceDiff > 0) {
-        // More expensive = upgrade
+      const isDifferentPackage = plan.packageType !== activeMembershipForClub.packageType;
+
+      if (priceDiff > 0 || isDifferentPackage) {
+        // More expensive or different package type = upgrade option
         upgrades.push(plan);
       } else if (isDifferentType) {
-        // Different type (e.g., monthly vs session_pack) = alternative format
+        // Different payment type (e.g., monthly vs session_pack) = alternative format
         alternatives.push(plan);
       } else if (Math.abs(priceDiff) < activePrice * 0.1) {
         // Similar price, same type = same level (don't show)
@@ -309,14 +355,15 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
 
     // Sort upgrades by price ascending
     upgrades.sort((a, b) => a.price - b.price);
-    
+
     return {
       activePlan,
       upgrades,
       alternatives,
       sameLevel,
+      purchased,
     };
-  }, [membershipPlans, activeMembershipForClub]);
+  }, [membershipPlans, activeMembershipForClub, purchasedPlanIds]);
 
   // Calculate days remaining
   const getDaysRemaining = (endDate: string) => {
@@ -342,21 +389,23 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
       const token = tg?.initData || null;
       const membershipsResponse = await membershipsApi.getActive(token);
       const activeMemberships: MembershipResponse[] = membershipsResponse.data.memberships || [];
-      
+
       const tariffMap = new Map<number, ActiveMembershipInfo>();
       let primaryActiveMembership: ActiveMembershipInfo | null = null;
-      
+
       activeMemberships.forEach((m: MembershipResponse) => {
         if (m.club_id === club.id && m.tariff_id && (m.status === 'active' || m.status === 'frozen' || m.status === 'new')) {
           const plan = membershipPlans.find(p => p.id === m.tariff_id);
-          
+
           const membershipInfo: ActiveMembershipInfo = {
             membershipId: m.id,
             tariffId: m.tariff_id,
+            startDate: m.start_date,
             endDate: m.end_date,
             status: m.status,
             tariffName: m.tariff_name,
             tariffType: plan?.type || 'monthly',
+            packageType: plan?.packageType || 'single_group',
             price: m.price,
             freezeDaysAvailable: m.freeze_days_available,
             freezeDaysUsed: m.freeze_days_used,
@@ -364,9 +413,9 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
             freezeEndDate: m.freeze_end_date,
             features: plan?.features || [],
           };
-          
+
           tariffMap.set(m.tariff_id, membershipInfo);
-          
+
           if (!primaryActiveMembership || (m.status === 'active' && primaryActiveMembership.status === 'frozen')) {
             primaryActiveMembership = membershipInfo;
           }
@@ -649,7 +698,11 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                     <div className="flex items-start justify-between mb-3 pr-20">
                       <div>
                         <h4 className="font-bold text-gray-900 text-lg">{categorizedPlans.activePlan.name}</h4>
-                        <p className="text-xs text-gray-500 mt-0.5">{getPlanDuration(categorizedPlans.activePlan)}</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="text-xs text-gray-500">{getPlanDuration(categorizedPlans.activePlan)}</span>
+                          <span className="text-xs text-gray-300">•</span>
+                          <span className="text-xs text-emerald-600 font-medium">{getPackageTypeLabel(categorizedPlans.activePlan.packageType)}</span>
+                        </div>
                       </div>
                     </div>
                     
@@ -747,13 +800,17 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                       <div className="flex items-start justify-between mb-3 pr-16">
                         <div>
                           <h4 className="font-bold text-gray-900">{plan.name}</h4>
-                          <p className="text-xs text-gray-500 mt-0.5">{getPlanDuration(plan)}</p>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="text-xs text-gray-500">{getPlanDuration(plan)}</span>
+                            <span className="text-xs text-gray-300">•</span>
+                            <span className="text-xs text-violet-600 font-medium">{getPackageTypeLabel(plan.packageType)}</span>
+                          </div>
                         </div>
                         <div className="text-right">
                           <p className="text-xl font-bold text-violet-600">{formatPrice(plan.price)}</p>
                         </div>
                       </div>
-                      
+
                       {hasFeatures(plan) && (
                         <div className="mb-3">
                           <div className="space-y-1.5">
@@ -792,11 +849,15 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                       <div className="flex items-start justify-between mb-3">
                         <div>
                           <h4 className="font-semibold text-gray-900">{plan.name}</h4>
-                          <p className="text-xs text-gray-500 mt-0.5">{getPlanDuration(plan)}</p>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="text-xs text-gray-500">{getPlanDuration(plan)}</span>
+                            <span className="text-xs text-gray-300">•</span>
+                            <span className="text-xs text-gray-500">{getPackageTypeLabel(plan.packageType)}</span>
+                          </div>
                         </div>
                         <p className="text-lg font-bold text-gray-700">{formatPrice(plan.price)}</p>
                       </div>
-                      
+
                       {hasFeatures(plan) && (
                         <div className="mb-3">
                           <div className="space-y-1">
@@ -809,7 +870,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                           </div>
                         </div>
                       )}
-                      
+
                       <button
                         onClick={() => handlePurchase(plan)}
                         className="w-full px-4 py-2.5 bg-gray-100 text-gray-700 rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-gray-200 transition-colors"
@@ -851,6 +912,53 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                 </div>
               )}
 
+              {/* Purchased plans (will be active after current expires) */}
+              {categorizedPlans.purchased.length > 0 && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Clock size={18} className="text-blue-600" />
+                    <h3 className="font-semibold text-gray-900">{t('clubs.membership.purchasedPlans')}</h3>
+                  </div>
+
+                  {categorizedPlans.purchased.map((plan) => (
+                    <Card key={plan.id} className="p-4 border-2 border-blue-200 bg-blue-50/30 relative overflow-hidden">
+                      <div className="absolute top-0 right-0">
+                        <div className="bg-blue-500 text-white text-[10px] font-semibold px-3 py-1 rounded-bl-lg flex items-center gap-1">
+                          <CheckCircle2 size={12} />
+                          {t('clubs.membership.purchased')}
+                        </div>
+                      </div>
+
+                      <div className="flex items-start justify-between mb-3 pr-20">
+                        <div>
+                          <h4 className="font-bold text-gray-900">{plan.name}</h4>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="text-xs text-gray-500">{getPlanDuration(plan)}</span>
+                            <span className="text-xs text-gray-300">•</span>
+                            <span className="text-xs text-blue-600 font-medium">{getPackageTypeLabel(plan.packageType)}</span>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xl font-bold text-blue-600">{formatPrice(plan.price)}</p>
+                        </div>
+                      </div>
+
+                      <div className="w-full px-4 py-3 rounded-xl bg-blue-100 border border-blue-200">
+                        <div className="flex items-center gap-2 text-blue-700">
+                          <Clock size={16} />
+                          <span className="text-sm font-medium">
+                            {activeMembershipForClub 
+                              ? t('clubs.membership.activeAfter', { date: formatDate(activeMembershipForClub.endDate) })
+                              : t('clubs.membership.willBeActive')
+                            }
+                          </span>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              )}
+
               {/* No active membership - show all plans */}
               {!activeMembershipForClub && membershipPlans.length > 0 && (
                 <>
@@ -877,7 +985,11 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                         <div className="flex items-start justify-between mb-3">
                           <div>
                             <h4 className="font-bold text-gray-900 text-lg">{plan.name}</h4>
-                            <p className="text-xs text-gray-500 mt-0.5">{getPlanDuration(plan)}</p>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span className="text-xs text-gray-500">{getPlanDuration(plan)}</span>
+                              <span className="text-xs text-gray-300">•</span>
+                              <span className="text-xs text-blue-600 font-medium">{getPackageTypeLabel(plan.packageType)}</span>
+                            </div>
                           </div>
                           <div className="text-right">
                             <p className="text-2xl font-bold text-blue-600">{formatPrice(plan.price)}</p>
@@ -888,7 +1000,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                             )}
                           </div>
                         </div>
-                        
+
                         {plan.description && (
                           <p className="text-sm text-gray-600 mb-3">{plan.description}</p>
                         )}
@@ -955,11 +1067,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
             setShowPaymentModal(false);
             setSelectedPlan(null);
           }}
-          onSuccess={() => {
-            setShowPaymentModal(false);
-            setSelectedPlan(null);
-            onClose();
-          }}
+          onSuccess={handlePurchaseSuccess}
         />
       )}
 
