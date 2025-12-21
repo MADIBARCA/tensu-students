@@ -153,19 +153,9 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
     return plan.type;
   };
 
-  // Generate fallback features only if no real features are provided
-  const getFallbackFeatures = (plan: MembershipPlan): string[] => {
-    const fallbackFeatures: string[] = [];
-    
-    if (plan.sessions_count) {
-      fallbackFeatures.push(t('clubs.membership.sessionsPerWeek', { count: Math.ceil(plan.sessions_count / 4) }));
-    } else if (plan.type === 'unlimited' || plan.duration_days && plan.duration_days >= 30) {
-      fallbackFeatures.push(t('clubs.membership.unlimited'));
-    }
-    
-    fallbackFeatures.push(t('clubs.membership.groupClasses'));
-    
-    return fallbackFeatures;
+  // Check if plan has real features
+  const hasFeatures = (plan: MembershipPlan): boolean => {
+    return plan.features && plan.features.length > 0;
   };
 
   // Generate initials for avatar fallback
@@ -434,8 +424,6 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
             <div className="p-4 space-y-4">
               {membershipPlans.length > 0 ? (
                 membershipPlans.map((plan, index) => {
-                  // Use real features if available, otherwise show minimal fallback
-                  const features = plan.features.length > 0 ? plan.features : getFallbackFeatures(plan);
                   const isPopular = index === 1 || (membershipPlans.length === 1 && index === 0);
                   
                   return (
@@ -479,17 +467,23 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                       {/* Features list */}
                       <div className="mb-4">
                         <p className="text-xs font-medium text-gray-500 mb-2">{t('clubs.membership.includes')}</p>
-                        <div className="space-y-2">
-                          {features.slice(0, 4).map((feature, idx) => (
-                            <div key={idx} className="flex items-center gap-2">
-                              <CheckCircle2 size={14} className="text-emerald-500 flex-shrink-0" />
-                              <span className="text-sm text-gray-700">{feature}</span>
-                            </div>
-                          ))}
-                          {features.length > 4 && (
-                            <p className="text-xs text-gray-400 ml-6">+{features.length - 4} больше</p>
-                          )}
-                        </div>
+                        {hasFeatures(plan) ? (
+                          <div className="space-y-2">
+                            {plan.features.slice(0, 4).map((feature, idx) => (
+                              <div key={idx} className="flex items-center gap-2">
+                                <CheckCircle2 size={14} className="text-emerald-500 flex-shrink-0" />
+                                <span className="text-sm text-gray-700">{feature}</span>
+                              </div>
+                            ))}
+                            {plan.features.length > 4 && (
+                              <p className="text-xs text-gray-400 ml-6">+{plan.features.length - 4} {t('clubs.membership.more')}</p>
+                            )}
+                          </div>
+                        ) : (
+                          <p className="text-sm text-gray-400 italic">
+                            {t('clubs.membership.noFeatures')}
+                          </p>
+                        )}
                       </div>
 
                       <button
