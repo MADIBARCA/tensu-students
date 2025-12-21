@@ -15,6 +15,7 @@ interface CalendarViewProps {
   onWaitlist: (trainingId: number) => void;
   onShowParticipants: (training: Training) => void;
   onFreeze: (training: Training) => void;
+  onUnfreeze: (trainingId: number) => void;
 }
 
 export const CalendarView: React.FC<CalendarViewProps> = ({
@@ -27,6 +28,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   onWaitlist,
   onShowParticipants,
   onFreeze,
+  onUnfreeze,
 }) => {
   const { t } = useI18n();
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -217,6 +219,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                   onWaitlist={() => onWaitlist(training.id)}
                   onShowParticipants={() => onShowParticipants(training)}
                   onFreeze={() => onFreeze(training)}
+                  onUnfreeze={() => onUnfreeze(training.id)}
                 />
               ))}
             </div>

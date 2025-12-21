@@ -202,6 +202,7 @@ export interface SessionResponse {
   status: SessionStatus;
   is_booked: boolean;
   is_in_waitlist: boolean;
+  is_excused: boolean;
   notes: string | null;
 }
 
@@ -222,6 +223,11 @@ export interface CancelBookingResponse {
 }
 
 export interface FreezeBookingResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface UnfreezeBookingResponse {
   success: boolean;
   message: string;
 }

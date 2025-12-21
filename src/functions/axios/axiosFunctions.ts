@@ -29,6 +29,7 @@ import type {
   BookSessionResponse,
   CancelBookingResponse,
   FreezeBookingResponse,
+  UnfreezeBookingResponse,
   SessionParticipantsResponse,
   ClubDetailResponse,
   ClubListResponse,
@@ -219,6 +220,14 @@ export const scheduleApi = {
       'POST',
       token,
       { lesson_id: lessonId, note }
+    ),
+
+  unfreeze: (lessonId: number, token: string | null) =>
+    axiosRequest<UnfreezeBookingResponse>(
+      ENDPOINTS.SCHEDULE.UNFREEZE,
+      'POST',
+      token,
+      { lesson_id: lessonId }
     ),
 
   getParticipants: (lessonId: number, token: string | null) =>
