@@ -28,8 +28,6 @@ import type {
   TrainerResponse,
   BookSessionResponse,
   CancelBookingResponse,
-  FreezeBookingResponse,
-  UnfreezeBookingResponse,
   SessionParticipantsResponse,
   ClubDetailResponse,
   ClubListResponse,
@@ -209,22 +207,6 @@ export const scheduleApi = {
   joinWaitlist: (lessonId: number, token: string | null) =>
     axiosRequest<BookSessionResponse>(
       ENDPOINTS.SCHEDULE.WAITLIST,
-      'POST',
-      token,
-      { lesson_id: lessonId }
-    ),
-
-  freeze: (lessonId: number, token: string | null, note?: string) =>
-    axiosRequest<FreezeBookingResponse>(
-      ENDPOINTS.SCHEDULE.FREEZE,
-      'POST',
-      token,
-      { lesson_id: lessonId, note }
-    ),
-
-  unfreeze: (lessonId: number, token: string | null) =>
-    axiosRequest<UnfreezeBookingResponse>(
-      ENDPOINTS.SCHEDULE.UNFREEZE,
       'POST',
       token,
       { lesson_id: lessonId }

@@ -41,8 +41,6 @@ export const ENDPOINTS = {
     BOOK: '/students/schedule/book',
     CANCEL: '/students/schedule/cancel',
     WAITLIST: '/students/schedule/waitlist',
-    FREEZE: '/students/schedule/freeze',
-    UNFREEZE: '/students/schedule/unfreeze',
     PARTICIPANTS: (lessonId: number) => `/students/schedule/sessions/${lessonId}/participants`,
   },
 

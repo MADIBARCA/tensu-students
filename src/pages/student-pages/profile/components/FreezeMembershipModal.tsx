@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { X, Snowflake, Calendar } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { X, Snowflake, Calendar, AlertTriangle, CheckCircle } from 'lucide-react';
 import { membershipsApi } from '@/functions/axios/axiosFunctions';
+import { useI18n } from '@/i18n/i18n';
 
 interface FreezeMembershipModalProps {
   membership: {
@@ -8,6 +9,8 @@ interface FreezeMembershipModalProps {
     status: string;
     freeze_days_available?: number;
     freeze_days_used?: number;
+    freeze_start_date?: string | null;
+    freeze_end_date?: string | null;
   };
   onClose: () => void;
   onSuccess?: () => void;
@@ -18,10 +21,12 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
   onClose,
   onSuccess,
 }) => {
+  const { t } = useI18n();
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showUnfreezeConfirm, setShowUnfreezeConfirm] = useState(false);
 
   const freezeDaysAvailable = membership.freeze_days_available || 0;
   const isFrozen = membership.status === 'frozen';
@@ -33,6 +38,28 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
     const diffTime = Math.abs(end.getTime() - start.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays;
+  };
+
+  // Calculate days that will be deducted on early unfreeze
+  const daysToDeduct = useMemo(() => {
+    if (!isFrozen || !membership.freeze_start_date) return 0;
+    const freezeStart = new Date(membership.freeze_start_date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    freezeStart.setHours(0, 0, 0, 0);
+    
+    if (today < freezeStart) return 0;
+    
+    const diffTime = today.getTime() - freezeStart.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  }, [isFrozen, membership.freeze_start_date]);
+
+  // Format freeze dates for display
+  const formatDate = (dateStr: string | null | undefined) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' });
   };
 
   const freezeDays = calculateFreezeDays();
@@ -123,28 +150,105 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
         )}
 
         {isFrozen ? (
-          <div className="space-y-4">
-            <div className="p-4 bg-blue-50 rounded-lg">
-              <p className="text-sm text-gray-700">
-                Абонемент заморожен. Вы можете разморозить его в любое время.
-              </p>
+          showUnfreezeConfirm ? (
+            // Unfreeze confirmation dialog
+            <div className="space-y-4">
+              <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <AlertTriangle size={20} className="text-amber-600" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-amber-800 mb-1">
+                      {t('freeze.unfreeze.confirmTitle')}
+                    </p>
+                    <p className="text-sm text-amber-700">
+                      {t('freeze.unfreeze.confirmMessage', { days: daysToDeduct })}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Summary of used days */}
+              <div className="p-4 bg-gray-50 rounded-xl space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">{t('freeze.frozenFrom')}</span>
+                  <span className="font-medium text-gray-900">{formatDate(membership.freeze_start_date)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">{t('freeze.daysUsed')}</span>
+                  <span className="font-medium text-gray-900">{daysToDeduct} {t('freeze.days')}</span>
+                </div>
+              </div>
+              
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowUnfreezeConfirm(false)}
+                  className="flex-1 px-4 py-2.5 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium"
+                >
+                  {t('common.cancel')}
+                </button>
+                <button
+                  onClick={handleUnfreeze}
+                  disabled={processing}
+                  className="flex-1 px-4 py-2.5 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors disabled:opacity-50 font-medium flex items-center justify-center gap-2"
+                >
+                  {processing ? t('common.processing') : (
+                    <>
+                      <CheckCircle size={18} />
+                      {t('freeze.unfreeze.confirm')}
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
-            <div className="flex gap-3">
-              <button
-                onClick={onClose}
-                className="flex-1 px-4 py-2 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Отмена
-              </button>
-              <button
-                onClick={handleUnfreeze}
-                disabled={processing}
-                className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
-              >
-                {processing ? 'Обработка...' : 'Разморозить'}
-              </button>
+          ) : (
+            // Frozen status view
+            <div className="space-y-4">
+              <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                    <Snowflake size={20} className="text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-blue-800">{t('freeze.currentlyFrozen')}</p>
+                    <p className="text-xs text-blue-600">{t('freeze.canUnfreezeAnytime')}</p>
+                  </div>
+                </div>
+                
+                {/* Freeze period info */}
+                <div className="bg-white/60 rounded-lg p-3 space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">{t('freeze.start.date')}</span>
+                    <span className="font-medium text-gray-900">{formatDate(membership.freeze_start_date)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">{t('freeze.end.date')}</span>
+                    <span className="font-medium text-gray-900">{formatDate(membership.freeze_end_date)}</span>
+                  </div>
+                  <div className="border-t border-blue-100 pt-2 mt-2 flex justify-between text-sm">
+                    <span className="text-gray-600">{t('freeze.daysElapsed')}</span>
+                    <span className="font-semibold text-blue-700">{daysToDeduct} {t('freeze.days')}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex gap-3">
+                <button
+                  onClick={onClose}
+                  className="flex-1 px-4 py-2.5 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium"
+                >
+                  {t('common.close')}
+                </button>
+                <button
+                  onClick={() => setShowUnfreezeConfirm(true)}
+                  className="flex-1 px-4 py-2.5 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors font-medium"
+                >
+                  {t('freeze.unfreeze.process')}
+                </button>
+              </div>
             </div>
-          </div>
+          )
         ) : (
           <div className="space-y-4">
             <div className="p-4 bg-gray-50 rounded-lg">

@@ -2,10 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { SectionHeader } from '@/components/Layout';
 import { Card } from '@/components/ui';
 import { useI18n } from '@/i18n/i18n';
-import { Calendar, MapPin, Users, User, FileText, Clock, X, CheckCircle, Snowflake, Check } from 'lucide-react';
+import { Calendar, MapPin, Users, User, FileText, Clock, X, CheckCircle } from 'lucide-react';
 import { scheduleApi } from '@/functions/axios/axiosFunctions';
 import type { SessionResponse, SessionStatus } from '@/functions/axios/responses';
-import { FreezeModal } from '../../schedule/components/FreezeModal';
 
 interface Session {
   id: number;
@@ -19,16 +18,12 @@ interface Session {
   max_participants?: number | null;
   notes?: string | null;
   status: SessionStatus;
-  is_excused: boolean;
 }
 
 export const NextSessionsSection: React.FC = () => {
   const { t } = useI18n();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showFreezeModal, setShowFreezeModal] = useState(false);
-  const [freezeLoading, setFreezeLoading] = useState(false);
-  const [selectedSession, setSelectedSession] = useState<Session | null>(null);
 
   useEffect(() => {
     const loadSessions = async () => {
@@ -51,9 +46,8 @@ export const NextSessionsSection: React.FC = () => {
           max_participants: s.max_participants,
           notes: s.notes,
           status: s.is_booked ? 'booked' : s.status,
-          is_excused: s.is_excused || false,
         }));
-
+        
         setSessions(mappedSessions);
       } catch (error) {
         console.error('Failed to load sessions:', error);
@@ -92,14 +86,7 @@ export const NextSessionsSection: React.FC = () => {
     return { dateLabel, timeLabel };
   };
 
-  const getStatusConfig = (status: string, isExcused: boolean = false) => {
-    if (isExcused) {
-      return {
-        label: t('schedule.excused'),
-        color: 'bg-blue-100 text-blue-700',
-        icon: <Snowflake size={14} />,
-      };
-    }
+  const getStatusConfig = (status: string) => {
     const configs: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
       scheduled: {
         label: t('home.sessions.status.scheduled'),
@@ -157,87 +144,6 @@ export const NextSessionsSection: React.FC = () => {
     }
   };
 
-  const handleOpenFreezeModal = (session: Session) => {
-    setSelectedSession(session);
-    setShowFreezeModal(true);
-  };
-
-  const handleFreeze = async (note?: string) => {
-    if (!selectedSession) return;
-    
-    const tg = window.Telegram?.WebApp;
-    const token = tg?.initData || null;
-    
-    setFreezeLoading(true);
-    
-    try {
-      const response = await scheduleApi.freeze(selectedSession.id, token, note);
-      
-      if (response.data.success) {
-        // Update local state - mark as excused
-        setSessions(prev => prev.map(s => {
-          if (s.id === selectedSession.id) {
-            return { ...s, status: 'scheduled' as SessionStatus, is_excused: true };
-          }
-          return s;
-        }));
-        
-        setShowFreezeModal(false);
-        setSelectedSession(null);
-        
-        if (tg) {
-          tg.showAlert(response.data.message || t('schedule.freeze.success'));
-        }
-      }
-    } catch (error: unknown) {
-      console.error('Failed to freeze booking:', error);
-      if (tg) {
-        const errorMessage = error instanceof Error ? error.message :
-          (error as { response?: { data?: { detail?: string } } })?.response?.data?.detail ||
-          t('schedule.freeze.error');
-        tg.showAlert(errorMessage);
-      }
-    } finally {
-      setFreezeLoading(false);
-    }
-  };
-
-  const handleUnfreeze = async (sessionId: number) => {
-    const tg = window.Telegram?.WebApp;
-    const token = tg?.initData || null;
-    
-    try {
-      const response = await scheduleApi.unfreeze(sessionId, token);
-      
-      if (response.data.success) {
-        // Update local state - mark as booked
-        setSessions(prev => prev.map(s => {
-          if (s.id === sessionId) {
-            return { ...s, status: 'booked' as SessionStatus, is_excused: false };
-          }
-          return s;
-        }));
-        
-        if (tg) {
-          tg.showAlert(response.data.message || t('schedule.unfreeze.success'));
-        }
-      }
-    } catch (error: unknown) {
-      console.error('Failed to unfreeze booking:', error);
-      if (tg) {
-        const errorMessage = error instanceof Error ? error.message :
-          (error as { response?: { data?: { detail?: string } } })?.response?.data?.detail ||
-          t('schedule.unfreeze.error');
-        tg.showAlert(errorMessage);
-      }
-    }
-  };
-
-  const formatSessionDate = (date: string, time: string) => {
-    const sessionDate = new Date(`${date}T${time}`);
-    return sessionDate.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
-  };
-
   if (loading) {
     return (
       <div className="mb-6">
@@ -264,10 +170,10 @@ export const NextSessionsSection: React.FC = () => {
       <div className="space-y-3">
         {sessions.map((session) => {
           const { dateLabel, timeLabel } = formatDateTime(session.date, session.time);
-          const statusConfig = getStatusConfig(session.status, session.is_excused);
-          const isFull = session.status === 'full' ||
+          const statusConfig = getStatusConfig(session.status);
+          const isFull = session.status === 'full' || 
             (session.max_participants && session.participants_count >= session.max_participants);
-          const canBook = session.status === 'scheduled' && !isFull && !session.is_excused;
+          const canBook = session.status === 'scheduled' && !isFull;
 
           return (
             <Card key={session.id}>
@@ -325,63 +231,19 @@ export const NextSessionsSection: React.FC = () => {
                 </div>
               )}
 
-              {/* Actions */}
-              <div className="space-y-2">
-                {session.is_excused ? (
-                  /* Excused state - only show unfreeze button */
-                  <button
-                    onClick={() => handleUnfreeze(session.id)}
-                    className="w-full px-4 py-2.5 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-colors text-sm font-medium flex items-center justify-center gap-2"
-                  >
-                    <Check size={16} />
-                    {t('schedule.unfreeze')}
-                  </button>
-                ) : session.status === 'booked' ? (
-                  /* Booked state - show freeze button */
-                  <button
-                    onClick={() => handleOpenFreezeModal(session)}
-                    className="w-full px-4 py-2 border border-blue-200 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors text-sm font-medium flex items-center justify-center gap-2"
-                  >
-                    <Snowflake size={16} />
-                    {t('schedule.freezeBooking')}
-                  </button>
-                ) : canBook && (
-                  /* Not booked - show book and freeze options */
-                  <>
-                    <button
-                      onClick={() => handleBookSession(session.id)}
-                      className="w-full px-4 py-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
-                    >
-                      {t('home.sessions.book')}
-                    </button>
-                    <button
-                      onClick={() => handleOpenFreezeModal(session)}
-                      className="w-full px-4 py-2 border border-blue-200 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors text-sm font-medium flex items-center justify-center gap-1.5"
-                    >
-                      <Snowflake size={14} />
-                      {t('schedule.cantAttend')}
-                    </button>
-                  </>
-                )}
-              </div>
+              {/* Book Button */}
+              {canBook && (
+                <button
+                  onClick={() => handleBookSession(session.id)}
+                  className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
+                >
+                  {t('home.sessions.book')}
+                </button>
+              )}
             </Card>
           );
         })}
       </div>
-
-      {showFreezeModal && selectedSession && (
-        <FreezeModal
-          trainingName={`${selectedSession.section_name}${selectedSession.group_name ? ` • ${selectedSession.group_name}` : ''}`}
-          trainingDate={formatSessionDate(selectedSession.date, selectedSession.time)}
-          trainingTime={selectedSession.time}
-          onClose={() => {
-            setShowFreezeModal(false);
-            setSelectedSession(null);
-          }}
-          onConfirm={handleFreeze}
-          isLoading={freezeLoading}
-        />
-      )}
     </div>
   );
 };

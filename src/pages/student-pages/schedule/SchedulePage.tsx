@@ -8,7 +8,6 @@ import { CalendarView } from './components/CalendarView';
 import { FiltersModal } from './components/FiltersModal';
 import { NoMembershipModal } from './components/NoMembershipModal';
 import { ParticipantsModal } from './components/ParticipantsModal';
-import { FreezeModal } from './components/FreezeModal';
 import { Card } from '@/components/ui';
 import { scheduleApi, membershipsApi, clubsApi } from '@/functions/axios/axiosFunctions';
 import type { SessionResponse, TrainerResponse, ClubResponse, MembershipResponse } from '@/functions/axios/responses';
@@ -30,7 +29,6 @@ export interface Training {
   notes?: string | null;
   is_booked: boolean;
   is_in_waitlist: boolean;
-  is_excused: boolean;
 }
 
 export interface Club {
@@ -72,8 +70,6 @@ export default function SchedulePage() {
   // Modals
   const [showNoMembershipModal, setShowNoMembershipModal] = useState(false);
   const [showParticipantsModal, setShowParticipantsModal] = useState(false);
-  const [showFreezeModal, setShowFreezeModal] = useState(false);
-  const [freezeLoading, setFreezeLoading] = useState(false);
   const [selectedTraining, setSelectedTraining] = useState<Training | null>(null);
 
   // Calendar
@@ -124,7 +120,6 @@ export default function SchedulePage() {
         notes: s.notes,
         is_booked: s.is_booked,
         is_in_waitlist: s.is_in_waitlist,
-        is_excused: s.is_excused || false,
       }));
 
       // Map clubs - only include clubs with active memberships
@@ -324,82 +319,6 @@ export default function SchedulePage() {
     setShowParticipantsModal(true);
   };
 
-  const handleOpenFreezeModal = (training: Training) => {
-    setSelectedTraining(training);
-    setShowFreezeModal(true);
-  };
-
-  const handleFreeze = async (note?: string) => {
-    if (!selectedTraining) return;
-
-    const tg = window.Telegram?.WebApp;
-    const token = tg?.initData || null;
-
-    setFreezeLoading(true);
-
-    try {
-      const response = await scheduleApi.freeze(selectedTraining.id, token, note);
-
-      if (response.data.success) {
-        // Update local state - mark as excused (not booked)
-        setTrainings(prev => prev.map(tr => {
-          if (tr.id === selectedTraining.id) {
-            return { ...tr, is_booked: false, is_excused: true };
-          }
-          return tr;
-        }));
-
-        setShowFreezeModal(false);
-        setSelectedTraining(null);
-
-        if (tg) {
-          tg.showAlert(response.data.message || t('schedule.freeze.success'));
-        }
-      }
-    } catch (err: unknown) {
-      console.error('Failed to freeze booking:', err);
-      if (tg) {
-        const errorMessage = err instanceof Error ? err.message :
-          (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ||
-          t('schedule.freeze.error');
-        tg.showAlert(errorMessage);
-      }
-    } finally {
-      setFreezeLoading(false);
-    }
-  };
-
-  const handleUnfreeze = async (trainingId: number) => {
-    const tg = window.Telegram?.WebApp;
-    const token = tg?.initData || null;
-
-    try {
-      const response = await scheduleApi.unfreeze(trainingId, token);
-
-      if (response.data.success) {
-        // Update local state - mark as booked (not excused)
-        setTrainings(prev => prev.map(tr => {
-          if (tr.id === trainingId) {
-            return { ...tr, is_booked: true, is_excused: false };
-          }
-          return tr;
-        }));
-
-        if (tg) {
-          tg.showAlert(response.data.message || t('schedule.unfreeze.success'));
-        }
-      }
-    } catch (err: unknown) {
-      console.error('Failed to unfreeze booking:', err);
-      if (tg) {
-        const errorMessage = err instanceof Error ? err.message :
-          (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ||
-          t('schedule.unfreeze.error');
-        tg.showAlert(errorMessage);
-      }
-    }
-  };
-
   const activeFiltersCount = [
     filters.clubId,
     filters.sectionsType !== 'all',
@@ -575,8 +494,6 @@ export default function SchedulePage() {
                   onCancelBooking={() => handleCancelBooking(training.id)}
                   onWaitlist={() => handleWaitlist(training.id)}
                   onShowParticipants={() => handleShowParticipants(training)}
-                  onFreeze={() => handleOpenFreezeModal(training)}
-                  onUnfreeze={() => handleUnfreeze(training.id)}
                 />
               ))
             )}
@@ -592,8 +509,6 @@ export default function SchedulePage() {
             onCancelBooking={handleCancelBooking}
             onWaitlist={handleWaitlist}
             onShowParticipants={handleShowParticipants}
-            onFreeze={handleOpenFreezeModal}
-            onUnfreeze={handleUnfreeze}
           />
         )}
 
@@ -619,20 +534,6 @@ export default function SchedulePage() {
               setShowParticipantsModal(false);
               setSelectedTraining(null);
             }}
-          />
-        )}
-
-        {showFreezeModal && selectedTraining && (
-          <FreezeModal
-            trainingName={`${selectedTraining.section_name}${selectedTraining.group_name ? ` • ${selectedTraining.group_name}` : ''}`}
-            trainingDate={new Date(selectedTraining.date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}
-            trainingTime={selectedTraining.time}
-            onClose={() => {
-              setShowFreezeModal(false);
-              setSelectedTraining(null);
-            }}
-            onConfirm={handleFreeze}
-            isLoading={freezeLoading}
           />
         )}
       </PageContainer>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useI18n } from '@/i18n/i18n';
 import { Card } from '@/components/ui';
-import { Clock, MapPin, Users, MessageSquare, Bell, X as XIcon, Eye, Snowflake, Check } from 'lucide-react';
+import { Clock, MapPin, Users, MessageSquare, Bell, X as XIcon, Eye } from 'lucide-react';
 import type { Training } from '../SchedulePage';
 
 interface TrainingCardProps {
@@ -10,8 +10,6 @@ interface TrainingCardProps {
   onCancelBooking: () => void;
   onWaitlist: () => void;
   onShowParticipants: () => void;
-  onFreeze: () => void;
-  onUnfreeze: () => void;
 }
 
 export const TrainingCard: React.FC<TrainingCardProps> = ({
@@ -20,8 +18,6 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
   onCancelBooking,
   onWaitlist,
   onShowParticipants,
-  onFreeze,
-  onUnfreeze,
 }) => {
   const { t } = useI18n();
 
@@ -71,18 +67,12 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
           </h3>
           <p className="text-sm text-gray-600">{training.trainer_name}</p>
         </div>
-        {training.is_excused && (
-          <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium flex items-center gap-1">
-            <Snowflake size={12} />
-            {t('schedule.excused')}
-          </span>
-        )}
-        {training.is_booked && !training.is_excused && (
+        {training.is_booked && (
           <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium">
             {t('schedule.booked')}
           </span>
         )}
-        {training.is_in_waitlist && !training.is_booked && !training.is_excused && (
+        {training.is_in_waitlist && !training.is_booked && (
           <span className="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded-full font-medium">
             {t('schedule.inWaitlist')}
           </span>
@@ -122,45 +112,29 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
       <p className="text-xs text-gray-500 mb-3">{training.club_name}</p>
 
       {/* Actions */}
-      <div className="space-y-2">
-        {training.is_excused ? (
-          /* Excused state - only show unfreeze button */
-          <button
-            onClick={onUnfreeze}
-            className="w-full px-3 py-2.5 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-colors text-sm font-medium flex items-center justify-center gap-2"
-          >
-            <Check size={16} />
-            {t('schedule.unfreeze')}
-          </button>
-        ) : training.is_booked ? (
-          /* Booked state - freeze, cancel, participants */
-          <div className="flex gap-2">
-            <button
-              onClick={onFreeze}
-              className="flex-1 px-3 py-2 border border-blue-200 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors text-sm font-medium flex items-center justify-center gap-1"
-            >
-              <Snowflake size={16} />
-              {t('schedule.freezeBooking')}
-            </button>
+      <div className="flex gap-2">
+        {training.is_booked ? (
+          <>
             <button
               onClick={onCancelBooking}
-              className="px-3 py-2 border border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition-colors text-sm font-medium flex items-center justify-center gap-1"
+              className="flex-1 px-3 py-2 border border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition-colors text-sm font-medium flex items-center justify-center gap-1"
             >
               <XIcon size={16} />
+              {t('schedule.cancelBooking')}
             </button>
             <button
               onClick={onShowParticipants}
               className="px-3 py-2 border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium flex items-center justify-center gap-1"
             >
               <Eye size={16} />
+              {t('schedule.showParticipants')}
             </button>
-          </div>
+          </>
         ) : isFull ? (
-          /* Full - only waitlist */
           <button
             onClick={onWaitlist}
             disabled={training.is_in_waitlist}
-            className={`w-full px-3 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-1 transition-colors ${
+            className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-1 transition-colors ${
               training.is_in_waitlist
                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                 : 'border border-yellow-400 text-yellow-600 hover:bg-yellow-50'
@@ -170,22 +144,12 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
             {training.is_in_waitlist ? t('schedule.inWaitlist') : t('schedule.notifyMe')}
           </button>
         ) : (
-          /* Not booked, not excused, not full - show book and freeze options */
-          <>
-            <button
-              onClick={onBook}
-              className="w-full px-3 py-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
-            >
-              {t('schedule.book')}
-            </button>
-            <button
-              onClick={onFreeze}
-              className="w-full px-3 py-2 border border-blue-200 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors text-sm font-medium flex items-center justify-center gap-1.5"
-            >
-              <Snowflake size={14} />
-              {t('schedule.cantAttend')}
-            </button>
-          </>
+          <button
+            onClick={onBook}
+            className="flex-1 px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
+          >
+            {t('schedule.book')}
+          </button>
         )}
       </div>
     </Card>
