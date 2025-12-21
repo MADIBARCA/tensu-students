@@ -34,6 +34,12 @@ interface Section {
   description?: string | null;
 }
 
+interface AccessInfo {
+  id: number;
+  name: string;
+  type: 'section' | 'group';
+}
+
 interface MembershipPlan {
   id: number;
   name: string;
@@ -44,6 +50,9 @@ interface MembershipPlan {
   description?: string | null;
   features: string[];
   sessions_count?: number | null;
+  freezeDaysTotal: number;
+  includedSections: AccessInfo[];
+  includedGroups: AccessInfo[];
 }
 
 interface Coach {
@@ -76,6 +85,8 @@ interface ActiveMembershipInfo {
   freezeStartDate: string | null;
   freezeEndDate: string | null;
   features: string[];
+  includedSections: AccessInfo[];
+  includedGroups: AccessInfo[];
 }
 
 export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClose }) => {
@@ -119,6 +130,9 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
           description: t.description,
           features: t.features || [],
           sessions_count: t.sessions_count,
+          freezeDaysTotal: t.freeze_days_total || 0,
+          includedSections: t.included_sections || [],
+          includedGroups: t.included_groups || [],
         }));
 
         // Build map of active tariffs for this club
@@ -146,10 +160,12 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
               freezeStartDate: m.freeze_start_date,
               freezeEndDate: m.freeze_end_date,
               features: plan?.features || [],
+              includedSections: plan?.includedSections || [],
+              includedGroups: plan?.includedGroups || [],
             };
-            
+
             tariffMap.set(m.tariff_id, membershipInfo);
-            
+
             // Set primary active membership (prioritize active over frozen)
             if (!primaryActiveMembership || (m.status === 'active' && primaryActiveMembership.status === 'frozen')) {
               primaryActiveMembership = membershipInfo;
@@ -283,6 +299,48 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
     }
   };
 
+  // Render access info badges (sections/groups)
+  const renderAccessBadges = (plan: MembershipPlan, size: 'sm' | 'md' = 'sm') => {
+    const hasAccess = plan.includedSections.length > 0 || plan.includedGroups.length > 0;
+    if (!hasAccess) return null;
+    
+    const iconSize = size === 'sm' ? 10 : 12;
+    const textClass = size === 'sm' ? 'text-[10px]' : 'text-xs';
+    const paddingClass = size === 'sm' ? 'px-1.5 py-0.5' : 'px-2 py-1';
+    
+    // Limit how many we show
+    const maxItems = 3;
+    const allItems = [
+      ...plan.includedSections.map(s => ({ ...s, type: 'section' as const })),
+      ...plan.includedGroups.map(g => ({ ...g, type: 'group' as const })),
+    ];
+    const displayItems = allItems.slice(0, maxItems);
+    const remainingCount = allItems.length - maxItems;
+    
+    return (
+      <div className="flex flex-wrap gap-1 mt-2">
+        {displayItems.map((item) => (
+          <span 
+            key={`${item.type}-${item.id}`} 
+            className={`inline-flex items-center gap-0.5 ${paddingClass} rounded ${textClass} font-medium ${
+              item.type === 'section' 
+                ? 'bg-blue-50 text-blue-600' 
+                : 'bg-violet-50 text-violet-600'
+            }`}
+          >
+            {item.type === 'section' ? <Layers size={iconSize} /> : <Users size={iconSize} />}
+            {item.name}
+          </span>
+        ))}
+        {remainingCount > 0 && (
+          <span className={`inline-flex items-center ${paddingClass} bg-gray-100 text-gray-500 rounded ${textClass}`}>
+            +{remainingCount}
+          </span>
+        )}
+      </div>
+    );
+  };
+
   // Generate a consistent color based on name
   const getAvatarColor = (coach: Coach) => {
     const colors = [
@@ -412,6 +470,8 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
             freezeStartDate: m.freeze_start_date,
             freezeEndDate: m.freeze_end_date,
             features: plan?.features || [],
+            includedSections: plan?.includedSections || [],
+            includedGroups: plan?.includedGroups || [],
           };
 
           tariffMap.set(m.tariff_id, membershipInfo);
@@ -723,6 +783,33 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                       </div>
                     </div>
                     
+                    {/* Access info - what's included */}
+                    {(activeMembershipForClub.includedSections.length > 0 || activeMembershipForClub.includedGroups.length > 0) && (
+                      <div className="mb-4">
+                        <p className="text-xs font-medium text-gray-500 mb-2">{t('clubs.membership.accessTo')}</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {activeMembershipForClub.includedSections.map((section) => (
+                            <span 
+                              key={`section-${section.id}`} 
+                              className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-lg text-xs font-medium"
+                            >
+                              <Layers size={12} />
+                              {section.name}
+                            </span>
+                          ))}
+                          {activeMembershipForClub.includedGroups.map((group) => (
+                            <span 
+                              key={`group-${group.id}`} 
+                              className="inline-flex items-center gap-1 px-2 py-1 bg-violet-100 text-violet-700 rounded-lg text-xs font-medium"
+                            >
+                              <Users size={12} />
+                              {group.name}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     {/* Features */}
                     {activeMembershipForClub.features.length > 0 && (
                       <div className="mb-4">
@@ -811,8 +898,11 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                         </div>
                       </div>
 
+                      {/* Access badges */}
+                      {renderAccessBadges(plan, 'sm')}
+
                       {hasFeatures(plan) && (
-                        <div className="mb-3">
+                        <div className="mb-3 mt-2">
                           <div className="space-y-1.5">
                             {plan.features.slice(0, 2).map((feature, idx) => (
                               <div key={idx} className="flex items-center gap-2">
@@ -823,10 +913,10 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                           </div>
                         </div>
                       )}
-                      
+
                       <button
                         onClick={() => handlePurchase(plan)}
-                        className="w-full px-4 py-2.5 bg-violet-600 text-white rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-violet-700 transition-colors"
+                        className="w-full px-4 py-2.5 bg-violet-600 text-white rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-violet-700 transition-colors mt-3"
                       >
                         <ArrowUpCircle size={16} />
                         {t('clubs.membership.upgradeNow')}
@@ -846,7 +936,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                   
                   {categorizedPlans.alternatives.map((plan) => (
                     <Card key={plan.id} className="p-4 border border-gray-200 relative">
-                      <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-start justify-between mb-2">
                         <div>
                           <h4 className="font-semibold text-gray-900">{plan.name}</h4>
                           <div className="flex items-center gap-2 mt-0.5">
@@ -858,8 +948,11 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                         <p className="text-lg font-bold text-gray-700">{formatPrice(plan.price)}</p>
                       </div>
 
+                      {/* Access badges */}
+                      {renderAccessBadges(plan, 'sm')}
+
                       {hasFeatures(plan) && (
-                        <div className="mb-3">
+                        <div className="mb-3 mt-2">
                           <div className="space-y-1">
                             {plan.features.slice(0, 2).map((feature, idx) => (
                               <div key={idx} className="flex items-center gap-2">
@@ -873,7 +966,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
 
                       <button
                         onClick={() => handlePurchase(plan)}
-                        className="w-full px-4 py-2.5 bg-gray-100 text-gray-700 rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-gray-200 transition-colors"
+                        className="w-full px-4 py-2.5 bg-gray-100 text-gray-700 rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-gray-200 transition-colors mt-3"
                       >
                         <CreditCard size={16} />
                         {t('clubs.details.purchase')}
@@ -1002,10 +1095,13 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                         </div>
 
                         {plan.description && (
-                          <p className="text-sm text-gray-600 mb-3">{plan.description}</p>
+                          <p className="text-sm text-gray-600 mb-2">{plan.description}</p>
                         )}
 
-                        <div className="mb-4">
+                        {/* Access badges */}
+                        {renderAccessBadges(plan, 'md')}
+
+                        <div className="mb-4 mt-3">
                           <p className="text-xs font-medium text-gray-500 mb-2">{t('clubs.membership.includes')}</p>
                           {hasFeatures(plan) ? (
                             <div className="space-y-2">

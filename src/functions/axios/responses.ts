@@ -257,6 +257,12 @@ export interface ClubSectionResponse {
   description: string | null;
 }
 
+export interface TariffAccessInfo {
+  id: number;
+  name: string;
+  type: 'section' | 'group';
+}
+
 export interface ClubTariffResponse {
   id: number;
   name: string;
@@ -266,7 +272,10 @@ export interface ClubTariffResponse {
   price: number;
   duration_days: number | null;
   sessions_count: number | null;
+  freeze_days_total: number;
   features: string[];
+  included_sections: TariffAccessInfo[];
+  included_groups: TariffAccessInfo[];
 }
 
 export interface ClubResponse {
