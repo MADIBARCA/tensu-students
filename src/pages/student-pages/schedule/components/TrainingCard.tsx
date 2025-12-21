@@ -1,7 +1,7 @@
 import React from 'react';
 import { useI18n } from '@/i18n/i18n';
 import { Card } from '@/components/ui';
-import { Clock, MapPin, Users, MessageSquare, Bell, X as XIcon, Eye } from 'lucide-react';
+import { Clock, MapPin, Users, MessageSquare, Bell, X as XIcon, Eye, Snowflake } from 'lucide-react';
 import type { Training } from '../SchedulePage';
 
 interface TrainingCardProps {
@@ -10,6 +10,7 @@ interface TrainingCardProps {
   onCancelBooking: () => void;
   onWaitlist: () => void;
   onShowParticipants: () => void;
+  onFreeze: () => void;
 }
 
 export const TrainingCard: React.FC<TrainingCardProps> = ({
@@ -18,6 +19,7 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
   onCancelBooking,
   onWaitlist,
   onShowParticipants,
+  onFreeze,
 }) => {
   const { t } = useI18n();
 
@@ -116,18 +118,23 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
         {training.is_booked ? (
           <>
             <button
+              onClick={onFreeze}
+              className="flex-1 px-3 py-2 border border-blue-200 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors text-sm font-medium flex items-center justify-center gap-1"
+            >
+              <Snowflake size={16} />
+              {t('schedule.freezeBooking')}
+            </button>
+            <button
               onClick={onCancelBooking}
-              className="flex-1 px-3 py-2 border border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition-colors text-sm font-medium flex items-center justify-center gap-1"
+              className="px-3 py-2 border border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition-colors text-sm font-medium flex items-center justify-center gap-1"
             >
               <XIcon size={16} />
-              {t('schedule.cancelBooking')}
             </button>
             <button
               onClick={onShowParticipants}
               className="px-3 py-2 border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium flex items-center justify-center gap-1"
             >
               <Eye size={16} />
-              {t('schedule.showParticipants')}
             </button>
           </>
         ) : isFull ? (

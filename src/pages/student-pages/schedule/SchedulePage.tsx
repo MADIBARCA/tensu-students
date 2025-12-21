@@ -8,6 +8,7 @@ import { CalendarView } from './components/CalendarView';
 import { FiltersModal } from './components/FiltersModal';
 import { NoMembershipModal } from './components/NoMembershipModal';
 import { ParticipantsModal } from './components/ParticipantsModal';
+import { FreezeModal } from './components/FreezeModal';
 import { Card } from '@/components/ui';
 import { scheduleApi, membershipsApi, clubsApi } from '@/functions/axios/axiosFunctions';
 import type { SessionResponse, TrainerResponse, ClubResponse, MembershipResponse } from '@/functions/axios/responses';
@@ -70,6 +71,8 @@ export default function SchedulePage() {
   // Modals
   const [showNoMembershipModal, setShowNoMembershipModal] = useState(false);
   const [showParticipantsModal, setShowParticipantsModal] = useState(false);
+  const [showFreezeModal, setShowFreezeModal] = useState(false);
+  const [freezeLoading, setFreezeLoading] = useState(false);
   const [selectedTraining, setSelectedTraining] = useState<Training | null>(null);
 
   // Calendar
@@ -319,6 +322,51 @@ export default function SchedulePage() {
     setShowParticipantsModal(true);
   };
 
+  const handleOpenFreezeModal = (training: Training) => {
+    setSelectedTraining(training);
+    setShowFreezeModal(true);
+  };
+
+  const handleFreeze = async (note?: string) => {
+    if (!selectedTraining) return;
+    
+    const tg = window.Telegram?.WebApp;
+    const token = tg?.initData || null;
+    
+    setFreezeLoading(true);
+    
+    try {
+      const response = await scheduleApi.freeze(selectedTraining.id, token, note);
+      
+      if (response.data.success) {
+        // Update local state - mark as not booked since it's now excused
+        setTrainings(prev => prev.map(tr => {
+          if (tr.id === selectedTraining.id) {
+            return { ...tr, is_booked: false };
+          }
+          return tr;
+        }));
+        
+        setShowFreezeModal(false);
+        setSelectedTraining(null);
+        
+        if (tg) {
+          tg.showAlert(response.data.message || t('schedule.freeze.success'));
+        }
+      }
+    } catch (err: unknown) {
+      console.error('Failed to freeze booking:', err);
+      if (tg) {
+        const errorMessage = err instanceof Error ? err.message :
+          (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ||
+          t('schedule.freeze.error');
+        tg.showAlert(errorMessage);
+      }
+    } finally {
+      setFreezeLoading(false);
+    }
+  };
+
   const activeFiltersCount = [
     filters.clubId,
     filters.sectionsType !== 'all',
@@ -494,6 +542,7 @@ export default function SchedulePage() {
                   onCancelBooking={() => handleCancelBooking(training.id)}
                   onWaitlist={() => handleWaitlist(training.id)}
                   onShowParticipants={() => handleShowParticipants(training)}
+                  onFreeze={() => handleOpenFreezeModal(training)}
                 />
               ))
             )}
@@ -534,6 +583,20 @@ export default function SchedulePage() {
               setShowParticipantsModal(false);
               setSelectedTraining(null);
             }}
+          />
+        )}
+
+        {showFreezeModal && selectedTraining && (
+          <FreezeModal
+            trainingName={`${selectedTraining.section_name}${selectedTraining.group_name ? ` • ${selectedTraining.group_name}` : ''}`}
+            trainingDate={new Date(selectedTraining.date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}
+            trainingTime={selectedTraining.time}
+            onClose={() => {
+              setShowFreezeModal(false);
+              setSelectedTraining(null);
+            }}
+            onConfirm={handleFreeze}
+            isLoading={freezeLoading}
           />
         )}
       </PageContainer>

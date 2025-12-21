@@ -221,18 +221,27 @@ export interface CancelBookingResponse {
   message: string;
 }
 
+export interface FreezeBookingResponse {
+  success: boolean;
+  message: string;
+}
+
 export interface ParticipantResponse {
   id: number;
   first_name: string;
   last_name: string | null;
   photo_url: string | null;
   is_current_user: boolean;
+  status?: string;
+  excuse_note?: string | null;
 }
 
 export interface SessionParticipantsResponse {
   lesson_id: number;
   participants: ParticipantResponse[];
+  excused_participants?: ParticipantResponse[];
   total: number;
+  excused_count?: number;
   max_participants: number | null;
 }
 

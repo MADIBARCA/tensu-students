@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { SectionHeader } from '@/components/Layout';
 import { Card } from '@/components/ui';
 import { useI18n } from '@/i18n/i18n';
-import { Calendar, MapPin, Users, User, FileText, Clock, X, CheckCircle } from 'lucide-react';
+import { Calendar, MapPin, Users, User, FileText, Clock, X, CheckCircle, Snowflake } from 'lucide-react';
 import { scheduleApi } from '@/functions/axios/axiosFunctions';
 import type { SessionResponse, SessionStatus } from '@/functions/axios/responses';
+import { FreezeModal } from '../../schedule/components/FreezeModal';
 
 interface Session {
   id: number;
@@ -24,6 +25,9 @@ export const NextSessionsSection: React.FC = () => {
   const { t } = useI18n();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showFreezeModal, setShowFreezeModal] = useState(false);
+  const [freezeLoading, setFreezeLoading] = useState(false);
+  const [selectedSession, setSelectedSession] = useState<Session | null>(null);
 
   useEffect(() => {
     const loadSessions = async () => {
@@ -144,6 +148,56 @@ export const NextSessionsSection: React.FC = () => {
     }
   };
 
+  const handleOpenFreezeModal = (session: Session) => {
+    setSelectedSession(session);
+    setShowFreezeModal(true);
+  };
+
+  const handleFreeze = async (note?: string) => {
+    if (!selectedSession) return;
+    
+    const tg = window.Telegram?.WebApp;
+    const token = tg?.initData || null;
+    
+    setFreezeLoading(true);
+    
+    try {
+      const response = await scheduleApi.freeze(selectedSession.id, token, note);
+      
+      if (response.data.success) {
+        // Update local state - change status from booked
+        setSessions(prev => prev.map(s => {
+          if (s.id === selectedSession.id) {
+            return { ...s, status: 'scheduled' as SessionStatus };
+          }
+          return s;
+        }));
+        
+        setShowFreezeModal(false);
+        setSelectedSession(null);
+        
+        if (tg) {
+          tg.showAlert(response.data.message || t('schedule.freeze.success'));
+        }
+      }
+    } catch (error: unknown) {
+      console.error('Failed to freeze booking:', error);
+      if (tg) {
+        const errorMessage = error instanceof Error ? error.message :
+          (error as { response?: { data?: { detail?: string } } })?.response?.data?.detail ||
+          t('schedule.freeze.error');
+        tg.showAlert(errorMessage);
+      }
+    } finally {
+      setFreezeLoading(false);
+    }
+  };
+
+  const formatSessionDate = (date: string, time: string) => {
+    const sessionDate = new Date(`${date}T${time}`);
+    return sessionDate.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+  };
+
   if (loading) {
     return (
       <div className="mb-6">
@@ -231,8 +285,16 @@ export const NextSessionsSection: React.FC = () => {
                 </div>
               )}
 
-              {/* Book Button */}
-              {canBook && (
+              {/* Actions */}
+              {session.status === 'booked' ? (
+                <button
+                  onClick={() => handleOpenFreezeModal(session)}
+                  className="w-full px-4 py-2 border border-blue-200 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors text-sm font-medium flex items-center justify-center gap-2"
+                >
+                  <Snowflake size={16} />
+                  {t('schedule.freezeBooking')}
+                </button>
+              ) : canBook && (
                 <button
                   onClick={() => handleBookSession(session.id)}
                   className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
@@ -244,6 +306,20 @@ export const NextSessionsSection: React.FC = () => {
           );
         })}
       </div>
+
+      {showFreezeModal && selectedSession && (
+        <FreezeModal
+          trainingName={`${selectedSession.section_name}${selectedSession.group_name ? ` • ${selectedSession.group_name}` : ''}`}
+          trainingDate={formatSessionDate(selectedSession.date, selectedSession.time)}
+          trainingTime={selectedSession.time}
+          onClose={() => {
+            setShowFreezeModal(false);
+            setSelectedSession(null);
+          }}
+          onConfirm={handleFreeze}
+          isLoading={freezeLoading}
+        />
+      )}
     </div>
   );
 };
