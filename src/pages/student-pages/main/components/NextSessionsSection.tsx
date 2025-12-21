@@ -121,15 +121,15 @@ export const NextSessionsSection: React.FC = () => {
       
       if (response.data.success) {
         // Update local state on success
-        setSessions(prev => prev.map(s => 
+      setSessions(prev => prev.map(s => 
           s.id === sessionId ? { 
             ...s, 
             status: 'booked' as SessionStatus,
             participants_count: s.participants_count + 1
           } : s
-        ));
-        
-        if (tg) {
+      ));
+      
+      if (tg) {
           tg.showAlert(response.data.message || t('home.sessions.bookingSuccess'));
         }
       }

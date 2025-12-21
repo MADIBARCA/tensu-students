@@ -104,40 +104,40 @@ export default function SchedulePage() {
       const mappedTrainings: Training[] = sessionsResponse.data.sessions
         .filter((s: SessionResponse) => activeMembershipClubIds.has(s.club_id))
         .map((s: SessionResponse) => ({
-          id: s.id,
-          section_name: s.section_name,
-          group_name: s.group_name,
-          trainer_name: s.coach_name,
-          trainer_id: s.coach_id,
-          club_id: s.club_id,
-          club_name: s.club_name,
-          date: s.date,
-          time: s.time,
-          location: s.location || s.club_address,
-          max_participants: s.max_participants,
-          current_participants: s.participants_count,
-          participants: [],
-          notes: s.notes,
-          is_booked: s.is_booked,
-          is_in_waitlist: s.is_in_waitlist,
-        }));
+        id: s.id,
+        section_name: s.section_name,
+        group_name: s.group_name,
+        trainer_name: s.coach_name,
+        trainer_id: s.coach_id,
+        club_id: s.club_id,
+        club_name: s.club_name,
+        date: s.date,
+        time: s.time,
+        location: s.location || s.club_address,
+        max_participants: s.max_participants,
+        current_participants: s.participants_count,
+        participants: [],
+        notes: s.notes,
+        is_booked: s.is_booked,
+        is_in_waitlist: s.is_in_waitlist,
+      }));
 
       // Map clubs - only include clubs with active memberships
       const mappedClubs: Club[] = clubsResponse.data.clubs
         .filter((c: ClubResponse) => activeMembershipClubIds.has(c.id))
         .map((c: ClubResponse) => ({
-          id: c.id,
-          name: c.name,
-        }));
+        id: c.id,
+        name: c.name,
+      }));
 
       // Map trainers - only from clubs with memberships
       const mappedTrainers: Trainer[] = trainersResponse.data
         .filter((t: TrainerResponse) => t.club_id === null || activeMembershipClubIds.has(t.club_id))
         .map((t: TrainerResponse) => ({
-          id: t.id,
-          name: t.name,
-          club_id: t.club_id,
-        }));
+        id: t.id,
+        name: t.name,
+        club_id: t.club_id,
+      }));
 
       setTrainings(mappedTrainings);
       setClubs(mappedClubs);
@@ -212,25 +212,25 @@ export default function SchedulePage() {
       
       if (response.data.success) {
         // Update local state on success
-        setTrainings(prev => prev.map(t => {
-          if (t.id === trainingId) {
-            return {
-              ...t,
-              is_booked: true,
-              current_participants: t.current_participants + 1,
-              participants: [...(t.participants || []), 'Вы'],
-            };
-          }
-          return t;
-        }));
-        
+    setTrainings(prev => prev.map(t => {
+      if (t.id === trainingId) {
+        return {
+          ...t,
+          is_booked: true,
+          current_participants: t.current_participants + 1,
+          participants: [...(t.participants || []), 'Вы'],
+        };
+      }
+      return t;
+    }));
+    
         if (tg) {
           tg.showAlert(response.data.message || t('schedule.bookingSuccess'));
         }
       }
     } catch (err: unknown) {
       console.error('Failed to book training:', err);
-      if (tg) {
+    if (tg) {
         const errorMessage = err instanceof Error ? err.message : 
           (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail || 
           t('schedule.bookingError');
@@ -243,7 +243,7 @@ export default function SchedulePage() {
     const training = trainings.find(tr => tr.id === trainingId);
     if (!training) return;
 
-    const tg = window.Telegram?.WebApp;
+      const tg = window.Telegram?.WebApp;
     const token = tg?.initData || null;
 
     try {
@@ -253,23 +253,23 @@ export default function SchedulePage() {
         // Update local state on success
         setTrainings(prev => prev.map(tr => {
           if (tr.id === trainingId) {
-            return {
+        return {
               ...tr,
-              is_booked: false,
+          is_booked: false,
               current_participants: Math.max(0, tr.current_participants - 1),
               participants: (tr.participants || []).filter(p => p !== 'Вы'),
-            };
-          }
+        };
+      }
           return tr;
-        }));
-        
+    }));
+    
         if (tg) {
           tg.showAlert(response.data.message || t('schedule.cancelSuccess'));
         }
       }
     } catch (err: unknown) {
       console.error('Failed to cancel booking:', err);
-      if (tg) {
+    if (tg) {
         const errorMessage = err instanceof Error ? err.message : 
           (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail || 
           t('schedule.cancelError');
@@ -305,7 +305,7 @@ export default function SchedulePage() {
       }
     } catch (err: unknown) {
       console.error('Failed to join waitlist:', err);
-      if (tg) {
+    if (tg) {
         const errorMessage = err instanceof Error ? err.message : 
           (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail || 
           t('schedule.waitlistError');

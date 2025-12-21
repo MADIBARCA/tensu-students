@@ -70,19 +70,19 @@ export const ParticipantsModal: React.FC<ParticipantsModalProps> = ({ training, 
         <div className="sticky top-0 bg-white border-b border-gray-100 px-5 py-4">
           <div className="flex items-center justify-between">
             <div className="flex-1">
-              <h2 className="text-lg font-semibold text-gray-900">
-                {t('schedule.participants.title')}
-              </h2>
+            <h2 className="text-lg font-semibold text-gray-900">
+              {t('schedule.participants.title')}
+            </h2>
               <p className="text-sm text-gray-500 mt-0.5">
-                {training.section_name} • {training.time}
-              </p>
-            </div>
-            <button
-              onClick={onClose}
+              {training.section_name} • {training.time}
+            </p>
+          </div>
+          <button
+            onClick={onClose}
               className="p-2 -mr-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
-            >
-              <X size={20} />
-            </button>
+          >
+            <X size={20} />
+          </button>
           </div>
 
           {/* Participants count badge */}
@@ -120,7 +120,7 @@ export const ParticipantsModal: React.FC<ParticipantsModalProps> = ({ training, 
                 <div className="flex items-center justify-center mb-6">
                   <div className="flex -space-x-3">
                     {participants.slice(0, 5).map((participant, index) => (
-                      <div
+                <div
                         key={participant.id}
                         className={`relative w-12 h-12 rounded-full border-3 border-white shadow-sm flex items-center justify-center ${
                           participant.photo_url ? '' : getAvatarColor(participant.id)
@@ -200,11 +200,11 @@ export const ParticipantsModal: React.FC<ParticipantsModalProps> = ({ training, 
                     {/* Current user badge */}
                     {participant.is_current_user && (
                       <span className="px-2.5 py-1 bg-green-500 text-white text-xs font-medium rounded-full shadow-sm">
-                        {t('schedule.participants.you')}
-                      </span>
-                    )}
-                  </div>
-                ))}
+                      {t('schedule.participants.you')}
+                    </span>
+                  )}
+                </div>
+              ))}
               </div>
             </div>
           ) : (
