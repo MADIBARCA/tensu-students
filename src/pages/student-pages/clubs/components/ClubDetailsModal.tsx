@@ -153,24 +153,19 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
     return plan.type;
   };
 
-  const getDefaultFeatures = (plan: MembershipPlan): string[] => {
-    const defaultFeatures: string[] = [];
+  // Generate fallback features only if no real features are provided
+  const getFallbackFeatures = (plan: MembershipPlan): string[] => {
+    const fallbackFeatures: string[] = [];
     
     if (plan.sessions_count) {
-      defaultFeatures.push(t('clubs.membership.sessionsPerWeek', { count: Math.ceil(plan.sessions_count / 4) }));
+      fallbackFeatures.push(t('clubs.membership.sessionsPerWeek', { count: Math.ceil(plan.sessions_count / 4) }));
     } else if (plan.type === 'unlimited' || plan.duration_days && plan.duration_days >= 30) {
-      defaultFeatures.push(t('clubs.membership.unlimited'));
+      fallbackFeatures.push(t('clubs.membership.unlimited'));
     }
     
-    defaultFeatures.push(t('clubs.membership.groupClasses'));
-    defaultFeatures.push(t('clubs.membership.equipmentAccess'));
-    defaultFeatures.push(t('clubs.membership.lockerRoom'));
+    fallbackFeatures.push(t('clubs.membership.groupClasses'));
     
-    if (plan.price > 50000) {
-      defaultFeatures.push(t('clubs.membership.personalTrainer'));
-    }
-    
-    return defaultFeatures;
+    return fallbackFeatures;
   };
 
   // Generate initials for avatar fallback
@@ -439,7 +434,8 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
             <div className="p-4 space-y-4">
               {membershipPlans.length > 0 ? (
                 membershipPlans.map((plan, index) => {
-                  const features = plan.features.length > 0 ? plan.features : getDefaultFeatures(plan);
+                  // Use real features if available, otherwise show minimal fallback
+                  const features = plan.features.length > 0 ? plan.features : getFallbackFeatures(plan);
                   const isPopular = index === 1 || (membershipPlans.length === 1 && index === 0);
                   
                   return (
