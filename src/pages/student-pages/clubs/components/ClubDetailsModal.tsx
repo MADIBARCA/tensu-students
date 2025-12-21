@@ -13,11 +13,13 @@ import {
   Award,
   CheckCircle2,
   ChevronRight,
-  Building2
+  Building2,
+  BadgeCheck,
+  Calendar
 } from 'lucide-react';
 import { PurchaseMembershipModal } from './PurchaseMembershipModal';
-import { clubsApi } from '@/functions/axios/axiosFunctions';
-import type { ClubDetailResponse, ClubSectionResponse, ClubTariffResponse, ClubCoachResponse } from '@/functions/axios/responses';
+import { clubsApi, membershipsApi } from '@/functions/axios/axiosFunctions';
+import type { ClubDetailResponse, ClubSectionResponse, ClubTariffResponse, ClubCoachResponse, MembershipResponse } from '@/functions/axios/responses';
 import type { Club } from '../ClubsPage';
 
 interface Section {
@@ -51,6 +53,12 @@ interface ClubDetailsModalProps {
   onClose: () => void;
 }
 
+// Active membership info for a tariff
+interface ActiveMembershipInfo {
+  endDate: string;
+  status: string;
+}
+
 export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClose }) => {
   const { t } = useI18n();
   const [sections, setSections] = useState<Section[]>([]);
@@ -60,6 +68,8 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'info' | 'memberships'>('info');
+  // Map of tariff_id -> active membership info
+  const [activeTariffs, setActiveTariffs] = useState<Map<number, ActiveMembershipInfo>>(new Map());
 
   useEffect(() => {
     const loadClubDetails = async () => {
@@ -67,8 +77,27 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
         const tg = window.Telegram?.WebApp;
         const token = tg?.initData || null;
         
-        const response = await clubsApi.getById(club.id, token);
-        const details: ClubDetailResponse = response.data;
+        // Fetch club details and active memberships in parallel
+        const [clubResponse, membershipsResponse] = await Promise.all([
+          clubsApi.getById(club.id, token),
+          membershipsApi.getActive(token).catch(() => ({ data: { memberships: [] } })),
+        ]);
+        
+        const details: ClubDetailResponse = clubResponse.data;
+        const activeMemberships: MembershipResponse[] = membershipsResponse.data.memberships || [];
+        
+        // Build map of active tariffs for this club
+        const tariffMap = new Map<number, ActiveMembershipInfo>();
+        activeMemberships.forEach((m: MembershipResponse) => {
+          // Only consider memberships for this club that are active or frozen
+          if (m.club_id === club.id && m.tariff_id && (m.status === 'active' || m.status === 'frozen' || m.status === 'new')) {
+            tariffMap.set(m.tariff_id, {
+              endDate: m.end_date,
+              status: m.status,
+            });
+          }
+        });
+        setActiveTariffs(tariffMap);
         
         // Map sections
         const mappedSections: Section[] = details.sections.map((s: ClubSectionResponse) => ({
@@ -156,6 +185,21 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
   // Check if plan has real features
   const hasFeatures = (plan: MembershipPlan): boolean => {
     return plan.features && plan.features.length > 0;
+  };
+
+  // Check if tariff is already active
+  const getActiveMembershipInfo = (planId: number): ActiveMembershipInfo | null => {
+    return activeTariffs.get(planId) || null;
+  };
+
+  // Format date for display
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('ru-RU', { 
+      day: 'numeric', 
+      month: 'short',
+      year: 'numeric'
+    });
   };
 
   // Generate initials for avatar fallback
@@ -425,21 +469,32 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
               {membershipPlans.length > 0 ? (
                 membershipPlans.map((plan, index) => {
                   const isPopular = index === 1 || (membershipPlans.length === 1 && index === 0);
+                  const activeMembership = getActiveMembershipInfo(plan.id);
+                  const isActive = !!activeMembership;
                   
                   return (
                     <Card 
                       key={plan.id} 
                       className={`p-4 relative overflow-hidden transition-all ${
-                        isPopular 
-                          ? 'border-2 border-blue-500 shadow-lg shadow-blue-100' 
-                          : 'border border-gray-200'
+                        isActive
+                          ? 'border-2 border-emerald-500 bg-emerald-50/30'
+                          : isPopular 
+                            ? 'border-2 border-blue-500 shadow-lg shadow-blue-100' 
+                            : 'border border-gray-200'
                       }`}
                     >
-                      {/* Popular badge */}
-                      {isPopular && (
+                      {/* Active badge */}
+                      {isActive ? (
+                        <div className="absolute top-0 right-0">
+                          <div className="bg-emerald-500 text-white text-[10px] font-semibold px-3 py-1 rounded-bl-lg flex items-center gap-1">
+                            <BadgeCheck size={12} />
+                            {t('clubs.membership.active')}
+                          </div>
+                        </div>
+                      ) : isPopular && (
                         <div className="absolute top-0 right-0">
                           <div className="bg-blue-500 text-white text-[10px] font-semibold px-3 py-1 rounded-bl-lg">
-                            Популярный
+                            {t('clubs.membership.popular')}
                           </div>
                         </div>
                       )}
@@ -451,7 +506,9 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                           <p className="text-xs text-gray-500 mt-0.5">{getPlanDuration(plan)}</p>
                         </div>
                         <div className="text-right">
-                          <p className="text-2xl font-bold text-blue-600">{formatPrice(plan.price)}</p>
+                          <p className={`text-2xl font-bold ${isActive ? 'text-emerald-600' : 'text-blue-600'}`}>
+                            {formatPrice(plan.price)}
+                          </p>
                           {plan.duration_days && plan.duration_days >= 30 && (
                             <p className="text-xs text-gray-400">
                               {formatPrice(Math.round(plan.price / (plan.duration_days / 30)))}{t('clubs.details.perMonth')}
@@ -486,17 +543,35 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                         )}
                       </div>
 
-                      <button
-                        onClick={() => handlePurchase(plan)}
-                        className={`w-full px-4 py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2 ${
-                          isPopular
-                            ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-md'
-                            : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
-                        }`}
-                      >
-                        <CreditCard size={18} />
-                        {t('clubs.details.purchase')}
-                      </button>
+                      {/* Action button or active status */}
+                      {isActive ? (
+                        <div className="w-full px-4 py-3 rounded-xl bg-emerald-100 border border-emerald-200">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2 text-emerald-700">
+                              <BadgeCheck size={18} />
+                              <span className="font-medium">{t('clubs.membership.alreadyActive')}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 text-emerald-600">
+                              <Calendar size={14} />
+                              <span className="text-sm font-medium">
+                                {t('clubs.membership.until')} {formatDate(activeMembership.endDate)}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => handlePurchase(plan)}
+                          className={`w-full px-4 py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2 ${
+                            isPopular
+                              ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-md'
+                              : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                          }`}
+                        >
+                          <CreditCard size={18} />
+                          {t('clubs.details.purchase')}
+                        </button>
+                      )}
                     </Card>
                   );
                 })
