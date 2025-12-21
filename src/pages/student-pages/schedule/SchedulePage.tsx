@@ -558,6 +558,7 @@ export default function SchedulePage() {
             onCancelBooking={handleCancelBooking}
             onWaitlist={handleWaitlist}
             onShowParticipants={handleShowParticipants}
+            onFreeze={handleOpenFreezeModal}
           />
         )}
 
