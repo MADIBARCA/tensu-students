@@ -101,7 +101,9 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
   const [activeTab, setActiveTab] = useState<'info' | 'memberships'>('info');
   // Current active membership in this club (if any)
   const [activeMembershipForClub, setActiveMembershipForClub] = useState<ActiveMembershipInfo | null>(null);
-  // Track purchased plans during this session (to show "Will be active after...")
+  // Scheduled memberships (purchased but starting later)
+  const [scheduledMemberships, setScheduledMemberships] = useState<ActiveMembershipInfo[]>([]);
+  // Track purchased plans during this session (fallback for immediate UI update)
   const [purchasedPlanIds, setPurchasedPlanIds] = useState<Set<number>>(new Set());
 
   useEffect(() => {
@@ -138,10 +140,11 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
         // Build map of active tariffs for this club
         const tariffMap = new Map<number, ActiveMembershipInfo>();
         let primaryActiveMembership: ActiveMembershipInfo | null = null;
+        const scheduledList: ActiveMembershipInfo[] = [];
 
         activeMemberships.forEach((m: MembershipResponse) => {
-          // Only consider memberships for this club that are active or frozen
-          if (m.club_id === club.id && m.tariff_id && (m.status === 'active' || m.status === 'frozen' || m.status === 'new')) {
+          // Only consider memberships for this club
+          if (m.club_id === club.id && m.tariff_id) {
             // Find the plan to get features and type
             const plan = mappedPlans.find(p => p.id === m.tariff_id);
 
@@ -164,15 +167,21 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
               includedGroups: plan?.includedGroups || [],
             };
 
-            tariffMap.set(m.tariff_id, membershipInfo);
+            if (m.status === 'scheduled') {
+              // Track scheduled memberships separately
+              scheduledList.push(membershipInfo);
+            } else if (m.status === 'active' || m.status === 'frozen' || m.status === 'new') {
+              tariffMap.set(m.tariff_id, membershipInfo);
 
-            // Set primary active membership (prioritize active over frozen)
-            if (!primaryActiveMembership || (m.status === 'active' && primaryActiveMembership.status === 'frozen')) {
-              primaryActiveMembership = membershipInfo;
+              // Set primary active membership (prioritize active over frozen)
+              if (!primaryActiveMembership || (m.status === 'active' && primaryActiveMembership.status === 'frozen')) {
+                primaryActiveMembership = membershipInfo;
+              }
             }
           }
         });
         setActiveMembershipForClub(primaryActiveMembership);
+        setScheduledMemberships(scheduledList);
         
         // Map sections
         const mappedSections: Section[] = details.sections.map((s: ClubSectionResponse) => ({
@@ -356,18 +365,24 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
     return colors[index];
   };
 
+  // Get all tariff IDs that are scheduled (from backend) or purchased this session
+  const scheduledTariffIds = useMemo(() => {
+    const ids = new Set<number>();
+    scheduledMemberships.forEach(m => ids.add(m.tariffId));
+    purchasedPlanIds.forEach(id => ids.add(id));
+    return ids;
+  }, [scheduledMemberships, purchasedPlanIds]);
+
   // Categorize plans relative to active membership
   const categorizedPlans = useMemo(() => {
     if (!activeMembershipForClub) {
-      // No active membership - all plans are available (filter out purchased ones)
-      const purchased = membershipPlans.filter(p => purchasedPlanIds.has(p.id));
-      const available = membershipPlans.filter(p => !purchasedPlanIds.has(p.id));
+      // No active membership - all plans are available (filter out scheduled/purchased ones)
+      const available = membershipPlans.filter(p => !scheduledTariffIds.has(p.id));
       return {
         activePlan: null,
         upgrades: [],
         alternatives: available,
         sameLevel: [],
-        purchased,
       };
     }
 
@@ -379,15 +394,13 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
     const upgrades: MembershipPlan[] = [];
     const alternatives: MembershipPlan[] = [];
     const sameLevel: MembershipPlan[] = [];
-    const purchased: MembershipPlan[] = [];
 
     membershipPlans.forEach(plan => {
       // Skip the active plan itself
       if (plan.id === activeTariffId) return;
 
-      // Check if this plan was purchased during this session
-      if (purchasedPlanIds.has(plan.id)) {
-        purchased.push(plan);
+      // Skip if this plan is already scheduled/purchased
+      if (scheduledTariffIds.has(plan.id)) {
         return;
       }
 
@@ -419,9 +432,8 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
       upgrades,
       alternatives,
       sameLevel,
-      purchased,
     };
-  }, [membershipPlans, activeMembershipForClub, purchasedPlanIds]);
+  }, [membershipPlans, activeMembershipForClub, scheduledTariffIds]);
 
   // Calculate days remaining
   const getDaysRemaining = (endDate: string) => {
@@ -450,9 +462,10 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
 
       const tariffMap = new Map<number, ActiveMembershipInfo>();
       let primaryActiveMembership: ActiveMembershipInfo | null = null;
+      const scheduledList: ActiveMembershipInfo[] = [];
 
       activeMemberships.forEach((m: MembershipResponse) => {
-        if (m.club_id === club.id && m.tariff_id && (m.status === 'active' || m.status === 'frozen' || m.status === 'new')) {
+        if (m.club_id === club.id && m.tariff_id) {
           const plan = membershipPlans.find(p => p.id === m.tariff_id);
 
           const membershipInfo: ActiveMembershipInfo = {
@@ -474,14 +487,19 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
             includedGroups: plan?.includedGroups || [],
           };
 
-          tariffMap.set(m.tariff_id, membershipInfo);
+          if (m.status === 'scheduled') {
+            scheduledList.push(membershipInfo);
+          } else if (m.status === 'active' || m.status === 'frozen' || m.status === 'new') {
+            tariffMap.set(m.tariff_id, membershipInfo);
 
-          if (!primaryActiveMembership || (m.status === 'active' && primaryActiveMembership.status === 'frozen')) {
-            primaryActiveMembership = membershipInfo;
+            if (!primaryActiveMembership || (m.status === 'active' && primaryActiveMembership.status === 'frozen')) {
+              primaryActiveMembership = membershipInfo;
+            }
           }
         }
       });
       setActiveMembershipForClub(primaryActiveMembership);
+      setScheduledMemberships(scheduledList);
     } catch (error) {
       console.error('Failed to reload memberships:', error);
     } finally {
@@ -1005,45 +1023,69 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                 </div>
               )}
 
-              {/* Purchased plans (will be active after current expires) */}
-              {categorizedPlans.purchased.length > 0 && (
+              {/* Scheduled memberships (purchased, will be active after current expires) */}
+              {scheduledMemberships.length > 0 && (
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
                     <Clock size={18} className="text-blue-600" />
-                    <h3 className="font-semibold text-gray-900">{t('clubs.membership.purchasedPlans')}</h3>
+                    <h3 className="font-semibold text-gray-900">{t('clubs.membership.scheduledPlans')}</h3>
                   </div>
 
-                  {categorizedPlans.purchased.map((plan) => (
-                    <Card key={plan.id} className="p-4 border-2 border-blue-200 bg-blue-50/30 relative overflow-hidden">
+                  {scheduledMemberships.map((membership) => (
+                    <Card key={membership.membershipId} className="p-4 border-2 border-blue-200 bg-blue-50/30 relative overflow-hidden">
                       <div className="absolute top-0 right-0">
                         <div className="bg-blue-500 text-white text-[10px] font-semibold px-3 py-1 rounded-bl-lg flex items-center gap-1">
-                          <CheckCircle2 size={12} />
-                          {t('clubs.membership.purchased')}
+                          <Calendar size={12} />
+                          {t('clubs.membership.scheduled')}
                         </div>
                       </div>
 
                       <div className="flex items-start justify-between mb-3 pr-20">
                         <div>
-                          <h4 className="font-bold text-gray-900">{plan.name}</h4>
+                          <h4 className="font-bold text-gray-900">{membership.tariffName}</h4>
                           <div className="flex items-center gap-2 mt-0.5">
-                            <span className="text-xs text-gray-500">{getPlanDuration(plan)}</span>
-                            <span className="text-xs text-gray-300">•</span>
-                            <span className="text-xs text-blue-600 font-medium">{getPackageTypeLabel(plan.packageType)}</span>
+                            <span className="text-xs text-gray-500">{getPackageTypeLabel(membership.packageType)}</span>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-xl font-bold text-blue-600">{formatPrice(plan.price)}</p>
+                          <p className="text-xl font-bold text-blue-600">{formatPrice(membership.price)}</p>
                         </div>
                       </div>
 
+                      {/* Access badges */}
+                      {(membership.includedSections.length > 0 || membership.includedGroups.length > 0) && (
+                        <div className="flex flex-wrap gap-1 mb-3">
+                          {membership.includedSections.slice(0, 2).map((section) => (
+                            <span 
+                              key={`section-${section.id}`} 
+                              className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded text-[10px] font-medium"
+                            >
+                              <Layers size={10} />
+                              {section.name}
+                            </span>
+                          ))}
+                          {membership.includedGroups.slice(0, 2).map((group) => (
+                            <span 
+                              key={`group-${group.id}`} 
+                              className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-violet-100 text-violet-700 rounded text-[10px] font-medium"
+                            >
+                              <Users size={10} />
+                              {group.name}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
                       <div className="w-full px-4 py-3 rounded-xl bg-blue-100 border border-blue-200">
-                        <div className="flex items-center gap-2 text-blue-700">
-                          <Clock size={16} />
-                          <span className="text-sm font-medium">
-                            {activeMembershipForClub 
-                              ? t('clubs.membership.activeAfter', { date: formatDate(activeMembershipForClub.endDate) })
-                              : t('clubs.membership.willBeActive')
-                            }
+                        <div className="flex items-center justify-between text-blue-700">
+                          <div className="flex items-center gap-2">
+                            <Clock size={16} />
+                            <span className="text-sm font-medium">
+                              {t('clubs.membership.startsOn')}
+                            </span>
+                          </div>
+                          <span className="text-sm font-bold">
+                            {formatDate(membership.startDate)}
                           </span>
                         </div>
                       </div>

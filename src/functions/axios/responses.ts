@@ -21,7 +21,7 @@ export interface StudentResponse {
 }
 
 // Membership types
-export type MembershipStatus = 'active' | 'frozen' | 'expired' | 'cancelled' | 'new';
+export type MembershipStatus = 'active' | 'frozen' | 'expired' | 'cancelled' | 'new' | 'scheduled';
 
 export interface MembershipResponse {
   id: number;
