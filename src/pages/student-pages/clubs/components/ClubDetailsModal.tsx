@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useI18n } from '@/i18n/i18n';
 import { Card } from '@/components/ui';
 import { 
@@ -15,9 +15,15 @@ import {
   ChevronRight,
   Building2,
   BadgeCheck,
-  Calendar
+  Calendar,
+  Snowflake,
+  RefreshCw,
+  ArrowUpCircle,
+  Lock,
+  Sparkles
 } from 'lucide-react';
 import { PurchaseMembershipModal } from './PurchaseMembershipModal';
+import { FreezeMembershipModal } from '../../profile/components/FreezeMembershipModal';
 import { clubsApi, membershipsApi } from '@/functions/axios/axiosFunctions';
 import type { ClubDetailResponse, ClubSectionResponse, ClubTariffResponse, ClubCoachResponse, MembershipResponse } from '@/functions/axios/responses';
 import type { Club } from '../ClubsPage';
@@ -55,8 +61,18 @@ interface ClubDetailsModalProps {
 
 // Active membership info for a tariff
 interface ActiveMembershipInfo {
+  membershipId: number;
+  tariffId: number;
   endDate: string;
   status: string;
+  tariffName: string | null;
+  tariffType: string;
+  price: number;
+  freezeDaysAvailable: number;
+  freezeDaysUsed: number;
+  freezeStartDate: string | null;
+  freezeEndDate: string | null;
+  features: string[];
 }
 
 export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClose }) => {
@@ -66,10 +82,11 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
   const [coaches, setCoaches] = useState<Coach[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<MembershipPlan | null>(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showFreezeModal, setShowFreezeModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'info' | 'memberships'>('info');
-  // Map of tariff_id -> active membership info
-  const [activeTariffs, setActiveTariffs] = useState<Map<number, ActiveMembershipInfo>>(new Map());
+  // Current active membership in this club (if any)
+  const [activeMembershipForClub, setActiveMembershipForClub] = useState<ActiveMembershipInfo | null>(null);
 
   useEffect(() => {
     const loadClubDetails = async () => {
@@ -86,27 +103,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
         const details: ClubDetailResponse = clubResponse.data;
         const activeMemberships: MembershipResponse[] = membershipsResponse.data.memberships || [];
         
-        // Build map of active tariffs for this club
-        const tariffMap = new Map<number, ActiveMembershipInfo>();
-        activeMemberships.forEach((m: MembershipResponse) => {
-          // Only consider memberships for this club that are active or frozen
-          if (m.club_id === club.id && m.tariff_id && (m.status === 'active' || m.status === 'frozen' || m.status === 'new')) {
-            tariffMap.set(m.tariff_id, {
-              endDate: m.end_date,
-              status: m.status,
-            });
-          }
-        });
-        setActiveTariffs(tariffMap);
-        
-        // Map sections
-        const mappedSections: Section[] = details.sections.map((s: ClubSectionResponse) => ({
-          id: s.id,
-          name: s.name,
-          description: s.description,
-        }));
-
-        // Map tariffs to membership plans
+        // Map tariffs to membership plans first to get features
         const mappedPlans: MembershipPlan[] = details.tariffs.map((t: ClubTariffResponse) => ({
           id: t.id,
           name: t.name,
@@ -116,6 +113,48 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
           description: t.description,
           features: t.features || [],
           sessions_count: t.sessions_count,
+        }));
+        
+        // Build map of active tariffs for this club
+        const tariffMap = new Map<number, ActiveMembershipInfo>();
+        let primaryActiveMembership: ActiveMembershipInfo | null = null;
+        
+        activeMemberships.forEach((m: MembershipResponse) => {
+          // Only consider memberships for this club that are active or frozen
+          if (m.club_id === club.id && m.tariff_id && (m.status === 'active' || m.status === 'frozen' || m.status === 'new')) {
+            // Find the plan to get features and type
+            const plan = mappedPlans.find(p => p.id === m.tariff_id);
+            
+            const membershipInfo: ActiveMembershipInfo = {
+              membershipId: m.id,
+              tariffId: m.tariff_id,
+              endDate: m.end_date,
+              status: m.status,
+              tariffName: m.tariff_name,
+              tariffType: plan?.type || 'monthly',
+              price: m.price,
+              freezeDaysAvailable: m.freeze_days_available,
+              freezeDaysUsed: m.freeze_days_used,
+              freezeStartDate: m.freeze_start_date,
+              freezeEndDate: m.freeze_end_date,
+              features: plan?.features || [],
+            };
+            
+            tariffMap.set(m.tariff_id, membershipInfo);
+            
+            // Set primary active membership (prioritize active over frozen)
+            if (!primaryActiveMembership || (m.status === 'active' && primaryActiveMembership.status === 'frozen')) {
+              primaryActiveMembership = membershipInfo;
+            }
+          }
+        });
+        setActiveMembershipForClub(primaryActiveMembership);
+        
+        // Map sections
+        const mappedSections: Section[] = details.sections.map((s: ClubSectionResponse) => ({
+          id: s.id,
+          name: s.name,
+          description: s.description,
         }));
 
         // Map coaches from real API data
@@ -187,11 +226,6 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
     return plan.features && plan.features.length > 0;
   };
 
-  // Check if tariff is already active
-  const getActiveMembershipInfo = (planId: number): ActiveMembershipInfo | null => {
-    return activeTariffs.get(planId) || null;
-  };
-
   // Format date for display
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -227,6 +261,123 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
     const name = getCoachFullName(coach);
     const index = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % colors.length;
     return colors[index];
+  };
+
+  // Categorize plans relative to active membership
+  const categorizedPlans = useMemo(() => {
+    if (!activeMembershipForClub) {
+      // No active membership - all plans are available
+      return {
+        activePlan: null,
+        upgrades: [],
+        alternatives: membershipPlans,
+        sameLevel: [],
+      };
+    }
+
+    const activePrice = activeMembershipForClub.price;
+    const activeType = activeMembershipForClub.tariffType;
+    const activeTariffId = activeMembershipForClub.tariffId;
+    
+    const activePlan = membershipPlans.find(p => p.id === activeTariffId) || null;
+    const upgrades: MembershipPlan[] = [];
+    const alternatives: MembershipPlan[] = [];
+    const sameLevel: MembershipPlan[] = [];
+
+    membershipPlans.forEach(plan => {
+      // Skip the active plan itself
+      if (plan.id === activeTariffId) return;
+      
+      // Determine plan category
+      const priceDiff = plan.price - activePrice;
+      const isDifferentType = plan.type !== activeType;
+      
+      if (priceDiff > 0) {
+        // More expensive = upgrade
+        upgrades.push(plan);
+      } else if (isDifferentType) {
+        // Different type (e.g., monthly vs session_pack) = alternative format
+        alternatives.push(plan);
+      } else if (Math.abs(priceDiff) < activePrice * 0.1) {
+        // Similar price, same type = same level (don't show)
+        sameLevel.push(plan);
+      } else {
+        // Lower price, could be downgrade or different offering
+        alternatives.push(plan);
+      }
+    });
+
+    // Sort upgrades by price ascending
+    upgrades.sort((a, b) => a.price - b.price);
+    
+    return {
+      activePlan,
+      upgrades,
+      alternatives,
+      sameLevel,
+    };
+  }, [membershipPlans, activeMembershipForClub]);
+
+  // Calculate days remaining
+  const getDaysRemaining = (endDate: string) => {
+    const end = new Date(endDate);
+    const today = new Date();
+    const diffTime = end.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
+  // Handle freeze action
+  const handleFreeze = () => {
+    setShowFreezeModal(true);
+  };
+
+  // Reload data after freeze/unfreeze
+  const handleFreezeSuccess = async () => {
+    setShowFreezeModal(false);
+    setLoading(true);
+    // Re-trigger the effect by changing something
+    try {
+      const tg = window.Telegram?.WebApp;
+      const token = tg?.initData || null;
+      const membershipsResponse = await membershipsApi.getActive(token);
+      const activeMemberships: MembershipResponse[] = membershipsResponse.data.memberships || [];
+      
+      const tariffMap = new Map<number, ActiveMembershipInfo>();
+      let primaryActiveMembership: ActiveMembershipInfo | null = null;
+      
+      activeMemberships.forEach((m: MembershipResponse) => {
+        if (m.club_id === club.id && m.tariff_id && (m.status === 'active' || m.status === 'frozen' || m.status === 'new')) {
+          const plan = membershipPlans.find(p => p.id === m.tariff_id);
+          
+          const membershipInfo: ActiveMembershipInfo = {
+            membershipId: m.id,
+            tariffId: m.tariff_id,
+            endDate: m.end_date,
+            status: m.status,
+            tariffName: m.tariff_name,
+            tariffType: plan?.type || 'monthly',
+            price: m.price,
+            freezeDaysAvailable: m.freeze_days_available,
+            freezeDaysUsed: m.freeze_days_used,
+            freezeStartDate: m.freeze_start_date,
+            freezeEndDate: m.freeze_end_date,
+            features: plan?.features || [],
+          };
+          
+          tariffMap.set(m.tariff_id, membershipInfo);
+          
+          if (!primaryActiveMembership || (m.status === 'active' && primaryActiveMembership.status === 'frozen')) {
+            primaryActiveMembership = membershipInfo;
+          }
+        }
+      });
+      setActiveMembershipForClub(primaryActiveMembership);
+    } catch (error) {
+      console.error('Failed to reload memberships:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -465,101 +616,304 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
               )}
             </div>
           ) : (
-            <div className="p-4 space-y-4">
-              {membershipPlans.length > 0 ? (
-                membershipPlans.map((plan, index) => {
-                  const isPopular = index === 1 || (membershipPlans.length === 1 && index === 0);
-                  const activeMembership = getActiveMembershipInfo(plan.id);
-                  const isActive = !!activeMembership;
+            <div className="p-4 space-y-5">
+              {/* Active Membership Section */}
+              {activeMembershipForClub && categorizedPlans.activePlan && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <BadgeCheck size={18} className="text-emerald-600" />
+                    <h3 className="font-semibold text-gray-900">{t('clubs.membership.yourActive')}</h3>
+                  </div>
                   
-                  return (
-                    <Card 
-                      key={plan.id} 
-                      className={`p-4 relative overflow-hidden transition-all ${
-                        isActive
-                          ? 'border-2 border-emerald-500 bg-emerald-50/30'
-                          : isPopular 
-                            ? 'border-2 border-blue-500 shadow-lg shadow-blue-100' 
-                            : 'border border-gray-200'
-                      }`}
-                    >
-                      {/* Active badge */}
-                      {isActive ? (
-                        <div className="absolute top-0 right-0">
-                          <div className="bg-emerald-500 text-white text-[10px] font-semibold px-3 py-1 rounded-bl-lg flex items-center gap-1">
+                  <Card className="p-4 border-2 border-emerald-500 bg-gradient-to-br from-emerald-50 to-white relative overflow-hidden">
+                    {/* Status badge */}
+                    <div className="absolute top-0 right-0">
+                      <div className={`text-white text-[10px] font-semibold px-3 py-1 rounded-bl-lg flex items-center gap-1 ${
+                        activeMembershipForClub.status === 'frozen' ? 'bg-blue-500' : 'bg-emerald-500'
+                      }`}>
+                        {activeMembershipForClub.status === 'frozen' ? (
+                          <>
+                            <Snowflake size={12} />
+                            {t('clubs.membership.frozen')}
+                          </>
+                        ) : (
+                          <>
                             <BadgeCheck size={12} />
                             {t('clubs.membership.active')}
-                          </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Plan header */}
+                    <div className="flex items-start justify-between mb-3 pr-20">
+                      <div>
+                        <h4 className="font-bold text-gray-900 text-lg">{categorizedPlans.activePlan.name}</h4>
+                        <p className="text-xs text-gray-500 mt-0.5">{getPlanDuration(categorizedPlans.activePlan)}</p>
+                      </div>
+                    </div>
+                    
+                    {/* Expiration info */}
+                    <div className="bg-white/60 rounded-xl p-3 mb-4 border border-emerald-100">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Calendar size={16} className="text-emerald-600" />
+                          <span className="text-sm text-gray-600">{t('clubs.membership.expiresOn')}</span>
                         </div>
-                      ) : isPopular && (
-                        <div className="absolute top-0 right-0">
-                          <div className="bg-blue-500 text-white text-[10px] font-semibold px-3 py-1 rounded-bl-lg">
-                            {t('clubs.membership.popular')}
-                          </div>
-                        </div>
-                      )}
-                      
-                      {/* Plan header */}
-                      <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <h4 className="font-bold text-gray-900 text-lg">{plan.name}</h4>
-                          <p className="text-xs text-gray-500 mt-0.5">{getPlanDuration(plan)}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className={`text-2xl font-bold ${isActive ? 'text-emerald-600' : 'text-blue-600'}`}>
-                            {formatPrice(plan.price)}
-                          </p>
-                          {plan.duration_days && plan.duration_days >= 30 && (
-                            <p className="text-xs text-gray-400">
-                              {formatPrice(Math.round(plan.price / (plan.duration_days / 30)))}{t('clubs.details.perMonth')}
-                            </p>
+                        <span className="font-semibold text-gray-900">{formatDate(activeMembershipForClub.endDate)}</span>
+                      </div>
+                      <div className="mt-2 flex items-center justify-between">
+                        <span className="text-xs text-gray-500">{t('clubs.membership.daysRemaining')}</span>
+                        <span className={`text-sm font-semibold ${getDaysRemaining(activeMembershipForClub.endDate) <= 7 ? 'text-amber-600' : 'text-emerald-600'}`}>
+                          {getDaysRemaining(activeMembershipForClub.endDate)} {t('clubs.membership.days')}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    {/* Features */}
+                    {activeMembershipForClub.features.length > 0 && (
+                      <div className="mb-4">
+                        <p className="text-xs font-medium text-gray-500 mb-2">{t('clubs.membership.includedBenefits')}</p>
+                        <div className="space-y-1.5">
+                          {activeMembershipForClub.features.slice(0, 3).map((feature, idx) => (
+                            <div key={idx} className="flex items-center gap-2">
+                              <CheckCircle2 size={14} className="text-emerald-500 flex-shrink-0" />
+                              <span className="text-sm text-gray-700">{feature}</span>
+                            </div>
+                          ))}
+                          {activeMembershipForClub.features.length > 3 && (
+                            <p className="text-xs text-gray-400 ml-6">+{activeMembershipForClub.features.length - 3} {t('clubs.membership.more')}</p>
                           )}
                         </div>
                       </div>
-                      
-                      {plan.description && (
-                        <p className="text-sm text-gray-600 mb-3">{plan.description}</p>
+                    )}
+                    
+                    {/* Action buttons */}
+                    <div className="grid grid-cols-2 gap-2">
+                      {activeMembershipForClub.status !== 'frozen' ? (
+                        <button
+                          onClick={handleFreeze}
+                          disabled={activeMembershipForClub.freezeDaysAvailable <= 0}
+                          className="px-3 py-2.5 bg-blue-50 text-blue-700 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <Snowflake size={16} />
+                          {t('clubs.membership.freeze')}
+                        </button>
+                      ) : (
+                        <button
+                          onClick={handleFreeze}
+                          className="px-3 py-2.5 bg-blue-50 text-blue-700 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors"
+                        >
+                          <Snowflake size={16} />
+                          {t('clubs.membership.unfreeze')}
+                        </button>
                       )}
+                      <button
+                        onClick={() => categorizedPlans.activePlan && handlePurchase(categorizedPlans.activePlan)}
+                        className="px-3 py-2.5 bg-emerald-50 text-emerald-700 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-emerald-100 transition-colors"
+                      >
+                        <RefreshCw size={16} />
+                        {t('clubs.membership.extend')}
+                      </button>
+                    </div>
+                    
+                    {/* Freeze days info */}
+                    {activeMembershipForClub.status !== 'frozen' && activeMembershipForClub.freezeDaysAvailable > 0 && (
+                      <p className="text-xs text-gray-400 mt-2 text-center">
+                        {t('clubs.membership.freezeDaysLeft', { days: activeMembershipForClub.freezeDaysAvailable })}
+                      </p>
+                    )}
+                  </Card>
+                </div>
+              )}
 
-                      {/* Features list */}
-                      <div className="mb-4">
-                        <p className="text-xs font-medium text-gray-500 mb-2">{t('clubs.membership.includes')}</p>
-                        {hasFeatures(plan) ? (
-                          <div className="space-y-2">
-                            {plan.features.slice(0, 4).map((feature, idx) => (
+              {/* Upgrade Options */}
+              {activeMembershipForClub && categorizedPlans.upgrades.length > 0 && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <ArrowUpCircle size={18} className="text-violet-600" />
+                    <h3 className="font-semibold text-gray-900">{t('clubs.membership.upgradeOptions')}</h3>
+                  </div>
+                  
+                  {categorizedPlans.upgrades.map((plan) => (
+                    <Card key={plan.id} className="p-4 border border-violet-200 bg-violet-50/30 relative overflow-hidden">
+                      <div className="absolute top-0 right-0">
+                        <div className="bg-violet-500 text-white text-[10px] font-semibold px-3 py-1 rounded-bl-lg flex items-center gap-1">
+                          <Sparkles size={12} />
+                          {t('clubs.membership.upgrade')}
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start justify-between mb-3 pr-16">
+                        <div>
+                          <h4 className="font-bold text-gray-900">{plan.name}</h4>
+                          <p className="text-xs text-gray-500 mt-0.5">{getPlanDuration(plan)}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xl font-bold text-violet-600">{formatPrice(plan.price)}</p>
+                        </div>
+                      </div>
+                      
+                      {hasFeatures(plan) && (
+                        <div className="mb-3">
+                          <div className="space-y-1.5">
+                            {plan.features.slice(0, 2).map((feature, idx) => (
                               <div key={idx} className="flex items-center gap-2">
-                                <CheckCircle2 size={14} className="text-emerald-500 flex-shrink-0" />
+                                <CheckCircle2 size={14} className="text-violet-500 flex-shrink-0" />
                                 <span className="text-sm text-gray-700">{feature}</span>
                               </div>
                             ))}
-                            {plan.features.length > 4 && (
-                              <p className="text-xs text-gray-400 ml-6">+{plan.features.length - 4} {t('clubs.membership.more')}</p>
-                            )}
-                          </div>
-                        ) : (
-                          <p className="text-sm text-gray-400 italic">
-                            {t('clubs.membership.noFeatures')}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Action button or active status */}
-                      {isActive ? (
-                        <div className="w-full px-4 py-3 rounded-xl bg-emerald-100 border border-emerald-200">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2 text-emerald-700">
-                              <BadgeCheck size={18} />
-                              <span className="font-medium">{t('clubs.membership.alreadyActive')}</span>
-                            </div>
-                            <div className="flex items-center gap-1.5 text-emerald-600">
-                              <Calendar size={14} />
-                              <span className="text-sm font-medium">
-                                {t('clubs.membership.until')} {formatDate(activeMembership.endDate)}
-                              </span>
-                            </div>
                           </div>
                         </div>
-                      ) : (
+                      )}
+                      
+                      <button
+                        onClick={() => handlePurchase(plan)}
+                        className="w-full px-4 py-2.5 bg-violet-600 text-white rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-violet-700 transition-colors"
+                      >
+                        <ArrowUpCircle size={16} />
+                        {t('clubs.membership.upgradeNow')}
+                      </button>
+                    </Card>
+                  ))}
+                </div>
+              )}
+
+              {/* Alternative Options (different format) */}
+              {activeMembershipForClub && categorizedPlans.alternatives.length > 0 && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Layers size={18} className="text-gray-600" />
+                    <h3 className="font-semibold text-gray-900">{t('clubs.membership.otherOptions')}</h3>
+                  </div>
+                  
+                  {categorizedPlans.alternatives.map((plan) => (
+                    <Card key={plan.id} className="p-4 border border-gray-200 relative">
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <h4 className="font-semibold text-gray-900">{plan.name}</h4>
+                          <p className="text-xs text-gray-500 mt-0.5">{getPlanDuration(plan)}</p>
+                        </div>
+                        <p className="text-lg font-bold text-gray-700">{formatPrice(plan.price)}</p>
+                      </div>
+                      
+                      {hasFeatures(plan) && (
+                        <div className="mb-3">
+                          <div className="space-y-1">
+                            {plan.features.slice(0, 2).map((feature, idx) => (
+                              <div key={idx} className="flex items-center gap-2">
+                                <CheckCircle2 size={12} className="text-gray-400 flex-shrink-0" />
+                                <span className="text-sm text-gray-600">{feature}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      
+                      <button
+                        onClick={() => handlePurchase(plan)}
+                        className="w-full px-4 py-2.5 bg-gray-100 text-gray-700 rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-gray-200 transition-colors"
+                      >
+                        <CreditCard size={16} />
+                        {t('clubs.details.purchase')}
+                      </button>
+                    </Card>
+                  ))}
+                </div>
+              )}
+
+              {/* Same level plans - shown as disabled */}
+              {activeMembershipForClub && categorizedPlans.sameLevel.length > 0 && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Lock size={16} className="text-gray-400" />
+                    <h3 className="font-medium text-gray-500 text-sm">{t('clubs.membership.sameLevelPlans')}</h3>
+                  </div>
+                  
+                  {categorizedPlans.sameLevel.map((plan) => (
+                    <Card key={plan.id} className="p-3 border border-gray-100 bg-gray-50 opacity-60">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="font-medium text-gray-600">{plan.name}</h4>
+                          <p className="text-xs text-gray-400">{getPlanDuration(plan)}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium text-gray-500">{formatPrice(plan.price)}</span>
+                          <Lock size={14} className="text-gray-400" />
+                        </div>
+                      </div>
+                      <p className="text-xs text-gray-400 mt-2 flex items-center gap-1">
+                        <Calendar size={12} />
+                        {t('clubs.membership.availableAfterExpiry')}
+                      </p>
+                    </Card>
+                  ))}
+                </div>
+              )}
+
+              {/* No active membership - show all plans */}
+              {!activeMembershipForClub && membershipPlans.length > 0 && (
+                <>
+                  {membershipPlans.map((plan, index) => {
+                    const isPopular = index === 1 || (membershipPlans.length === 1 && index === 0);
+                    
+                    return (
+                      <Card 
+                        key={plan.id} 
+                        className={`p-4 relative overflow-hidden transition-all ${
+                          isPopular 
+                            ? 'border-2 border-blue-500 shadow-lg shadow-blue-100' 
+                            : 'border border-gray-200'
+                        }`}
+                      >
+                        {isPopular && (
+                          <div className="absolute top-0 right-0">
+                            <div className="bg-blue-500 text-white text-[10px] font-semibold px-3 py-1 rounded-bl-lg">
+                              {t('clubs.membership.popular')}
+                            </div>
+                          </div>
+                        )}
+                        
+                        <div className="flex items-start justify-between mb-3">
+                          <div>
+                            <h4 className="font-bold text-gray-900 text-lg">{plan.name}</h4>
+                            <p className="text-xs text-gray-500 mt-0.5">{getPlanDuration(plan)}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-2xl font-bold text-blue-600">{formatPrice(plan.price)}</p>
+                            {plan.duration_days && plan.duration_days >= 30 && (
+                              <p className="text-xs text-gray-400">
+                                {formatPrice(Math.round(plan.price / (plan.duration_days / 30)))}{t('clubs.details.perMonth')}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        
+                        {plan.description && (
+                          <p className="text-sm text-gray-600 mb-3">{plan.description}</p>
+                        )}
+
+                        <div className="mb-4">
+                          <p className="text-xs font-medium text-gray-500 mb-2">{t('clubs.membership.includes')}</p>
+                          {hasFeatures(plan) ? (
+                            <div className="space-y-2">
+                              {plan.features.slice(0, 4).map((feature, idx) => (
+                                <div key={idx} className="flex items-center gap-2">
+                                  <CheckCircle2 size={14} className="text-emerald-500 flex-shrink-0" />
+                                  <span className="text-sm text-gray-700">{feature}</span>
+                                </div>
+                              ))}
+                              {plan.features.length > 4 && (
+                                <p className="text-xs text-gray-400 ml-6">+{plan.features.length - 4} {t('clubs.membership.more')}</p>
+                              )}
+                            </div>
+                          ) : (
+                            <p className="text-sm text-gray-400 italic">
+                              {t('clubs.membership.noFeatures')}
+                            </p>
+                          )}
+                        </div>
+
                         <button
                           onClick={() => handlePurchase(plan)}
                           className={`w-full px-4 py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2 ${
@@ -571,11 +925,14 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                           <CreditCard size={18} />
                           {t('clubs.details.purchase')}
                         </button>
-                      )}
-                    </Card>
-                  );
-                })
-              ) : (
+                      </Card>
+                    );
+                  })}
+                </>
+              )}
+              
+              {/* Empty state */}
+              {membershipPlans.length === 0 && (
                 <div className="text-center py-8">
                   <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
                     <CreditCard size={28} className="text-gray-400" />
@@ -603,6 +960,22 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
             setSelectedPlan(null);
             onClose();
           }}
+        />
+      )}
+
+      {/* Freeze Modal */}
+      {showFreezeModal && activeMembershipForClub && (
+        <FreezeMembershipModal
+          membership={{
+            id: activeMembershipForClub.membershipId,
+            status: activeMembershipForClub.status,
+            freeze_days_available: activeMembershipForClub.freezeDaysAvailable,
+            freeze_days_used: activeMembershipForClub.freezeDaysUsed,
+            freeze_start_date: activeMembershipForClub.freezeStartDate,
+            freeze_end_date: activeMembershipForClub.freezeEndDate,
+          }}
+          onClose={() => setShowFreezeModal(false)}
+          onSuccess={handleFreezeSuccess}
         />
       )}
 
