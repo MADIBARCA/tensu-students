@@ -149,10 +149,22 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
       } else {
         throw new Error(completeResponse.data.message || 'Payment completion failed');
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Payment error:', error);
       setPaymentStatus('error');
-      setPaymentError('Произошла ошибка при обработке платежа. Попробуйте еще раз.');
+      
+      // Extract error message from backend response
+      let errorMessage = t('clubs.payment.error.generic');
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { data?: { message?: string } } };
+        if (axiosError.response?.data?.message) {
+          errorMessage = axiosError.response.data.message;
+        }
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
+      setPaymentError(errorMessage);
     }
   };
 
