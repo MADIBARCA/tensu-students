@@ -165,7 +165,7 @@ export const MembershipsSection: React.FC<MembershipsSectionProps> = ({
             </div>
 
             <div className="flex gap-2">
-              {membership.status === 'active' && (
+              {(membership.status === 'active' || membership.status === 'new') && (
                 <>
                   <button
                     onClick={(e) => {
