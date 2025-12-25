@@ -324,14 +324,6 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
                 </p>
               </div>
             )}
-            
-            {startDate && !isStartDateValid && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm text-red-800">
-                  Дата начала заморозки не может быть сегодня или в прошлом. Выберите дату начиная с завтрашнего дня.
-                </p>
-              </div>
-            )}
 
             <div className="flex items-start gap-2 p-3 bg-blue-50 text-blue-700 rounded-lg text-sm">
               <div className="mt-0.5">ℹ️</div>
