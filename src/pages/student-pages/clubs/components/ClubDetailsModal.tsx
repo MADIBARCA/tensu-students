@@ -353,12 +353,12 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
   // Generate a consistent color based on name
   const getAvatarColor = (coach: Coach) => {
     const colors = [
-      'bg-gradient-to-br from-blue-400 to-blue-600',
-      'bg-gradient-to-br from-emerald-400 to-emerald-600',
-      'bg-gradient-to-br from-violet-400 to-violet-600',
-      'bg-gradient-to-br from-amber-400 to-amber-600',
-      'bg-gradient-to-br from-rose-400 to-rose-600',
-      'bg-gradient-to-br from-cyan-400 to-cyan-600',
+      'bg-linear-to-br from-blue-400 to-blue-600',
+      'bg-linear-to-br from-emerald-400 to-emerald-600',
+      'bg-linear-to-br from-violet-400 to-violet-600',
+      'bg-linear-to-br from-amber-400 to-amber-600',
+      'bg-linear-to-br from-rose-400 to-rose-600',
+      'bg-linear-to-br from-cyan-400 to-cyan-600',
     ];
     const name = getCoachFullName(coach);
     const index = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % colors.length;
@@ -516,7 +516,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
         {/* Header with gradient */}
         <div className="relative">
           {/* Cover gradient background */}
-          <div className="h-24 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700" />
+          <div className="h-24 bg-linear-to-br from-blue-500 via-blue-600 to-indigo-700" />
           
           {/* Club logo/icon */}
           <div className="absolute -bottom-8 left-4">
@@ -527,7 +527,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                 className="w-16 h-16 rounded-2xl border-4 border-white shadow-lg object-cover"
               />
             ) : (
-              <div className="w-16 h-16 rounded-2xl border-4 border-white shadow-lg bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
+              <div className="w-16 h-16 rounded-2xl border-4 border-white shadow-lg bg-linear-to-br from-blue-100 to-blue-200 flex items-center justify-center">
                 <Building2 size={28} className="text-blue-600" />
               </div>
             )}
@@ -692,7 +692,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                     {coaches.map((coach) => (
                       <div 
                         key={coach.id}
-                        className="flex-shrink-0 w-20 text-center"
+                        className="shrink-0 w-20 text-center"
                       >
                         <div className={`w-16 h-16 mx-auto rounded-2xl ${getAvatarColor(coach)} flex items-center justify-center shadow-md overflow-hidden`}>
                           {coach.photo_url ? (
@@ -730,7 +730,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                     {sections.map((section) => (
                       <div 
                         key={section.id} 
-                        className="p-3 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border border-gray-100"
+                        className="p-3 bg-linear-to-br from-gray-50 to-gray-100 rounded-xl border border-gray-100"
                       >
                         <p className="font-medium text-gray-900 text-sm">{section.name}</p>
                         {section.description && (
@@ -752,7 +752,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                     <h3 className="font-semibold text-gray-900">{t('clubs.membership.yourActive')}</h3>
                   </div>
                   
-                  <Card className="p-4 border-2 border-emerald-500 bg-gradient-to-br from-emerald-50 to-white relative overflow-hidden">
+                  <Card className="p-4 border-2 border-emerald-500 bg-linear-to-br from-emerald-50 to-white relative overflow-hidden">
                     {/* Status badge */}
                     <div className="absolute top-0 right-0">
                       <div className={`text-white text-[10px] font-semibold px-3 py-1 rounded-bl-lg flex items-center gap-1 ${
@@ -835,7 +835,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                         <div className="space-y-1.5">
                           {activeMembershipForClub.features.slice(0, 3).map((feature, idx) => (
                             <div key={idx} className="flex items-center gap-2">
-                              <CheckCircle2 size={14} className="text-emerald-500 flex-shrink-0" />
+                              <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
                               <span className="text-sm text-gray-700">{feature}</span>
                             </div>
                           ))}
@@ -907,6 +907,15 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                           <h4 className="font-bold text-gray-900">{plan.name}</h4>
                           <div className="flex items-center gap-2 mt-0.5">
                             <span className="text-xs text-gray-500">{getPlanDuration(plan)}</span>
+                            {plan.freezeDaysTotal > 0 && (
+                              <>
+                                <span className="text-xs text-gray-300">•</span>
+                                <span className="text-xs text-blue-500 font-medium flex items-center gap-0.5">
+                                  <Snowflake size={10} />
+                                  {plan.freezeDaysTotal} {t('clubs.membership.days')}
+                                </span>
+                              </>
+                            )}
                             <span className="text-xs text-gray-300">•</span>
                             <span className="text-xs text-violet-600 font-medium">{getPackageTypeLabel(plan.packageType)}</span>
                           </div>
@@ -924,7 +933,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                           <div className="space-y-1.5">
                             {plan.features.slice(0, 2).map((feature, idx) => (
                               <div key={idx} className="flex items-center gap-2">
-                                <CheckCircle2 size={14} className="text-violet-500 flex-shrink-0" />
+                                <CheckCircle2 size={14} className="text-violet-500 shrink-0" />
                                 <span className="text-sm text-gray-700">{feature}</span>
                               </div>
                             ))}
@@ -959,6 +968,15 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                           <h4 className="font-semibold text-gray-900">{plan.name}</h4>
                           <div className="flex items-center gap-2 mt-0.5">
                             <span className="text-xs text-gray-500">{getPlanDuration(plan)}</span>
+                            {plan.freezeDaysTotal > 0 && (
+                              <>
+                                <span className="text-xs text-gray-300">•</span>
+                                <span className="text-xs text-blue-500 font-medium flex items-center gap-0.5">
+                                  <Snowflake size={10} />
+                                  {plan.freezeDaysTotal} {t('clubs.membership.days')}
+                                </span>
+                              </>
+                            )}
                             <span className="text-xs text-gray-300">•</span>
                             <span className="text-xs text-gray-500">{getPackageTypeLabel(plan.packageType)}</span>
                           </div>
@@ -974,7 +992,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                           <div className="space-y-1">
                             {plan.features.slice(0, 2).map((feature, idx) => (
                               <div key={idx} className="flex items-center gap-2">
-                                <CheckCircle2 size={12} className="text-gray-400 flex-shrink-0" />
+                                <CheckCircle2 size={12} className="text-gray-400 shrink-0" />
                                 <span className="text-sm text-gray-600">{feature}</span>
                               </div>
                             ))}
@@ -1122,6 +1140,15 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                             <h4 className="font-bold text-gray-900 text-lg">{plan.name}</h4>
                             <div className="flex items-center gap-2 mt-0.5">
                               <span className="text-xs text-gray-500">{getPlanDuration(plan)}</span>
+                              {plan.freezeDaysTotal > 0 && (
+                                <>
+                                  <span className="text-xs text-gray-300">•</span>
+                                  <span className="text-xs text-blue-500 font-medium flex items-center gap-0.5">
+                                    <Snowflake size={10} />
+                                    {plan.freezeDaysTotal} {t('clubs.membership.days')}
+                                  </span>
+                                </>
+                              )}
                               <span className="text-xs text-gray-300">•</span>
                               <span className="text-xs text-blue-600 font-medium">{getPackageTypeLabel(plan.packageType)}</span>
                             </div>
@@ -1149,7 +1176,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                             <div className="space-y-2">
                               {plan.features.slice(0, 4).map((feature, idx) => (
                                 <div key={idx} className="flex items-center gap-2">
-                                  <CheckCircle2 size={14} className="text-emerald-500 flex-shrink-0" />
+                                  <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
                                   <span className="text-sm text-gray-700">{feature}</span>
                                 </div>
                               ))}
