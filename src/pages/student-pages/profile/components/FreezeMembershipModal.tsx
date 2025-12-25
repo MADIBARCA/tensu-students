@@ -83,7 +83,7 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
       
       // Show success message
       if (tg) {
-        tg.showAlert('Абонемент успешно заморожен');
+        tg.showAlert('Абонемент успешно заморожен. Тренер уведомлен.');
       }
       
       onSuccess?.();
@@ -155,7 +155,7 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
             <div className="space-y-4">
               <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center shrink-0">
                     <AlertTriangle size={20} className="text-amber-600" />
                   </div>
                   <div>
@@ -303,6 +303,11 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
                 </p>
               </div>
             )}
+
+            <div className="flex items-start gap-2 p-3 bg-blue-50 text-blue-700 rounded-lg text-sm">
+              <div className="mt-0.5">ℹ️</div>
+              <p>Ваш тренер получит уведомление о заморозке абонемента.</p>
+            </div>
 
             <div className="flex gap-3">
               <button
