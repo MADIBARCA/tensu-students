@@ -142,7 +142,6 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
   const tomorrowStr = tomorrow.toISOString().split('T')[0];
-  const todayStr = today.toISOString().split('T')[0];
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-30 z-50 flex items-center justify-center p-4">
