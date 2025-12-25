@@ -10,6 +10,7 @@ import { NoMembershipModal } from './components/NoMembershipModal';
 import { ParticipantsModal } from './components/ParticipantsModal';
 import { Card } from '@/components/ui';
 import { scheduleApi, membershipsApi, clubsApi } from '@/functions/axios/axiosFunctions';
+import { getErrorMessage } from '@/lib/utils/errorHandler';
 import type { SessionResponse, TrainerResponse, ClubResponse, MembershipResponse } from '@/functions/axios/responses';
 
 export interface Training {
@@ -231,10 +232,7 @@ export default function SchedulePage() {
     } catch (err: unknown) {
       console.error('Failed to book training:', err);
     if (tg) {
-        const errorMessage = err instanceof Error ? err.message : 
-          (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail || 
-          t('schedule.bookingError');
-        tg.showAlert(errorMessage);
+        tg.showAlert(getErrorMessage(err, t('schedule.bookingError')));
       }
     }
   };
@@ -270,10 +268,7 @@ export default function SchedulePage() {
     } catch (err: unknown) {
       console.error('Failed to cancel booking:', err);
     if (tg) {
-        const errorMessage = err instanceof Error ? err.message : 
-          (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail || 
-          t('schedule.cancelError');
-        tg.showAlert(errorMessage);
+        tg.showAlert(getErrorMessage(err, t('schedule.cancelError')));
       }
     }
   };
@@ -306,10 +301,7 @@ export default function SchedulePage() {
     } catch (err: unknown) {
       console.error('Failed to join waitlist:', err);
     if (tg) {
-        const errorMessage = err instanceof Error ? err.message : 
-          (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail || 
-          t('schedule.waitlistError');
-        tg.showAlert(errorMessage);
+        tg.showAlert(getErrorMessage(err, t('schedule.waitlistError')));
       }
     }
   };

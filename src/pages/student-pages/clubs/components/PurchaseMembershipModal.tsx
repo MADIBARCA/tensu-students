@@ -154,16 +154,8 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
       setPaymentStatus('error');
       
       // Extract error message from backend response
-      let errorMessage = t('clubs.payment.error.generic');
-      if (error && typeof error === 'object' && 'response' in error) {
-        const axiosError = error as { response?: { data?: { message?: string } } };
-        if (axiosError.response?.data?.message) {
-          errorMessage = axiosError.response.data.message;
-        }
-      } else if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-      
+      const { getErrorMessage } = await import('@/lib/utils/errorHandler');
+      const errorMessage = getErrorMessage(error, t('clubs.payment.error.generic') || 'Ошибка при оплате');
       setPaymentError(errorMessage);
     }
   };

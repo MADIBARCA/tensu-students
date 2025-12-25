@@ -124,7 +124,8 @@ export default function OnboardingPage() {
         }, 1500);
       } catch (err: unknown) {
         console.error('Error creating student:', err);
-        const errorMessage = err instanceof Error ? err.message : 'Failed to create profile';
+        const { getErrorMessage } = await import('@/lib/utils/errorHandler');
+        const errorMessage = getErrorMessage(err, 'Не удалось создать профиль');
         setError(errorMessage);
         setState('error');
       }

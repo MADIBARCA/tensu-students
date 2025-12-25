@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { X, Snowflake, Calendar, AlertTriangle, CheckCircle } from 'lucide-react';
 import { membershipsApi } from '@/functions/axios/axiosFunctions';
 import { useI18n } from '@/i18n/i18n';
+import { getErrorMessage } from '@/lib/utils/errorHandler';
 
 interface FreezeMembershipModalProps {
   membership: {
@@ -63,7 +64,19 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
   };
 
   const freezeDays = calculateFreezeDays();
-  const isValid = freezeDays >= 1 && freezeDays <= 30 && freezeDays <= freezeDaysAvailable;
+  
+  // Validate that start date is at least tomorrow
+  const isStartDateValid = useMemo(() => {
+    if (!startDate) return true; // Allow empty for now
+    const start = new Date(startDate);
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    start.setHours(0, 0, 0, 0);
+    return start >= tomorrow;
+  }, [startDate]);
+  
+  const isValid = freezeDays >= 1 && freezeDays <= 30 && freezeDays <= freezeDaysAvailable && isStartDateValid;
 
   const handleFreeze = async () => {
     if (!isValid) return;
@@ -90,7 +103,7 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
       onClose();
     } catch (err: unknown) {
       console.error('Freeze failed:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Ошибка при заморозке абонемента';
+      const errorMessage = getErrorMessage(err, 'Ошибка при заморозке абонемента');
       setError(errorMessage);
     } finally {
       setProcessing(false);
@@ -118,14 +131,18 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
       onClose();
     } catch (err: unknown) {
       console.error('Unfreeze failed:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Ошибка при разморозке абонемента';
+      const errorMessage = getErrorMessage(err, 'Ошибка при разморозке абонемента');
       setError(errorMessage);
     } finally {
       setProcessing(false);
     }
   };
 
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowStr = tomorrow.toISOString().split('T')[0];
+  const todayStr = today.toISOString().split('T')[0];
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-30 z-50 flex items-center justify-center p-4">
@@ -270,9 +287,12 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                min={today}
+                min={tomorrowStr}
                 className="w-full border border-gray-200 rounded-lg p-2"
               />
+              <p className="text-xs text-gray-500 mt-1">
+                Минимальная дата: завтра ({tomorrow.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })})
+              </p>
             </div>
 
             <div>
@@ -283,7 +303,7 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                min={startDate || today}
+                min={startDate || tomorrowStr}
                 className="w-full border border-gray-200 rounded-lg p-2"
               />
             </div>
@@ -295,11 +315,21 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
                 <p className={`text-sm ${isValid ? 'text-green-800' : 'text-red-800'}`}>
                   {isValid
                     ? `Выбрано дней: ${freezeDays}`
+                    : !isStartDateValid
+                    ? 'Дата начала заморозки должна быть не раньше завтрашнего дня'
                     : freezeDays > 30
                     ? 'Максимальный срок заморозки: 30 дней'
                     : freezeDays > freezeDaysAvailable
                     ? `Доступно только ${freezeDaysAvailable} дней`
                     : 'Минимальный срок заморозки: 1 день'}
+                </p>
+              </div>
+            )}
+            
+            {startDate && !isStartDateValid && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-800">
+                  Дата начала заморозки не может быть сегодня или в прошлом. Выберите дату начиная с завтрашнего дня.
                 </p>
               </div>
             )}

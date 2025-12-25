@@ -3,6 +3,7 @@ import { Layout, PageContainer } from '@/components/Layout';
 import { useI18n } from '@/i18n/i18n';
 import { useTelegram } from '@/hooks/useTelegram';
 import { studentsApi } from '@/functions/axios/axiosFunctions';
+import { getErrorMessage } from '@/lib/utils/errorHandler';
 import { UserInfoSection } from './components/UserInfoSection';
 import { MembershipsSection } from './components/MembershipsSection';
 import { MembershipHistorySection } from './components/MembershipHistorySection';
@@ -43,6 +44,10 @@ export default function ProfilePage() {
       setStudentData(response.data);
     } catch (error) {
       console.error('Failed to load student data:', error);
+      const tgApp = window.Telegram?.WebApp;
+      if (tgApp) {
+        tgApp.showAlert(getErrorMessage(error, 'Не удалось загрузить данные профиля'));
+      }
       // If API fails, don't set mock data in production
       // Just show the data from Telegram user if available
       if (user) {
