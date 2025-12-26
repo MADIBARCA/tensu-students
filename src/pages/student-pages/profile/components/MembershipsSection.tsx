@@ -3,7 +3,7 @@ import { SectionHeader } from '@/components/Layout';
 import { useI18n } from '@/i18n/i18n';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui';
-import { Calendar, MapPin, Users, CreditCard, Snowflake, ChevronRight } from 'lucide-react';
+import { Calendar, MapPin, Users, CreditCard, Snowflake, ChevronRight, AlertTriangle } from 'lucide-react';
 import { membershipsApi } from '@/functions/axios/axiosFunctions';
 import type { MembershipResponse, MembershipStatus } from '@/functions/axios/responses';
 
@@ -19,6 +19,7 @@ interface Membership {
   end_date: string;
   freeze_days_available?: number;
   freeze_days_used?: number;
+  is_tariff_deleted?: boolean;  // Indicates if the tariff was discontinued
 }
 
 interface MembershipsSectionProps {
@@ -58,6 +59,7 @@ export const MembershipsSection: React.FC<MembershipsSectionProps> = ({
           end_date: m.end_date,
           freeze_days_available: m.freeze_days_available,
           freeze_days_used: m.freeze_days_used,
+          is_tariff_deleted: m.is_tariff_deleted,
         }));
         
         setMemberships(mappedMemberships);
@@ -164,8 +166,19 @@ export const MembershipsSection: React.FC<MembershipsSectionProps> = ({
               </div>
             </div>
 
+            {/* Warning banner for discontinued tariffs */}
+            {membership.is_tariff_deleted && (
+              <div className="flex items-start gap-2 p-3 mb-3 bg-amber-50 border border-amber-200 rounded-lg">
+                <AlertTriangle size={18} className="text-amber-600 mt-0.5 flex-shrink-0" />
+                <div className="text-sm text-amber-800">
+                  <p className="font-medium">{t('membership.tariffDiscontinued')}</p>
+                  <p className="text-amber-700 text-xs mt-0.5">{t('membership.tariffDiscontinuedHint')}</p>
+                </div>
+              </div>
+            )}
+
             <div className="flex gap-2">
-              {(membership.status === 'active' || membership.status === 'new') && (
+              {(membership.status === 'active' || membership.status === 'new') && !membership.is_tariff_deleted && (
                 <>
                   <button
                     onClick={(e) => {

@@ -23,6 +23,7 @@ interface SelectedMembership {
   club_name: string;
   section_name?: string | null;
   end_date: string;
+  is_tariff_deleted?: boolean;  // Indicates if the tariff was discontinued
 }
 
 export default function ProfilePage() {

@@ -20,7 +20,8 @@ import {
   RefreshCw,
   ArrowUpCircle,
   Lock,
-  Sparkles
+  Sparkles,
+  AlertTriangle
 } from 'lucide-react';
 import { PurchaseMembershipModal } from './PurchaseMembershipModal';
 import { FreezeMembershipModal } from '../../profile/components/FreezeMembershipModal';
@@ -87,6 +88,7 @@ interface ActiveMembershipInfo {
   features: string[];
   includedSections: AccessInfo[];
   includedGroups: AccessInfo[];
+  isTariffDeleted?: boolean;  // Indicates if the tariff was discontinued
 }
 
 export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClose }) => {
@@ -165,6 +167,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
               features: plan?.features || [],
               includedSections: plan?.includedSections || [],
               includedGroups: plan?.includedGroups || [],
+              isTariffDeleted: m.is_tariff_deleted,
             };
 
             if (m.status === 'scheduled') {
@@ -846,37 +849,61 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                       </div>
                     )}
                     
-                    {/* Action buttons */}
-                    <div className="grid grid-cols-2 gap-2">
-                      {activeMembershipForClub.status !== 'frozen' ? (
+                    {/* Warning for discontinued tariff */}
+                    {activeMembershipForClub.isTariffDeleted && (
+                      <div className="flex items-start gap-2 p-3 mb-3 bg-amber-50 border border-amber-200 rounded-xl">
+                        <AlertTriangle size={18} className="text-amber-600 mt-0.5 flex-shrink-0" />
+                        <div className="text-sm text-amber-800">
+                          <p className="font-medium">{t('membership.tariffDiscontinued')}</p>
+                          <p className="text-amber-700 text-xs mt-0.5">{t('membership.tariffDiscontinuedHint')}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Action buttons - hide if tariff is deleted */}
+                    {!activeMembershipForClub.isTariffDeleted && (
+                      <div className="grid grid-cols-2 gap-2">
+                        {activeMembershipForClub.status !== 'frozen' ? (
+                          <button
+                            onClick={handleFreeze}
+                            disabled={activeMembershipForClub.freezeDaysAvailable <= 0}
+                            className="px-3 py-2.5 bg-blue-50 text-blue-700 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <Snowflake size={16} />
+                            {t('clubs.membership.freeze')}
+                          </button>
+                        ) : (
+                          <button
+                            onClick={handleFreeze}
+                            className="px-3 py-2.5 bg-blue-50 text-blue-700 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors"
+                          >
+                            <Snowflake size={16} />
+                            {t('clubs.membership.unfreeze')}
+                          </button>
+                        )}
                         <button
-                          onClick={handleFreeze}
-                          disabled={activeMembershipForClub.freezeDaysAvailable <= 0}
-                          className="px-3 py-2.5 bg-blue-50 text-blue-700 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          onClick={() => categorizedPlans.activePlan && handlePurchase(categorizedPlans.activePlan)}
+                          className="px-3 py-2.5 bg-emerald-50 text-emerald-700 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-emerald-100 transition-colors"
                         >
-                          <Snowflake size={16} />
-                          {t('clubs.membership.freeze')}
+                          <RefreshCw size={16} />
+                          {t('clubs.membership.extend')}
                         </button>
-                      ) : (
-                        <button
-                          onClick={handleFreeze}
-                          className="px-3 py-2.5 bg-blue-50 text-blue-700 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors"
-                        >
-                          <Snowflake size={16} />
-                          {t('clubs.membership.unfreeze')}
-                        </button>
-                      )}
+                      </div>
+                    )}
+                    
+                    {/* Unfreeze button - still allow if tariff deleted but membership is frozen */}
+                    {activeMembershipForClub.isTariffDeleted && activeMembershipForClub.status === 'frozen' && (
                       <button
-                        onClick={() => categorizedPlans.activePlan && handlePurchase(categorizedPlans.activePlan)}
-                        className="px-3 py-2.5 bg-emerald-50 text-emerald-700 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-emerald-100 transition-colors"
+                        onClick={handleFreeze}
+                        className="w-full px-3 py-2.5 bg-blue-50 text-blue-700 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors"
                       >
-                        <RefreshCw size={16} />
-                        {t('clubs.membership.extend')}
+                        <Snowflake size={16} />
+                        {t('clubs.membership.unfreeze')}
                       </button>
-                    </div>
+                    )}
                     
                     {/* Freeze days info */}
-                    {activeMembershipForClub.status !== 'frozen' && activeMembershipForClub.freezeDaysAvailable > 0 && (
+                    {!activeMembershipForClub.isTariffDeleted && activeMembershipForClub.status !== 'frozen' && activeMembershipForClub.freezeDaysAvailable > 0 && (
                       <p className="text-xs text-gray-400 mt-2 text-center">
                         {t('clubs.membership.freezeDaysLeft', { days: activeMembershipForClub.freezeDaysAvailable })}
                       </p>

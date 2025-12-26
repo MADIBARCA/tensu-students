@@ -39,6 +39,7 @@ export interface MembershipResponse {
   tariff_id: number | null;
   tariff_name: string | null;
   price: number;
+  is_tariff_deleted: boolean;  // Indicates if the tariff was discontinued
   freeze_days_available: number;
   freeze_days_used: number;
   freeze_start_date: string | null;
