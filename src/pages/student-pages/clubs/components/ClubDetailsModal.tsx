@@ -102,8 +102,10 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
   const [showFreezeModal, setShowFreezeModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'info' | 'memberships'>('info');
-  // Current active membership in this club (if any)
+  // Current active membership in this club (if any) - primary one for display
   const [activeMembershipForClub, setActiveMembershipForClub] = useState<ActiveMembershipInfo | null>(null);
+  // All active memberships in this club (for filtering out from buy options)
+  const [allActiveMembershipsForClub, setAllActiveMembershipsForClub] = useState<ActiveMembershipInfo[]>([]);
   // Scheduled memberships (purchased but starting later)
   const [scheduledMemberships, setScheduledMemberships] = useState<ActiveMembershipInfo[]>([]);
   // Track purchased plans during this session (fallback for immediate UI update)
@@ -143,6 +145,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
         // Build map of active tariffs for this club
         const tariffMap = new Map<number, ActiveMembershipInfo>();
         let primaryActiveMembership: ActiveMembershipInfo | null = null;
+        const allActiveList: ActiveMembershipInfo[] = [];
         const scheduledList: ActiveMembershipInfo[] = [];
 
         activeMemberships.forEach((m: MembershipResponse) => {
@@ -176,6 +179,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
               scheduledList.push(membershipInfo);
             } else if (m.status === 'active' || m.status === 'frozen' || m.status === 'new') {
               tariffMap.set(m.tariff_id, membershipInfo);
+              allActiveList.push(membershipInfo);
 
               // Set primary active membership (prioritize active over frozen)
               if (!primaryActiveMembership || (m.status === 'active' && primaryActiveMembership.status === 'frozen')) {
@@ -185,6 +189,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
           }
         });
         setActiveMembershipForClub(primaryActiveMembership);
+        setAllActiveMembershipsForClub(allActiveList);
         setScheduledMemberships(scheduledList);
         
         // Map sections
@@ -369,7 +374,13 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
     return colors[index];
   };
 
-  // Get all tariff IDs that are scheduled (from backend) or purchased this session
+  // Get all tariff IDs that are active, scheduled (from backend) or purchased this session
+  const activeTariffIds = useMemo(() => {
+    const ids = new Set<number>();
+    allActiveMembershipsForClub.forEach(m => ids.add(m.tariffId));
+    return ids;
+  }, [allActiveMembershipsForClub]);
+
   const scheduledTariffIds = useMemo(() => {
     const ids = new Set<number>();
     scheduledMemberships.forEach(m => ids.add(m.tariffId));
@@ -379,13 +390,17 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
 
   // Categorize plans relative to active membership using proper classification logic
   const categorizedPlans = useMemo(() => {
+    // Filter out all active and scheduled/purchased plans from available options
+    const availablePlans = membershipPlans.filter(p => 
+      !activeTariffIds.has(p.id) && !scheduledTariffIds.has(p.id)
+    );
+
     if (!activeMembershipForClub) {
-      // No active membership - all plans are available (filter out scheduled/purchased ones)
-      const available = membershipPlans.filter(p => !scheduledTariffIds.has(p.id));
+      // No active membership - all non-active plans are available
       return {
         activePlan: null,
         upgrades: [],
-        alternatives: available,
+        alternatives: availablePlans,
         sameLevel: [],
       };
     }
@@ -395,11 +410,10 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
     
     if (!activePlan) {
       // Active plan not found in available plans - show all as alternatives
-      const available = membershipPlans.filter(p => !scheduledTariffIds.has(p.id));
       return {
         activePlan: null,
         upgrades: [],
-        alternatives: available,
+        alternatives: availablePlans,
         sameLevel: [],
       };
     }
@@ -408,14 +422,8 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
     const alternatives: MembershipPlan[] = [];
     const sameLevel: MembershipPlan[] = [];
 
-    membershipPlans.forEach(plan => {
-      // Skip the active plan itself
-      if (plan.id === activeTariffId) return;
-
-      // Skip if this plan is already scheduled/purchased
-      if (scheduledTariffIds.has(plan.id)) {
-        return;
-      }
+    // Only process plans that are not active
+    availablePlans.forEach(plan => {
 
       // Use proper classification logic
       const classification = classifyMembershipChange(
@@ -458,7 +466,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
       alternatives,
       sameLevel,
     };
-  }, [membershipPlans, activeMembershipForClub, scheduledTariffIds]);
+  }, [membershipPlans, activeMembershipForClub, activeTariffIds, scheduledTariffIds]);
 
   // Calculate days remaining
   const getDaysRemaining = (endDate: string) => {
@@ -487,6 +495,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
 
       const tariffMap = new Map<number, ActiveMembershipInfo>();
       let primaryActiveMembership: ActiveMembershipInfo | null = null;
+      const allActiveList: ActiveMembershipInfo[] = [];
       const scheduledList: ActiveMembershipInfo[] = [];
 
       activeMemberships.forEach((m: MembershipResponse) => {
@@ -510,12 +519,14 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
             features: plan?.features || [],
             includedSections: plan?.includedSections || [],
             includedGroups: plan?.includedGroups || [],
+            isTariffDeleted: m.is_tariff_deleted,
           };
 
           if (m.status === 'scheduled') {
             scheduledList.push(membershipInfo);
           } else if (m.status === 'active' || m.status === 'frozen' || m.status === 'new') {
             tariffMap.set(m.tariff_id, membershipInfo);
+            allActiveList.push(membershipInfo);
 
             if (!primaryActiveMembership || (m.status === 'active' && primaryActiveMembership.status === 'frozen')) {
               primaryActiveMembership = membershipInfo;
@@ -524,6 +535,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
         }
       });
       setActiveMembershipForClub(primaryActiveMembership);
+      setAllActiveMembershipsForClub(allActiveList);
       setScheduledMemberships(scheduledList);
     } catch (error) {
       console.error('Failed to reload memberships:', error);
