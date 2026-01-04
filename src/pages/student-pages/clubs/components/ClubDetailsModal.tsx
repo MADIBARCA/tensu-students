@@ -781,168 +781,189 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
             </div>
           ) : (
             <div className="p-4 space-y-5">
-              {/* Active Membership Section */}
-              {activeMembershipForClub && categorizedPlans.activePlan && (
+              {/* Active Memberships Section - Show ALL active memberships */}
+              {allActiveMembershipsForClub.length > 0 && (
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
                     <BadgeCheck size={18} className="text-emerald-600" />
-                    <h3 className="font-semibold text-gray-900">{t('clubs.membership.yourActive')}</h3>
+                    <h3 className="font-semibold text-gray-900">
+                      {allActiveMembershipsForClub.length === 1 
+                        ? t('clubs.membership.yourActive')
+                        : t('clubs.membership.yourActiveMemberships', { count: allActiveMembershipsForClub.length })
+                      }
+                    </h3>
                   </div>
                   
-                  <Card className="p-4 border-2 border-emerald-500 bg-linear-to-br from-emerald-50 to-white relative overflow-hidden">
-                    {/* Status badge */}
-                    <div className="absolute top-0 right-0">
-                      <div className={`text-white text-[10px] font-semibold px-3 py-1 rounded-bl-lg flex items-center gap-1 ${
-                        activeMembershipForClub.status === 'frozen' ? 'bg-blue-500' : 'bg-emerald-500'
-                      }`}>
-                        {activeMembershipForClub.status === 'frozen' ? (
-                          <>
-                            <Snowflake size={12} />
-                            {t('clubs.membership.frozen')}
-                          </>
-                        ) : (
-                          <>
-                            <BadgeCheck size={12} />
-                            {t('clubs.membership.active')}
-                          </>
-                        )}
-                      </div>
-                    </div>
+                  {allActiveMembershipsForClub.map((membership) => {
+                    const plan = membershipPlans.find(p => p.id === membership.tariffId);
+                    if (!plan) return null;
                     
-                    {/* Plan header */}
-                    <div className="flex items-start justify-between mb-3 pr-20">
-                      <div>
-                        <h4 className="font-bold text-gray-900 text-lg">{categorizedPlans.activePlan.name}</h4>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-xs text-gray-500">{getPlanDuration(categorizedPlans.activePlan)}</span>
-                          <span className="text-xs text-gray-300">•</span>
-                          <span className="text-xs text-emerald-600 font-medium">{getPackageTypeLabel(categorizedPlans.activePlan.packageType)}</span>
+                    return (
+                      <Card key={membership.membershipId} className="p-4 border-2 border-emerald-500 bg-linear-to-br from-emerald-50 to-white relative overflow-hidden">
+                        {/* Status badge */}
+                        <div className="absolute top-0 right-0">
+                          <div className={`text-white text-[10px] font-semibold px-3 py-1 rounded-bl-lg flex items-center gap-1 ${
+                            membership.status === 'frozen' ? 'bg-blue-500' : 'bg-emerald-500'
+                          }`}>
+                            {membership.status === 'frozen' ? (
+                              <>
+                                <Snowflake size={12} />
+                                {t('clubs.membership.frozen')}
+                              </>
+                            ) : (
+                              <>
+                                <BadgeCheck size={12} />
+                                {t('clubs.membership.active')}
+                              </>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                    
-                    {/* Expiration info */}
-                    <div className="bg-white/60 rounded-xl p-3 mb-4 border border-emerald-100">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Calendar size={16} className="text-emerald-600" />
-                          <span className="text-sm text-gray-600">{t('clubs.membership.expiresOn')}</span>
-                        </div>
-                        <span className="font-semibold text-gray-900">{formatDate(activeMembershipForClub.endDate)}</span>
-                      </div>
-                      <div className="mt-2 flex items-center justify-between">
-                        <span className="text-xs text-gray-500">{t('clubs.membership.daysRemaining')}</span>
-                        <span className={`text-sm font-semibold ${getDaysRemaining(activeMembershipForClub.endDate) <= 7 ? 'text-amber-600' : 'text-emerald-600'}`}>
-                          {getDaysRemaining(activeMembershipForClub.endDate)} {t('clubs.membership.days')}
-                        </span>
-                      </div>
-                    </div>
-                    
-                    {/* Access info - what's included */}
-                    {(activeMembershipForClub.includedSections.length > 0 || activeMembershipForClub.includedGroups.length > 0) && (
-                      <div className="mb-4">
-                        <p className="text-xs font-medium text-gray-500 mb-2">{t('clubs.membership.accessTo')}</p>
-                        <div className="flex flex-wrap gap-1.5">
-                          {activeMembershipForClub.includedSections.map((section) => (
-                            <span 
-                              key={`section-${section.id}`} 
-                              className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-lg text-xs font-medium"
-                            >
-                              <Layers size={12} />
-                              {section.name}
-                            </span>
-                          ))}
-                          {activeMembershipForClub.includedGroups.map((group) => (
-                            <span 
-                              key={`group-${group.id}`} 
-                              className="inline-flex items-center gap-1 px-2 py-1 bg-violet-100 text-violet-700 rounded-lg text-xs font-medium"
-                            >
-                              <Users size={12} />
-                              {group.name}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Features */}
-                    {activeMembershipForClub.features.length > 0 && (
-                      <div className="mb-4">
-                        <p className="text-xs font-medium text-gray-500 mb-2">{t('clubs.membership.includedBenefits')}</p>
-                        <div className="space-y-1.5">
-                          {activeMembershipForClub.features.slice(0, 3).map((feature, idx) => (
-                            <div key={idx} className="flex items-center gap-2">
-                              <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
-                              <span className="text-sm text-gray-700">{feature}</span>
+                        
+                        {/* Plan header */}
+                        <div className="flex items-start justify-between mb-3 pr-20">
+                          <div>
+                            <h4 className="font-bold text-gray-900 text-lg">{membership.tariffName || plan.name}</h4>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span className="text-xs text-gray-500">{getPlanDuration(plan)}</span>
+                              <span className="text-xs text-gray-300">•</span>
+                              <span className="text-xs text-emerald-600 font-medium">{getPackageTypeLabel(membership.packageType)}</span>
                             </div>
-                          ))}
-                          {activeMembershipForClub.features.length > 3 && (
-                            <p className="text-xs text-gray-400 ml-6">+{activeMembershipForClub.features.length - 3} {t('clubs.membership.more')}</p>
-                          )}
+                          </div>
                         </div>
-                      </div>
-                    )}
-                    
-                    {/* Warning for discontinued tariff */}
-                    {activeMembershipForClub.isTariffDeleted && (
-                      <div className="flex items-start gap-2 p-3 mb-3 bg-amber-50 border border-amber-200 rounded-xl">
-                        <AlertTriangle size={18} className="text-amber-600 mt-0.5 flex-shrink-0" />
-                        <div className="text-sm text-amber-800">
-                          <p className="font-medium">{t('membership.tariffDiscontinued')}</p>
-                          <p className="text-amber-700 text-xs mt-0.5">{t('membership.tariffDiscontinuedHint')}</p>
+                        
+                        {/* Expiration info */}
+                        <div className="bg-white/60 rounded-xl p-3 mb-4 border border-emerald-100">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <Calendar size={16} className="text-emerald-600" />
+                              <span className="text-sm text-gray-600">{t('clubs.membership.expiresOn')}</span>
+                            </div>
+                            <span className="font-semibold text-gray-900">{formatDate(membership.endDate)}</span>
+                          </div>
+                          <div className="mt-2 flex items-center justify-between">
+                            <span className="text-xs text-gray-500">{t('clubs.membership.daysRemaining')}</span>
+                            <span className={`text-sm font-semibold ${getDaysRemaining(membership.endDate) <= 7 ? 'text-amber-600' : 'text-emerald-600'}`}>
+                              {getDaysRemaining(membership.endDate)} {t('clubs.membership.days')}
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                    )}
+                        
+                        {/* Access info - what's included */}
+                        {(membership.includedSections.length > 0 || membership.includedGroups.length > 0) && (
+                          <div className="mb-4">
+                            <p className="text-xs font-medium text-gray-500 mb-2">{t('clubs.membership.accessTo')}</p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {membership.includedSections.map((section) => (
+                                <span 
+                                  key={`section-${section.id}`} 
+                                  className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-lg text-xs font-medium"
+                                >
+                                  <Layers size={12} />
+                                  {section.name}
+                                </span>
+                              ))}
+                              {membership.includedGroups.map((group) => (
+                                <span 
+                                  key={`group-${group.id}`} 
+                                  className="inline-flex items-center gap-1 px-2 py-1 bg-violet-100 text-violet-700 rounded-lg text-xs font-medium"
+                                >
+                                  <Users size={12} />
+                                  {group.name}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
 
-                    {/* Action buttons - hide if tariff is deleted */}
-                    {!activeMembershipForClub.isTariffDeleted && (
-                      <div className="grid grid-cols-2 gap-2">
-                        {activeMembershipForClub.status !== 'frozen' ? (
+                        {/* Features */}
+                        {membership.features.length > 0 && (
+                          <div className="mb-4">
+                            <p className="text-xs font-medium text-gray-500 mb-2">{t('clubs.membership.includedBenefits')}</p>
+                            <div className="space-y-1.5">
+                              {membership.features.slice(0, 3).map((feature, idx) => (
+                                <div key={idx} className="flex items-center gap-2">
+                                  <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
+                                  <span className="text-sm text-gray-700">{feature}</span>
+                                </div>
+                              ))}
+                              {membership.features.length > 3 && (
+                                <p className="text-xs text-gray-400 ml-6">+{membership.features.length - 3} {t('clubs.membership.more')}</p>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Warning for discontinued tariff */}
+                        {membership.isTariffDeleted && (
+                          <div className="flex items-start gap-2 p-3 mb-3 bg-amber-50 border border-amber-200 rounded-xl">
+                            <AlertTriangle size={18} className="text-amber-600 mt-0.5 flex-shrink-0" />
+                            <div className="text-sm text-amber-800">
+                              <p className="font-medium">{t('membership.tariffDiscontinued')}</p>
+                              <p className="text-amber-700 text-xs mt-0.5">{t('membership.tariffDiscontinuedHint')}</p>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Action buttons - hide if tariff is deleted */}
+                        {!membership.isTariffDeleted && (
+                          <div className="grid grid-cols-2 gap-2">
+                            {membership.status !== 'frozen' ? (
+                              <button
+                                onClick={() => {
+                                  setActiveMembershipForClub(membership);
+                                  handleFreeze();
+                                }}
+                                disabled={membership.freezeDaysAvailable <= 0}
+                                className="px-3 py-2.5 bg-blue-50 text-blue-700 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                <Snowflake size={16} />
+                                {t('clubs.membership.freeze')}
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => {
+                                  setActiveMembershipForClub(membership);
+                                  handleFreeze();
+                                }}
+                                className="px-3 py-2.5 bg-blue-50 text-blue-700 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors"
+                              >
+                                <Snowflake size={16} />
+                                {t('clubs.membership.unfreeze')}
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handlePurchase(plan)}
+                              className="px-3 py-2.5 bg-emerald-50 text-emerald-700 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-emerald-100 transition-colors"
+                            >
+                              <RefreshCw size={16} />
+                              {t('clubs.membership.extend')}
+                            </button>
+                          </div>
+                        )}
+                        
+                        {/* Unfreeze button - still allow if tariff deleted but membership is frozen */}
+                        {membership.isTariffDeleted && membership.status === 'frozen' && (
                           <button
-                            onClick={handleFreeze}
-                            disabled={activeMembershipForClub.freezeDaysAvailable <= 0}
-                            className="px-3 py-2.5 bg-blue-50 text-blue-700 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            <Snowflake size={16} />
-                            {t('clubs.membership.freeze')}
-                          </button>
-                        ) : (
-                          <button
-                            onClick={handleFreeze}
-                            className="px-3 py-2.5 bg-blue-50 text-blue-700 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors"
+                            onClick={() => {
+                              setActiveMembershipForClub(membership);
+                              handleFreeze();
+                            }}
+                            className="w-full px-3 py-2.5 bg-blue-50 text-blue-700 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors"
                           >
                             <Snowflake size={16} />
                             {t('clubs.membership.unfreeze')}
                           </button>
                         )}
-                        <button
-                          onClick={() => categorizedPlans.activePlan && handlePurchase(categorizedPlans.activePlan)}
-                          className="px-3 py-2.5 bg-emerald-50 text-emerald-700 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-emerald-100 transition-colors"
-                        >
-                          <RefreshCw size={16} />
-                          {t('clubs.membership.extend')}
-                        </button>
-                      </div>
-                    )}
-                    
-                    {/* Unfreeze button - still allow if tariff deleted but membership is frozen */}
-                    {activeMembershipForClub.isTariffDeleted && activeMembershipForClub.status === 'frozen' && (
-                      <button
-                        onClick={handleFreeze}
-                        className="w-full px-3 py-2.5 bg-blue-50 text-blue-700 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors"
-                      >
-                        <Snowflake size={16} />
-                        {t('clubs.membership.unfreeze')}
-                      </button>
-                    )}
-                    
-                    {/* Freeze days info */}
-                    {!activeMembershipForClub.isTariffDeleted && activeMembershipForClub.status !== 'frozen' && activeMembershipForClub.freezeDaysAvailable > 0 && (
-                      <p className="text-xs text-gray-400 mt-2 text-center">
-                        {t('clubs.membership.freezeDaysLeft', { days: activeMembershipForClub.freezeDaysAvailable })}
-                      </p>
-                    )}
-                  </Card>
+                        
+                        {/* Freeze days info */}
+                        {!membership.isTariffDeleted && membership.status !== 'frozen' && membership.freezeDaysAvailable > 0 && (
+                          <p className="text-xs text-gray-400 mt-2 text-center">
+                            {t('clubs.membership.freezeDaysLeft', { days: membership.freezeDaysAvailable })}
+                          </p>
+                        )}
+                      </Card>
+                    );
+                  })}
                 </div>
               )}
 
