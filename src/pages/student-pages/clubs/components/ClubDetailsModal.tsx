@@ -28,6 +28,7 @@ import { FreezeMembershipModal } from '../../profile/components/FreezeMembership
 import { clubsApi, membershipsApi } from '@/functions/axios/axiosFunctions';
 import type { ClubDetailResponse, ClubSectionResponse, ClubTariffResponse, ClubCoachResponse, MembershipResponse } from '@/functions/axios/responses';
 import type { Club } from '../ClubsPage';
+import { classifyMembershipChange } from '@/lib/utils/membershipClassification';
 
 interface Section {
   id: number;
@@ -376,7 +377,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
     return ids;
   }, [scheduledMemberships, purchasedPlanIds]);
 
-  // Categorize plans relative to active membership
+  // Categorize plans relative to active membership using proper classification logic
   const categorizedPlans = useMemo(() => {
     if (!activeMembershipForClub) {
       // No active membership - all plans are available (filter out scheduled/purchased ones)
@@ -389,11 +390,20 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
       };
     }
 
-    const activePrice = activeMembershipForClub.price;
-    const activeType = activeMembershipForClub.tariffType;
     const activeTariffId = activeMembershipForClub.tariffId;
-
     const activePlan = membershipPlans.find(p => p.id === activeTariffId) || null;
+    
+    if (!activePlan) {
+      // Active plan not found in available plans - show all as alternatives
+      const available = membershipPlans.filter(p => !scheduledTariffIds.has(p.id));
+      return {
+        activePlan: null,
+        upgrades: [],
+        alternatives: available,
+        sameLevel: [],
+      };
+    }
+
     const upgrades: MembershipPlan[] = [];
     const alternatives: MembershipPlan[] = [];
     const sameLevel: MembershipPlan[] = [];
@@ -407,22 +417,34 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
         return;
       }
 
-      // Determine plan category
-      const priceDiff = plan.price - activePrice;
-      const isDifferentType = plan.type !== activeType;
-      const isDifferentPackage = plan.packageType !== activeMembershipForClub.packageType;
+      // Use proper classification logic
+      const classification = classifyMembershipChange(
+        {
+          includedGroups: activeMembershipForClub.includedGroups,
+          includedSections: activeMembershipForClub.includedSections,
+          packageType: activeMembershipForClub.packageType,
+          paymentType: activeMembershipForClub.tariffType,
+          durationDays: null, // We don't have this in ActiveMembershipInfo, will be calculated from paymentType
+          price: activeMembershipForClub.price,
+        },
+        {
+          includedGroups: plan.includedGroups,
+          includedSections: plan.includedSections,
+          packageType: plan.packageType,
+          paymentType: plan.type,
+          durationDays: plan.duration_days,
+          price: plan.price,
+        },
+        activeMembershipForClub.endDate
+      );
 
-      if (priceDiff > 0 || isDifferentPackage) {
-        // More expensive or different package type = upgrade option
+      // Categorize based on classification
+      if (classification.kind === 'UPGRADE') {
         upgrades.push(plan);
-      } else if (isDifferentType) {
-        // Different payment type (e.g., monthly vs session_pack) = alternative format
-        alternatives.push(plan);
-      } else if (Math.abs(priceDiff) < activePrice * 0.1) {
-        // Similar price, same type = same level (don't show)
+      } else if (classification.kind === 'RENEW' || classification.kind === 'SAME') {
         sameLevel.push(plan);
       } else {
-        // Lower price, could be downgrade or different offering
+        // BUY_ANOTHER or any other case
         alternatives.push(plan);
       }
     });
@@ -920,63 +942,101 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                     <h3 className="font-semibold text-gray-900">{t('clubs.membership.upgradeOptions')}</h3>
                   </div>
                   
-                  {categorizedPlans.upgrades.map((plan) => (
-                    <Card key={plan.id} className="p-4 border border-violet-200 bg-violet-50/30 relative overflow-hidden">
-                      <div className="absolute top-0 right-0">
-                        <div className="bg-violet-500 text-white text-[10px] font-semibold px-3 py-1 rounded-bl-lg flex items-center gap-1">
-                          <Sparkles size={12} />
-                          {t('clubs.membership.upgrade')}
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-start justify-between mb-3 pr-16">
-                        <div>
-                          <h4 className="font-bold text-gray-900">{plan.name}</h4>
-                          <div className="flex items-center gap-2 mt-0.5">
-                            <span className="text-xs text-gray-500">{getPlanDuration(plan)}</span>
-                            {plan.freezeDaysTotal > 0 && (
-                              <>
-                                <span className="text-xs text-gray-300">•</span>
-                                <span className="text-xs text-blue-500 font-medium flex items-center gap-0.5">
-                                  <Snowflake size={10} />
-                                  {plan.freezeDaysTotal} {t('clubs.membership.days')}
-                                </span>
-                              </>
-                            )}
-                            <span className="text-xs text-gray-300">•</span>
-                            <span className="text-xs text-violet-600 font-medium">{getPackageTypeLabel(plan.packageType)}</span>
+                  {categorizedPlans.upgrades.map((plan) => {
+                    // Classify to get scheduled start date
+                    const classification = classifyMembershipChange(
+                      {
+                        includedGroups: activeMembershipForClub.includedGroups,
+                        includedSections: activeMembershipForClub.includedSections,
+                        packageType: activeMembershipForClub.packageType,
+                        paymentType: activeMembershipForClub.tariffType,
+                        durationDays: null,
+                        price: activeMembershipForClub.price,
+                      },
+                      {
+                        includedGroups: plan.includedGroups,
+                        includedSections: plan.includedSections,
+                        packageType: plan.packageType,
+                        paymentType: plan.type,
+                        durationDays: plan.duration_days,
+                        price: plan.price,
+                      },
+                      activeMembershipForClub.endDate
+                    );
+                    
+                    return (
+                      <Card key={plan.id} className="p-4 border border-violet-200 bg-violet-50/30 relative overflow-hidden">
+                        <div className="absolute top-0 right-0">
+                          <div className="bg-violet-500 text-white text-[10px] font-semibold px-3 py-1 rounded-bl-lg flex items-center gap-1">
+                            <Sparkles size={12} />
+                            {t('clubs.membership.upgrade')}
                           </div>
                         </div>
-                        <div className="text-right">
-                          <p className="text-xl font-bold text-violet-600">{formatPrice(plan.price)}</p>
-                        </div>
-                      </div>
-
-                      {/* Access badges */}
-                      {renderAccessBadges(plan, 'sm')}
-
-                      {hasFeatures(plan) && (
-                        <div className="mb-3 mt-2">
-                          <div className="space-y-1.5">
-                            {plan.features.slice(0, 2).map((feature, idx) => (
-                              <div key={idx} className="flex items-center gap-2">
-                                <CheckCircle2 size={14} className="text-violet-500 shrink-0" />
-                                <span className="text-sm text-gray-700">{feature}</span>
-                              </div>
-                            ))}
+                        
+                        <div className="flex items-start justify-between mb-3 pr-16">
+                          <div>
+                            <h4 className="font-bold text-gray-900">{plan.name}</h4>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span className="text-xs text-gray-500">{getPlanDuration(plan)}</span>
+                              {plan.freezeDaysTotal > 0 && (
+                                <>
+                                  <span className="text-xs text-gray-300">•</span>
+                                  <span className="text-xs text-blue-500 font-medium flex items-center gap-0.5">
+                                    <Snowflake size={10} />
+                                    {plan.freezeDaysTotal} {t('clubs.membership.days')}
+                                  </span>
+                                </>
+                              )}
+                              <span className="text-xs text-gray-300">•</span>
+                              <span className="text-xs text-violet-600 font-medium">{getPackageTypeLabel(plan.packageType)}</span>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-xl font-bold text-violet-600">{formatPrice(plan.price)}</p>
                           </div>
                         </div>
-                      )}
 
-                      <button
-                        onClick={() => handlePurchase(plan)}
-                        className="w-full px-4 py-2.5 bg-violet-600 text-white rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-violet-700 transition-colors mt-3"
-                      >
-                        <ArrowUpCircle size={16} />
-                        {t('clubs.membership.upgradeNow')}
-                      </button>
-                    </Card>
-                  ))}
+                        {/* Scheduled start date info for upgrades */}
+                        {classification.kind === 'UPGRADE' && classification.scheduledStartDate && (
+                          <div className="mb-3 p-2.5 bg-violet-100/50 border border-violet-200 rounded-lg">
+                            <div className="flex items-center gap-2 text-violet-700">
+                              <Calendar size={14} />
+                              <span className="text-xs font-medium">
+                                {t('clubs.membership.upgradeStartsAfter')} {formatDate(classification.scheduledStartDate)}
+                              </span>
+                            </div>
+                            <p className="text-[10px] text-violet-600 mt-1 ml-6">
+                              {t('clubs.membership.upgradeStartsAfterHint', { date: formatDate(activeMembershipForClub.endDate) })}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Access badges */}
+                        {renderAccessBadges(plan, 'sm')}
+
+                        {hasFeatures(plan) && (
+                          <div className="mb-3 mt-2">
+                            <div className="space-y-1.5">
+                              {plan.features.slice(0, 2).map((feature, idx) => (
+                                <div key={idx} className="flex items-center gap-2">
+                                  <CheckCircle2 size={14} className="text-violet-500 shrink-0" />
+                                  <span className="text-sm text-gray-700">{feature}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        <button
+                          onClick={() => handlePurchase(plan)}
+                          className="w-full px-4 py-2.5 bg-violet-600 text-white rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-violet-700 transition-colors mt-3"
+                        >
+                          <ArrowUpCircle size={16} />
+                          {t('clubs.membership.upgradeNow')}
+                        </button>
+                      </Card>
+                    );
+                  })}
                 </div>
               )}
 
