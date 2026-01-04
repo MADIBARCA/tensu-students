@@ -11,7 +11,8 @@
  * For now, these serve as documentation of expected behavior.
  */
 
-import { classifyMembershipChange, AccessInfo } from './membershipClassification';
+import { classifyMembershipChange } from './membershipClassification';
+import type { AccessInfo } from './membershipClassification';
 
 // Helper to create test data
 function createAccessInfo(id: number, name: string, type: 'section' | 'group'): AccessInfo {
