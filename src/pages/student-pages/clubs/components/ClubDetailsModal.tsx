@@ -576,7 +576,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
           
           {/* Club logo - fully rounded */}
           <div className="absolute -bottom-8 left-4">
-            <div className="w-16 h-16 rounded-full border-4 border-white shadow-lg overflow-hidden bg-white">
+            <div className="w-16 h-16 rounded-full ring-4 ring-white shadow-xl overflow-hidden bg-white">
               {club.logo_url ? (
                 <img 
                   src={club.logo_url} 
