@@ -28,6 +28,7 @@ declare global {
   interface Window {
     Telegram?: {
       WebApp: {
+        [x: string]: any;
         isVersionAtLeast(version: string): boolean;
         disableVerticalSwipes(): void;
         expand(): void;
