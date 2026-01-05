@@ -62,8 +62,8 @@ export const ClubCard: React.FC<ClubCardProps> = ({ club, isMember, onClick }) =
         )}
         
         {/* Logo - positioned to overlap cover and content */}
-        <div className="absolute -bottom-7 left-4">
-          <div className="w-14 h-14 rounded-full ring-4 ring-white shadow-xl overflow-hidden bg-white border-gray-500 border">
+        <div className="absolute -bottom-8 left-4">
+          <div className="w-14 h-14 rounded-full ring-4 ring-white shadow-xl overflow-hidden bg-white">
             {club.logo_url ? (
               <img 
                 src={club.logo_url} 
