@@ -15,6 +15,7 @@ export interface Club {
   students_count: number;
   tags: string[];
   logo_url?: string | null;
+  cover_url?: string | null;
   phone?: string | null;
   telegram_url?: string | null;
   whatsapp_url?: string | null;
@@ -53,6 +54,7 @@ export default function ClubsPage() {
           students_count: c.students_count,
           tags: c.tags || [],
           logo_url: c.logo_url,
+          cover_url: c.cover_url,
           phone: c.phone,
           telegram_url: c.telegram_url,
           whatsapp_url: c.whatsapp_url,

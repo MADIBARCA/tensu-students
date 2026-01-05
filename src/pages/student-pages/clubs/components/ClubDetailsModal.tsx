@@ -550,24 +550,45 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
         className="bg-white w-full sm:max-w-lg sm:rounded-2xl rounded-t-2xl max-h-[92vh] overflow-hidden flex flex-col shadow-2xl"
         style={{ animation: 'slideUp 0.3s ease-out' }}
       >
-        {/* Header with gradient */}
+        {/* Header with cover image */}
         <div className="relative">
-          {/* Cover gradient background */}
-          <div className="h-24 bg-linear-to-br from-blue-500 via-blue-600 to-indigo-700" />
-          
-          {/* Club logo/icon */}
-          <div className="absolute -bottom-8 left-4">
-            {club.logo_url ? (
+          {/* Cover image or gradient background */}
+          <div className="h-28 overflow-hidden">
+            {club.cover_url ? (
               <img 
-                src={club.logo_url} 
+                src={club.cover_url} 
                 alt={club.name}
-                className="w-16 h-16 rounded-2xl border-4 border-white shadow-lg object-cover"
+                className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-16 h-16 rounded-2xl border-4 border-white shadow-lg bg-linear-to-br from-blue-100 to-blue-200 flex items-center justify-center">
-                <Building2 size={28} className="text-blue-600" />
+              <div className="w-full h-full bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700">
+                {/* Decorative pattern overlay */}
+                <div className="absolute inset-0 opacity-20">
+                  <div className="absolute top-4 right-8 w-20 h-20 border border-white/40 rounded-full" />
+                  <div className="absolute bottom-6 right-16 w-10 h-10 border border-white/30 rounded-full" />
+                  <div className="absolute top-8 left-12 w-6 h-6 bg-white/20 rounded-full" />
+                </div>
               </div>
             )}
+            {/* Gradient overlay for better visibility */}
+            <div className="absolute inset-0 bg-linear-to-t from-black/30 via-transparent to-transparent" />
+          </div>
+          
+          {/* Club logo - fully rounded */}
+          <div className="absolute -bottom-8 left-4">
+            <div className="w-16 h-16 rounded-full border-4 border-white shadow-lg overflow-hidden bg-white">
+              {club.logo_url ? (
+                <img 
+                  src={club.logo_url} 
+                  alt={club.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
+                  <Building2 size={28} className="text-blue-600" />
+                </div>
+              )}
+            </div>
           </div>
           
           {/* Close button */}
