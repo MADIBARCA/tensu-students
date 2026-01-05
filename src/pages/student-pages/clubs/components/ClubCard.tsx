@@ -31,31 +31,34 @@ export const ClubCard: React.FC<ClubCardProps> = ({ club, isMember, onClick }) =
       onClick={onClick}
       className="bg-white rounded-2xl border border-gray-100 overflow-hidden cursor-pointer hover:shadow-lg hover:shadow-gray-200/50 transition-all duration-300 group"
     >
-      {/* Cover Image Section */}
-      <div className="relative h-28 overflow-hidden">
-        {club.cover_url ? (
-          <img 
-            src={club.cover_url} 
-            alt={club.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
-        ) : (
-          <div className={`w-full h-full bg-linear-to-br ${getGradientStyle()}`}>
-            {/* Decorative pattern overlay */}
-            <div className="absolute inset-0 opacity-30">
-              <div className="absolute top-2 right-4 w-16 h-16 border border-white/40 rounded-full" />
-              <div className="absolute bottom-4 right-12 w-8 h-8 border border-white/30 rounded-full" />
-              <div className="absolute top-6 left-8 w-4 h-4 bg-white/20 rounded-full" />
+      {/* Cover Image Section with Logo */}
+      <div className="relative">
+        {/* Cover Image */}
+        <div className="h-28 overflow-hidden">
+          {club.cover_url ? (
+            <img 
+              src={club.cover_url} 
+              alt={club.name}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+          ) : (
+            <div className={`w-full h-full bg-linear-to-br ${getGradientStyle()}`}>
+              {/* Decorative pattern overlay */}
+              <div className="absolute inset-0 opacity-30">
+                <div className="absolute top-2 right-4 w-16 h-16 border border-white/40 rounded-full" />
+                <div className="absolute bottom-4 right-12 w-8 h-8 border border-white/30 rounded-full" />
+                <div className="absolute top-6 left-8 w-4 h-4 bg-white/20 rounded-full" />
+              </div>
             </div>
-          </div>
-        )}
-        
-        {/* Gradient overlay for better text visibility */}
-        <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent" />
+          )}
+          
+          {/* Gradient overlay for better text visibility */}
+          <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent" />
+        </div>
         
         {/* Member badge */}
         {isMember && (
-          <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-1 bg-white/95 backdrop-blur-sm rounded-full shadow-sm">
+          <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-1 bg-white/95 backdrop-blur-sm rounded-full shadow-sm z-10">
             <CheckCircle size={14} className="text-emerald-500" />
             <span className="text-xs font-semibold text-emerald-600">{t('clubs.card.member')}</span>
           </div>
