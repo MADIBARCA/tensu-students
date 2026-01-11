@@ -1,5 +1,6 @@
 // src/components/Layout.tsx
-import React from "react";
+import React, { useState, useEffect } from "react";
+import clsx from "clsx";
 import { useI18n } from "@/i18n/i18n";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
@@ -41,11 +42,31 @@ export const Layout: React.FC<LayoutProps> = ({
     { icon: User, label: t('nav.profile'), path: "/student/profile" },
   ];
 
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    if (!title) return;
+
+    const handleScroll = () => {
+      const scrollY = window.scrollY || document.documentElement.scrollTop;
+      setIsScrolled(scrollY > 0);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [title]);
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
       {title && (
-        <header className="bg-white border-b border-gray-100 sticky top-0 z-20">
+        <header className={clsx(
+          "sticky top-0 z-20 bg-white border-b border-gray-100 overflow-hidden",
+          "transition-[padding-top] duration-300 ease-out will-change-[padding-top]",
+          isScrolled ? "pt-20" : "pt-0"
+        )}>
           <div className="px-4 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
