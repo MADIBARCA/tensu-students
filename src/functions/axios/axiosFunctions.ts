@@ -258,6 +258,16 @@ export const clubsApi = {
     );
   },
 
+  getById: (clubId: number | string, token: string | null) =>
+    axiosRequest<ClubDetailResponse>(ENDPOINTS.CLUBS.BY_ID(clubId), 'GET', token),
+
+  getNearest: (latitude: number, longitude: number, token: string | null) =>
+    axiosRequest<NearestClubResponse>(
+      `${ENDPOINTS.CLUBS.NEAREST}?latitude=${latitude}&longitude=${longitude}`,
+      'GET',
+      token
+    ),
+
   getMyClubIds: (token: string | null) =>
     axiosRequest<number[]>(ENDPOINTS.CLUBS.MY, 'GET', token),
 };

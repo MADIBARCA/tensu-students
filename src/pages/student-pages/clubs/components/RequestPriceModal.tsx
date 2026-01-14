@@ -69,13 +69,6 @@ export const RequestPriceModal: React.FC<RequestPriceModalProps> = ({
     setRequestedPrice(numericValue);
   };
 
-  const getReasonText = () => {
-    if (selectedReason === 'other') {
-      return customReason.trim();
-    }
-    return selectedReason ? t(`clubs.priceRequest.reasons.${selectedReason.replace('_discount', '')}`) : '';
-  };
-
   const isValid = () => {
     if (!selectedReason) return false;
     if (selectedReason === 'other' && !customReason.trim()) return false;
