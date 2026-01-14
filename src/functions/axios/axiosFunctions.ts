@@ -8,6 +8,7 @@ import type {
   UnfreezeMembershipRequest,
   InitiatePaymentRequest,
   ScheduleFiltersRequest,
+  CreatePriceRequestRequest,
 } from './requests';
 import type { 
   StudentResponse, 
@@ -17,6 +18,8 @@ import type {
   MembershipStatsResponse,
   HasActiveMembershipResponse,
   IndividualPricesListResponse,
+  PriceRequestResponse,
+  PriceRequestListResponse,
   CheckInResponse,
   AttendanceListResponse,
   AttendanceStatsResponse,
@@ -257,6 +260,18 @@ export const clubsApi = {
 
   getMyClubIds: (token: string | null) =>
     axiosRequest<number[]>(ENDPOINTS.CLUBS.MY, 'GET', token),
+};
+
+// Price Requests API
+export const priceRequestsApi = {
+  create: (data: CreatePriceRequestRequest, token: string | null) =>
+    axiosRequest<PriceRequestResponse>(ENDPOINTS.PRICE_REQUESTS.BASE, 'POST', token, data),
+
+  getAll: (token: string | null) =>
+    axiosRequest<PriceRequestListResponse>(ENDPOINTS.PRICE_REQUESTS.BASE, 'GET', token),
+
+  cancel: (requestId: number, token: string | null) =>
+    axiosRequest<{ message: string }>(ENDPOINTS.PRICE_REQUESTS.BY_ID(requestId), 'DELETE', token),
 
   getNearest: (latitude: number, longitude: number, token: string | null) =>
     axiosRequest<NearestClubResponse>(

@@ -101,6 +101,31 @@ export interface IndividualPricesListResponse {
   individual_prices: IndividualPriceResponse[];
 }
 
+// Price Request types
+export type PriceRequestStatus = 'pending' | 'approved' | 'declined' | 'expired';
+
+export interface PriceRequestResponse {
+  id: number;
+  club_id: number;
+  club_name: string;
+  tariff_id: number;
+  tariff_name: string;
+  standard_price: number;
+  reason: string;
+  requested_price: number | null;
+  message: string | null;
+  status: PriceRequestStatus;
+  response_message: string | null;
+  approved_price: number | null;
+  created_at: string;
+  reviewed_at: string | null;
+}
+
+export interface PriceRequestListResponse {
+  requests: PriceRequestResponse[];
+  total: number;
+}
+
 // Attendance types
 export type AttendanceStatus = 'attended' | 'missed' | 'late' | 'excused';
 

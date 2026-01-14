@@ -51,4 +51,9 @@ export const ENDPOINTS = {
     NEAREST: '/students/clubs/nearest',
     BY_ID: (clubId: number | string) => `/students/clubs/${clubId}`,
   },
+
+  PRICE_REQUESTS: {
+    BASE: '/students/price-requests/',
+    BY_ID: (requestId: number | string) => `/students/price-requests/${requestId}`,
+  },
 } as const;

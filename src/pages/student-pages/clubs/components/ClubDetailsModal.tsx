@@ -21,12 +21,15 @@ import {
   ArrowUpCircle,
   Lock,
   Sparkles,
-  AlertTriangle
+  AlertTriangle,
+  Tag,
+  Percent
 } from 'lucide-react';
 import { PurchaseMembershipModal } from './PurchaseMembershipModal';
 import { FreezeMembershipModal } from '../../profile/components/FreezeMembershipModal';
-import { clubsApi, membershipsApi } from '@/functions/axios/axiosFunctions';
-import type { ClubDetailResponse, ClubSectionResponse, ClubTariffResponse, ClubCoachResponse, MembershipResponse } from '@/functions/axios/responses';
+import { RequestPriceModal } from './RequestPriceModal';
+import { clubsApi, membershipsApi, priceRequestsApi } from '@/functions/axios/axiosFunctions';
+import type { ClubDetailResponse, ClubSectionResponse, ClubTariffResponse, ClubCoachResponse, MembershipResponse, IndividualPriceResponse, PriceRequestResponse } from '@/functions/axios/responses';
 import type { Club } from '../ClubsPage';
 import { classifyMembershipChange } from '@/lib/utils/membershipClassification';
 
@@ -100,6 +103,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
   const [selectedPlan, setSelectedPlan] = useState<MembershipPlan | null>(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showFreezeModal, setShowFreezeModal] = useState(false);
+  const [showRequestPriceModal, setShowRequestPriceModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'info' | 'memberships'>('info');
   // Current active membership in this club (if any) - primary one for display
@@ -110,6 +114,10 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
   const [scheduledMemberships, setScheduledMemberships] = useState<ActiveMembershipInfo[]>([]);
   // Track purchased plans during this session (fallback for immediate UI update)
   const [purchasedPlanIds, setPurchasedPlanIds] = useState<Set<number>>(new Set());
+  // Individual prices for this student
+  const [individualPrices, setIndividualPrices] = useState<Map<number, IndividualPriceResponse>>(new Map());
+  // Pending price requests
+  const [pendingRequests, setPendingRequests] = useState<Map<number, PriceRequestResponse>>(new Map());
 
   useEffect(() => {
     const loadClubDetails = async () => {
@@ -117,14 +125,32 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
         const tg = window.Telegram?.WebApp;
         const token = tg?.initData || null;
         
-        // Fetch club details and active memberships in parallel
-        const [clubResponse, membershipsResponse] = await Promise.all([
+        // Fetch club details, active memberships, individual prices, and price requests in parallel
+        const [clubResponse, membershipsResponse, pricesResponse, requestsResponse] = await Promise.all([
           clubsApi.getById(club.id, token),
           membershipsApi.getActive(token).catch(() => ({ data: { memberships: [] } })),
+          membershipsApi.getMyPrices(token).catch(() => ({ data: { individual_prices: [] } })),
+          priceRequestsApi.getAll(token).catch(() => ({ data: { requests: [] } })),
         ]);
         
         const details: ClubDetailResponse = clubResponse.data;
         const activeMemberships: MembershipResponse[] = membershipsResponse.data.memberships || [];
+        
+        // Build individual prices map (tariff_id -> price info)
+        const pricesMap = new Map<number, IndividualPriceResponse>();
+        (pricesResponse.data.individual_prices || []).forEach((price: IndividualPriceResponse) => {
+          pricesMap.set(price.tariff_id, price);
+        });
+        setIndividualPrices(pricesMap);
+        
+        // Build pending requests map (tariff_id -> request) for this club only
+        const requestsMap = new Map<number, PriceRequestResponse>();
+        (requestsResponse.data.requests || []).forEach((req: PriceRequestResponse) => {
+          if (req.club_id === club.id && req.status === 'pending') {
+            requestsMap.set(req.tariff_id, req);
+          }
+        });
+        setPendingRequests(requestsMap);
         
         // Map tariffs to membership plans first to get features
         const mappedPlans: MembershipPlan[] = details.tariffs.map((t: ClubTariffResponse) => ({
@@ -240,6 +266,33 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
     setShowPaymentModal(true);
   };
 
+  const handleRequestPrice = (plan: MembershipPlan) => {
+    setSelectedPlan(plan);
+    setShowRequestPriceModal(true);
+  };
+
+  const handleRequestPriceSuccess = async () => {
+    setShowRequestPriceModal(false);
+    setSelectedPlan(null);
+    
+    // Reload price requests
+    try {
+      const tg = window.Telegram?.WebApp;
+      const token = tg?.initData || null;
+      const requestsResponse = await priceRequestsApi.getAll(token);
+      
+      const requestsMap = new Map<number, PriceRequestResponse>();
+      (requestsResponse.data.requests || []).forEach((req: PriceRequestResponse) => {
+        if (req.club_id === club.id && req.status === 'pending') {
+          requestsMap.set(req.tariff_id, req);
+        }
+      });
+      setPendingRequests(requestsMap);
+    } catch (error) {
+      console.error('Failed to reload price requests:', error);
+    }
+  };
+
   const handlePurchaseSuccess = () => {
     if (selectedPlan) {
       // Track this plan as purchased
@@ -249,6 +302,28 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
     setSelectedPlan(null);
     // Reload membership data
     handleFreezeSuccess();
+  };
+
+  // Get effective price for a plan (considering individual price)
+  const getEffectivePrice = (plan: MembershipPlan): { price: number; isDiscounted: boolean; discount: number } => {
+    const individualPrice = individualPrices.get(plan.id);
+    if (individualPrice) {
+      return {
+        price: individualPrice.custom_price,
+        isDiscounted: true,
+        discount: individualPrice.discount_percent,
+      };
+    }
+    return {
+      price: plan.price,
+      isDiscounted: false,
+      discount: 0,
+    };
+  };
+
+  // Check if a plan has a pending price request
+  const hasPendingRequest = (planId: number): boolean => {
+    return pendingRequests.has(planId);
   };
 
   const formatPrice = (price: number) => {
@@ -1276,73 +1351,120 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                           </div>
                         )}
                         
-                        <div className="flex items-start justify-between mb-3">
-                          <div>
-                            <h4 className="font-bold text-gray-900 text-lg">{plan.name}</h4>
-                            <div className="flex items-center gap-2 mt-0.5">
-                              <span className="text-xs text-gray-500">{getPlanDuration(plan)}</span>
-                              {plan.freezeDaysTotal > 0 && (
-                                <>
-                                  <span className="text-xs text-gray-300">•</span>
-                                  <span className="text-xs text-blue-500 font-medium flex items-center gap-0.5">
-                                    <Snowflake size={10} />
-                                    {plan.freezeDaysTotal} {t('clubs.membership.days')}
-                                  </span>
-                                </>
-                              )}
-                              <span className="text-xs text-gray-300">•</span>
-                              <span className="text-xs text-blue-600 font-medium">{getPackageTypeLabel(plan.packageType)}</span>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-2xl font-bold text-blue-600">{formatPrice(plan.price)}</p>
-                            {plan.duration_days && plan.duration_days >= 30 && (
-                              <p className="text-xs text-gray-400">
-                                {formatPrice(Math.round(plan.price / (plan.duration_days / 30)))}{t('clubs.details.perMonth')}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-
-                        {plan.description && (
-                          <p className="text-sm text-gray-600 mb-2">{plan.description}</p>
-                        )}
-
-                        {/* Access badges */}
-                        {renderAccessBadges(plan, 'md')}
-
-                        <div className="mb-4 mt-3">
-                          <p className="text-xs font-medium text-gray-500 mb-2">{t('clubs.membership.includes')}</p>
-                          {hasFeatures(plan) ? (
-                            <div className="space-y-2">
-                              {plan.features.slice(0, 4).map((feature, idx) => (
-                                <div key={idx} className="flex items-center gap-2">
-                                  <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
-                                  <span className="text-sm text-gray-700">{feature}</span>
+                        {(() => {
+                          const effectivePrice = getEffectivePrice(plan);
+                          const hasPending = hasPendingRequest(plan.id);
+                          
+                          return (
+                            <>
+                              <div className="flex items-start justify-between mb-3">
+                                <div>
+                                  <h4 className="font-bold text-gray-900 text-lg">{plan.name}</h4>
+                                  <div className="flex items-center gap-2 mt-0.5">
+                                    <span className="text-xs text-gray-500">{getPlanDuration(plan)}</span>
+                                    {plan.freezeDaysTotal > 0 && (
+                                      <>
+                                        <span className="text-xs text-gray-300">•</span>
+                                        <span className="text-xs text-blue-500 font-medium flex items-center gap-0.5">
+                                          <Snowflake size={10} />
+                                          {plan.freezeDaysTotal} {t('clubs.membership.days')}
+                                        </span>
+                                      </>
+                                    )}
+                                    <span className="text-xs text-gray-300">•</span>
+                                    <span className="text-xs text-blue-600 font-medium">{getPackageTypeLabel(plan.packageType)}</span>
+                                  </div>
                                 </div>
-                              ))}
-                              {plan.features.length > 4 && (
-                                <p className="text-xs text-gray-400 ml-6">+{plan.features.length - 4} {t('clubs.membership.more')}</p>
-                              )}
-                            </div>
-                          ) : (
-                            <p className="text-sm text-gray-400 italic">
-                              {t('clubs.membership.noFeatures')}
-                            </p>
-                          )}
-                        </div>
+                                <div className="text-right">
+                                  {effectivePrice.isDiscounted ? (
+                                    <>
+                                      <div className="flex items-center gap-2 justify-end">
+                                        <span className="text-sm text-gray-400 line-through">{formatPrice(plan.price)}</span>
+                                        <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-semibold rounded-md flex items-center gap-0.5">
+                                          <Percent size={10} />
+                                          -{effectivePrice.discount}%
+                                        </span>
+                                      </div>
+                                      <p className="text-2xl font-bold text-emerald-600">{formatPrice(effectivePrice.price)}</p>
+                                      <p className="text-[10px] text-emerald-600 font-medium">{t('clubs.priceRequest.yourPrice')}</p>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <p className="text-2xl font-bold text-blue-600">{formatPrice(plan.price)}</p>
+                                      {plan.duration_days && plan.duration_days >= 30 && (
+                                        <p className="text-xs text-gray-400">
+                                          {formatPrice(Math.round(plan.price / (plan.duration_days / 30)))}{t('clubs.details.perMonth')}
+                                        </p>
+                                      )}
+                                    </>
+                                  )}
+                                </div>
+                              </div>
 
-                        <button
-                          onClick={() => handlePurchase(plan)}
-                          className={`w-full px-4 py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2 ${
-                            isPopular
-                              ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-md'
-                              : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
-                          }`}
-                        >
-                          <CreditCard size={18} />
-                          {t('clubs.details.purchase')}
-                        </button>
+                              {/* Pending request badge */}
+                              {hasPending && (
+                                <div className="flex items-center gap-2 mb-3 p-2.5 bg-amber-50 border border-amber-200 rounded-xl">
+                                  <Clock size={14} className="text-amber-600" />
+                                  <span className="text-xs text-amber-700 font-medium">{t('clubs.priceRequest.pendingStatus')}</span>
+                                </div>
+                              )}
+
+                              {plan.description && (
+                                <p className="text-sm text-gray-600 mb-2">{plan.description}</p>
+                              )}
+
+                              {/* Access badges */}
+                              {renderAccessBadges(plan, 'md')}
+
+                              <div className="mb-4 mt-3">
+                                <p className="text-xs font-medium text-gray-500 mb-2">{t('clubs.membership.includes')}</p>
+                                {hasFeatures(plan) ? (
+                                  <div className="space-y-2">
+                                    {plan.features.slice(0, 4).map((feature, idx) => (
+                                      <div key={idx} className="flex items-center gap-2">
+                                        <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
+                                        <span className="text-sm text-gray-700">{feature}</span>
+                                      </div>
+                                    ))}
+                                    {plan.features.length > 4 && (
+                                      <p className="text-xs text-gray-400 ml-6">+{plan.features.length - 4} {t('clubs.membership.more')}</p>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <p className="text-sm text-gray-400 italic">
+                                    {t('clubs.membership.noFeatures')}
+                                  </p>
+                                )}
+                              </div>
+
+                              {/* Action buttons */}
+                              <div className="space-y-2">
+                                <button
+                                  onClick={() => handlePurchase(plan)}
+                                  className={`w-full px-4 py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2 ${
+                                    isPopular
+                                      ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-md'
+                                      : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                                  }`}
+                                >
+                                  <CreditCard size={18} />
+                                  {t('clubs.details.purchase')}
+                                </button>
+                                
+                                {/* Request individual price button - only show if no individual price and no pending request */}
+                                {!effectivePrice.isDiscounted && !hasPending && (
+                                  <button
+                                    onClick={() => handleRequestPrice(plan)}
+                                    className="w-full px-4 py-2.5 border-2 border-violet-200 text-violet-700 bg-violet-50 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-violet-100 hover:border-violet-300 transition-colors"
+                                  >
+                                    <Tag size={16} />
+                                    {t('clubs.priceRequest.requestButton')}
+                                  </button>
+                                )}
+                              </div>
+                            </>
+                          );
+                        })()}
                       </Card>
                     );
                   })}
@@ -1390,6 +1512,20 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
           }}
           onClose={() => setShowFreezeModal(false)}
           onSuccess={handleFreezeSuccess}
+        />
+      )}
+
+      {/* Request Price Modal */}
+      {showRequestPriceModal && selectedPlan && (
+        <RequestPriceModal
+          clubId={club.id}
+          clubName={club.name}
+          plan={selectedPlan}
+          onClose={() => {
+            setShowRequestPriceModal(false);
+            setSelectedPlan(null);
+          }}
+          onSuccess={handleRequestPriceSuccess}
         />
       )}
 

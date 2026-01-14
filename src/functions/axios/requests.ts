@@ -57,3 +57,12 @@ export interface ScheduleFiltersRequest {
   date_to?: string;
   only_my_sessions?: boolean;
 }
+
+// Price Request
+export interface CreatePriceRequestRequest {
+  club_id: number;
+  tariff_id: number;
+  reason: string;
+  requested_price?: number;
+  message?: string;
+}
