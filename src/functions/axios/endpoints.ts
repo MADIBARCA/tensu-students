@@ -19,6 +19,7 @@ export const ENDPOINTS = {
     STATS: '/students/memberships/stats',
     FREEZE: '/students/memberships/freeze',
     UNFREEZE: '/students/memberships/unfreeze',
+    MY_PRICES: '/students/memberships/my-prices',
   },
 
   ATTENDANCE: {

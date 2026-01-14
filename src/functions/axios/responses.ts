@@ -86,6 +86,21 @@ export interface HasActiveMembershipResponse {
   has_active_membership: boolean;
 }
 
+// Individual Price Override
+export interface IndividualPriceResponse {
+  tariff_id: number;
+  tariff_name: string;
+  standard_price: number;
+  custom_price: number;
+  reason: string | null;
+  valid_until: string | null;
+  discount_percent: number;
+}
+
+export interface IndividualPricesListResponse {
+  individual_prices: IndividualPriceResponse[];
+}
+
 // Attendance types
 export type AttendanceStatus = 'attended' | 'missed' | 'late' | 'excused';
 

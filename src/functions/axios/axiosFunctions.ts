@@ -16,6 +16,7 @@ import type {
   MembershipHistoryListResponse,
   MembershipStatsResponse,
   HasActiveMembershipResponse,
+  IndividualPricesListResponse,
   CheckInResponse,
   AttendanceListResponse,
   AttendanceStatsResponse,
@@ -85,6 +86,9 @@ export const membershipsApi = {
 
   unfreeze: (data: UnfreezeMembershipRequest, token: string | null) =>
     axiosRequest<MembershipResponse>(ENDPOINTS.MEMBERSHIPS.UNFREEZE, 'POST', token, data),
+
+  getMyPrices: (token: string | null) =>
+    axiosRequest<IndividualPricesListResponse>(ENDPOINTS.MEMBERSHIPS.MY_PRICES, 'GET', token),
 };
 
 // Check-in/Attendance API
