@@ -1,10 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
   useLocation,
+  useNavigate,
 } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; 
@@ -16,6 +17,34 @@ import ProfilePage from "./pages/student-pages/profile/ProfilePage";
 import ClubsPage from "./pages/student-pages/clubs/ClubsPage";
 import PaymentCallback from "./pages/student-pages/payment/PaymentCallback";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+
+// Component to handle Telegram startapp parameter (deep links)
+function TelegramStartAppHandler() {
+  const navigate = useNavigate();
+  const [handled, setHandled] = useState(false);
+
+  useEffect(() => {
+    if (handled) return;
+
+    const tg = window.Telegram?.WebApp;
+    const startParam = tg?.initDataUnsafe?.start_param;
+
+    if (startParam) {
+      console.log('Telegram startapp param:', startParam);
+      
+      // Handle payment callback: payment_ID or payment_ID_userId_cardId
+      if (startParam.startsWith('payment_')) {
+        const paymentId = startParam.replace('payment_', '').split('_')[0];
+        // Store payment ID and redirect to callback page
+        sessionStorage.setItem('pending_payment_id', paymentId);
+        navigate(`/payment/callback?payment_id=${paymentId}`, { replace: true });
+        setHandled(true);
+      }
+    }
+  }, [navigate, handled]);
+
+  return null;
+}
 
 function AppRoutes() {
   const location = useLocation();
@@ -63,6 +92,7 @@ export default function App() {
 
   return (
     <Router>
+      <TelegramStartAppHandler />
       <AppRoutes key={lang} />
     </Router>
   );

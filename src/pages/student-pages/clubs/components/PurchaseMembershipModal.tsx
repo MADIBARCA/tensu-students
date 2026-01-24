@@ -133,32 +133,34 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
       if (useRealGateway) {
         // Real CNP Gateway flow - redirect to payment page
         const currentUrl = window.location.href;
-        const returnUrl = `${window.location.origin}/payment/callback`;
+        
+        // Use Telegram deep link as return URL so user returns to Mini App after payment
+        // Backend will append payment_id as startapp parameter
+        const telegramDeepLink = 'https://t.me/tensu_students_test_bot/app';
         
         const gatewayResponse = await paymentsApi.gateway.initiate({
           club_id: club.id,
           tariff_id: plan.id,
           payment_method: 'card',
-        }, token, returnUrl);
+        }, token, telegramDeepLink);
 
         if (gatewayResponse.data.requires_redirect && gatewayResponse.data.redirect_url) {
-          // Store payment ID for callback handling
+          // Store payment ID for callback handling (backup for web flow)
           sessionStorage.setItem('pending_payment_id', String(gatewayResponse.data.payment_id));
           sessionStorage.setItem('payment_return_url', currentUrl);
           
           const redirectUrl = gatewayResponse.data.redirect_url;
           
           // CNP gateway doesn't allow iframe embedding (X-Frame-Options: sameorigin)
-          // Check if we're in Telegram WebApp and openLink method exists
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const tgAny = tg as any;
           if (tgAny?.openLink) {
             // Telegram WebApp - use openLink to open in external browser
-            // This is the only reliable way to open external payment pages from Telegram
+            // After payment, CNP will redirect to Telegram deep link which opens Mini App
             tgAny.openLink(redirectUrl);
-            // Show message that user needs to complete payment in browser
+            // Keep modal open showing pending state - user will return via deep link
             setPaymentStatus('pending');
-            setPaymentError('Откройте браузер для завершения оплаты');
+            setPaymentError('Завершите оплату в браузере. После оплаты вы автоматически вернётесь в приложение.');
           } else {
             // Regular browser - direct navigation
             window.location.href = redirectUrl;
