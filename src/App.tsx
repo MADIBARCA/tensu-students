@@ -43,13 +43,23 @@ function TelegramStartAppHandler() {
     if (startParam) {
       console.log('Telegram startapp param:', startParam);
       
-      // Handle payment callback: payment_ID or payment_ID_userId_cardId
+      // Handle payment callback: payment_ID
       if (startParam.startsWith('payment_')) {
         const paymentId = startParam.replace('payment_', '').split('_')[0];
         console.log('Parsed paymentId:', paymentId);
         // Store payment ID and redirect to callback page
         sessionStorage.setItem('pending_payment_id', paymentId);
         navigate(`/payment/callback?payment_id=${paymentId}`, { replace: true });
+        setHandled(true);
+      }
+      // Handle success redirect from external browser
+      else if (startParam.startsWith('success_')) {
+        const paymentId = startParam.replace('success_', '');
+        console.log('Payment success redirect, paymentId:', paymentId);
+        // Go directly to profile page with success state
+        sessionStorage.setItem('payment_success', 'true');
+        sessionStorage.setItem('success_payment_id', paymentId);
+        navigate('/student/profile', { replace: true });
         setHandled(true);
       }
     }
