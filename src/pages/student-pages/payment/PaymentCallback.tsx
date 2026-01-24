@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useI18n } from '@/i18n/i18n';
-import { Check, AlertCircle, Loader2, Building2, Sparkles } from 'lucide-react';
+import { Check, AlertCircle, Loader2, Sparkles } from 'lucide-react';
 import { paymentsApi } from '@/functions/axios/axiosFunctions';
 
 type CallbackStatus = 'loading' | 'success' | 'error';
