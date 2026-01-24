@@ -147,7 +147,9 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
           sessionStorage.setItem('payment_return_url', currentUrl);
           
           // Redirect to gateway payment page
-          window.location.href = gatewayResponse.data.redirect_url;
+          // CNP gateway doesn't allow iframe embedding (X-Frame-Options: sameorigin)
+          // Use window.location.replace for a clean navigation without history entry
+          window.location.replace(gatewayResponse.data.redirect_url);
           return;
         } else if (gatewayResponse.data.status === 'paid') {
           // Payment already completed (shouldn't happen normally)
