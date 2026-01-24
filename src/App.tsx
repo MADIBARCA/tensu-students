@@ -19,10 +19,34 @@ import PaymentCallback from "./pages/student-pages/payment/PaymentCallback";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 /**
+ * Map of short page names to full paths.
+ * Used for Telegram startapp deep linking.
+ */
+const PAGE_ROUTES: Record<string, string> = {
+  'profile': '/student/profile',
+  'main': '/student/main',
+  'clubs': '/student/clubs',
+  'schedule': '/student/schedule',
+  'groups': '/student/groups',
+  'onboarding': '/onboarding',
+  'privacy': '/privacy',
+};
+
+/**
  * Check Telegram startapp parameter synchronously to determine initial route.
  * This runs before React renders to ensure we navigate to the correct page.
+ * 
+ * Supported formats:
+ * - payment_123 → /payment/callback?payment_id=123
+ * - profile → /student/profile
+ * - clubs → /student/clubs
+ * - etc.
  */
-function getTelegramStartParam(): { type: 'payment'; paymentId: string } | null {
+function getTelegramStartParam(): 
+  | { type: 'payment'; paymentId: string } 
+  | { type: 'page'; path: string }
+  | null 
+{
   const tg = window.Telegram?.WebApp;
   const startParam = tg?.startParam;
 
@@ -35,6 +59,12 @@ function getTelegramStartParam(): { type: 'payment'; paymentId: string } | null 
       // Store payment ID for callback handling
       sessionStorage.setItem('pending_payment_id', paymentId);
       return { type: 'payment', paymentId };
+    }
+    
+    // Handle page navigation: check if startParam matches a known page
+    const path = PAGE_ROUTES[startParam];
+    if (path) {
+      return { type: 'page', path };
     }
   }
   
@@ -68,6 +98,15 @@ function TelegramStartAppHandler() {
           navigate(`/payment/callback?payment_id=${paymentId}`, { replace: true });
         }
         setHandled(true);
+        return;
+      }
+      
+      // Handle page navigation
+      const path = PAGE_ROUTES[startParam];
+      if (path && location.pathname !== path) {
+        console.log('Navigating to page:', path);
+        navigate(path, { replace: true });
+        setHandled(true);
       }
     }
   }, [navigate, handled, location.pathname]);
@@ -83,6 +122,11 @@ function DefaultRoute() {
   if (startParam?.type === 'payment') {
     // Redirect to payment callback instead of onboarding
     return <Navigate to={`/payment/callback?payment_id=${startParam.paymentId}`} replace />;
+  }
+  
+  if (startParam?.type === 'page') {
+    // Redirect to the specified page
+    return <Navigate to={startParam.path} replace />;
   }
   
   // Default behavior - go to onboarding

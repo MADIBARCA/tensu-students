@@ -1,31 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useI18n } from '@/i18n/i18n';
-import { Check, AlertCircle, Loader2, Sparkles, ExternalLink } from 'lucide-react';
+import { Check, AlertCircle, Loader2, Sparkles } from 'lucide-react';
 import { paymentsApi } from '@/functions/axios/axiosFunctions';
 
 type CallbackStatus = 'loading' | 'success' | 'error';
-
-// Telegram Mini App deep link - update this with your actual bot/app name
-const TELEGRAM_BOT_USERNAME = import.meta.env.VITE_TELEGRAM_BOT_USERNAME || 'tensu_students_test_bot';
-const TELEGRAM_APP_NAME = import.meta.env.VITE_TELEGRAM_APP_NAME || 'tensu_students_test';
-
-/**
- * Check if we're running inside Telegram Mini App
- */
-function isInsideTelegram(): boolean {
-  return !!window.Telegram?.WebApp?.initData;
-}
-
-/**
- * Generate Telegram Mini App deep link with startapp parameter
- */
-function getTelegramDeepLink(paymentId?: string): string {
-  if (paymentId) {
-    return `https://t.me/${TELEGRAM_BOT_USERNAME}/${TELEGRAM_APP_NAME}?startapp=payment_${paymentId}`;
-  }
-  return `https://t.me/${TELEGRAM_BOT_USERNAME}/${TELEGRAM_APP_NAME}`;
-}
 
 /**
  * Payment Callback Page
@@ -33,10 +12,6 @@ function getTelegramDeepLink(paymentId?: string): string {
  * This page handles the return from the CNP payment gateway.
  * After the user completes payment on the gateway page, they are redirected
  * here. We then check the payment status with our backend.
- * 
- * Works in two modes:
- * 1. Inside Telegram Mini App - shows result and navigates within the app
- * 2. In browser (after CNP redirect) - shows result and offers to open Telegram
  */
 export const PaymentCallback: React.FC = () => {
   const { t } = useI18n();
@@ -45,7 +20,6 @@ export const PaymentCallback: React.FC = () => {
   
   const [status, setStatus] = useState<CallbackStatus>('loading');
   const [message, setMessage] = useState('');
-  const [isInTelegram] = useState(() => isInsideTelegram());
   const [paymentDetails, setPaymentDetails] = useState<{
     payment_id: number;
     amount?: number;
@@ -138,15 +112,15 @@ export const PaymentCallback: React.FC = () => {
     checkPaymentStatus();
   }, [searchParams, t]);
 
-  // Auto redirect after success (only inside Telegram)
+  // Auto redirect after success
   useEffect(() => {
-    if (status === 'success' && isInTelegram) {
+    if (status === 'success') {
       const timer = setTimeout(() => {
         navigate('/student/profile');
       }, 5000);
       return () => clearTimeout(timer);
     }
-  }, [status, navigate, isInTelegram]);
+  }, [status, navigate]);
 
   const formatPrice = (amount: number, currency: string = 'KZT') => {
     return new Intl.NumberFormat('ru-RU', {
@@ -229,35 +203,17 @@ export const PaymentCallback: React.FC = () => {
               </div>
             )}
             
-            {isInTelegram ? (
-              <>
-                <button
-                  onClick={() => navigate('/student/profile')}
-                  className="w-full px-4 py-3.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all font-semibold shadow-lg shadow-blue-200"
-                >
-                  {t('clubs.payment.success.button') || 'Go to Profile'}
-                </button>
-                
-                <p className="text-sm text-gray-400 mt-3 flex items-center justify-center gap-1">
-                  <Loader2 size={14} className="animate-spin" />
-                  {t('clubs.payment.success.redirect') || 'Redirecting in 5 seconds...'}
-                </p>
-              </>
-            ) : (
-              <>
-                <a
-                  href={getTelegramDeepLink(paymentDetails?.payment_id?.toString())}
-                  className="w-full px-4 py-3.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all font-semibold shadow-lg shadow-blue-200 flex items-center justify-center gap-2"
-                >
-                  <ExternalLink size={18} />
-                  Открыть в Telegram
-                </a>
-                
-                <p className="text-sm text-gray-500 mt-3">
-                  Нажмите кнопку выше, чтобы вернуться в приложение
-                </p>
-              </>
-            )}
+            <button
+              onClick={() => navigate('/student/profile')}
+              className="w-full px-4 py-3.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all font-semibold shadow-lg shadow-blue-200"
+            >
+              {t('clubs.payment.success.button') || 'Go to Profile'}
+            </button>
+            
+            <p className="text-sm text-gray-400 mt-3 flex items-center justify-center gap-1">
+              <Loader2 size={14} className="animate-spin" />
+              {t('clubs.payment.success.redirect') || 'Redirecting in 5 seconds...'}
+            </p>
           </div>
         </div>
         
@@ -292,39 +248,28 @@ export const PaymentCallback: React.FC = () => {
         <p className="text-gray-600 mb-6">
           {message || t('clubs.payment.error.description') || 'There was an error processing your payment.'}
         </p>
-        
-        {isInTelegram ? (
-          <div className="flex gap-3">
-            <button
-              onClick={() => navigate('/student/clubs')}
-              className="flex-1 px-4 py-3 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium"
-            >
-              {t('clubs.payment.cancel') || 'Back to Clubs'}
-            </button>
-            <button
-              onClick={() => {
-                // Try to go back to the original page
-                const returnUrl = sessionStorage.getItem('payment_return_url');
-                if (returnUrl) {
-                  window.location.href = returnUrl;
-                } else {
-                  navigate('/student/clubs');
-                }
-              }}
-              className="flex-1 px-4 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors font-medium"
-            >
-              {t('clubs.payment.error.retry') || 'Try Again'}
-            </button>
-          </div>
-        ) : (
-          <a
-            href={getTelegramDeepLink()}
-            className="w-full px-4 py-3.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all font-semibold shadow-lg shadow-blue-200 flex items-center justify-center gap-2"
+        <div className="flex gap-3">
+          <button
+            onClick={() => navigate('/student/clubs')}
+            className="flex-1 px-4 py-3 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium"
           >
-            <ExternalLink size={18} />
-            Вернуться в Telegram
-          </a>
-        )}
+            {t('clubs.payment.cancel') || 'Back to Clubs'}
+          </button>
+          <button
+            onClick={() => {
+              // Try to go back to the original page
+              const returnUrl = sessionStorage.getItem('payment_return_url');
+              if (returnUrl) {
+                window.location.href = returnUrl;
+              } else {
+                navigate('/student/clubs');
+              }
+            }}
+            className="flex-1 px-4 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors font-medium"
+          >
+            {t('clubs.payment.error.retry') || 'Try Again'}
+          </button>
+        </div>
       </div>
     </div>
   );
