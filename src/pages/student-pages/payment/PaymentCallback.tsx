@@ -32,8 +32,22 @@ export const PaymentCallback: React.FC = () => {
         const tg = window.Telegram?.WebApp;
         const token = tg?.initData || null;
 
-        // Get payment ID from URL params or session storage
+        // Get payment ID from multiple sources:
+        // 1. URL query params (direct navigation)
+        // 2. Telegram startParam (from deep link like ?startapp=payment_123)
+        // 3. Session storage (backup)
         let paymentId = searchParams.get('payment_id');
+        
+        if (!paymentId && tg?.startParam) {
+          // Check if startParam contains payment ID (format: payment_123)
+          const startParam = tg.startParam;
+          console.log('PaymentCallback: checking startParam:', startParam);
+          if (startParam.startsWith('payment_')) {
+            paymentId = startParam.replace('payment_', '').split('_')[0];
+            console.log('PaymentCallback: extracted payment_id from startParam:', paymentId);
+          }
+        }
+        
         if (!paymentId) {
           paymentId = sessionStorage.getItem('pending_payment_id');
         }
