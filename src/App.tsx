@@ -27,7 +27,8 @@ function TelegramStartAppHandler() {
     if (handled) return;
 
     const tg = window.Telegram?.WebApp;
-    const startParam = tg?.initDataUnsafe?.start_param;
+    // startParam is a direct property of WebApp, not in initDataUnsafe
+    const startParam = tg?.startParam;
 
     if (startParam) {
       console.log('Telegram startapp param:', startParam);
