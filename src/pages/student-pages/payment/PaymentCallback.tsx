@@ -38,7 +38,33 @@ export const PaymentCallback: React.FC = () => {
           paymentId = sessionStorage.getItem('pending_payment_id');
         }
 
+        // Get CNP callback parameters (userId and cardId come from successful card registration)
+        const cnpUserId = searchParams.get('userId');
+        const cnpCardId = searchParams.get('cardId');
+        // customerReference is also returned but we use payment_id instead
+
+        // If we have CNP card registration data, sync it with backend
+        if (cnpUserId && cnpCardId && token) {
+          try {
+            await paymentsApi.cards.sync(
+              parseInt(cnpUserId),
+              parseInt(cnpCardId),
+              token
+            );
+            console.log('Card synced successfully:', { cnpUserId, cnpCardId });
+          } catch (syncError) {
+            console.error('Error syncing card:', syncError);
+            // Don't fail the whole flow if sync fails
+          }
+        }
+
         if (!paymentId) {
+          // If no payment_id but we have card data, it might be just card registration
+          if (cnpUserId && cnpCardId) {
+            setStatus('success');
+            setMessage('Карта успешно привязана!');
+            return;
+          }
           setStatus('error');
           setMessage('Payment information not found');
           return;
