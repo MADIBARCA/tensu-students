@@ -32,20 +32,9 @@ export const PaymentCallback: React.FC = () => {
         const tg = window.Telegram?.WebApp;
         const token = tg?.initData || null;
 
-        // Debug: log all available data sources
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const tgAny = tg as any;
         const urlParams = new URLSearchParams(window.location.search);
-        
-        console.log('PaymentCallback: === DEBUG START ===');
-        console.log('PaymentCallback: window.location.href:', window.location.href);
-        console.log('PaymentCallback: window.location.search:', window.location.search);
-        console.log('PaymentCallback: tg.startParam:', tgAny?.startParam);
-        console.log('PaymentCallback: tg.initDataUnsafe:', JSON.stringify(tgAny?.initDataUnsafe));
-        console.log('PaymentCallback: sessionStorage.pending_payment_id:', sessionStorage.getItem('pending_payment_id'));
-        console.log('PaymentCallback: searchParams.payment_id:', searchParams.get('payment_id'));
-        console.log('PaymentCallback: URL tgWebAppStartParam:', urlParams.get('tgWebAppStartParam'));
-        console.log('PaymentCallback: === DEBUG END ===');
 
         // Get payment ID from multiple sources:
         // 1. URL query params (direct navigation)
@@ -58,41 +47,30 @@ export const PaymentCallback: React.FC = () => {
         // Try tg.startParam
         if (!paymentId && tg?.startParam) {
           const startParam = tg.startParam;
-          console.log('PaymentCallback: found tg.startParam:', startParam);
           if (startParam.startsWith('payment_')) {
             paymentId = startParam.replace('payment_', '').split('_')[0];
-            console.log('PaymentCallback: extracted payment_id:', paymentId);
           }
         }
         
         // Try initDataUnsafe.start_param (documented alternative)
         if (!paymentId && tgAny?.initDataUnsafe?.start_param) {
           const startParam = tgAny.initDataUnsafe.start_param;
-          console.log('PaymentCallback: found initDataUnsafe.start_param:', startParam);
           if (startParam.startsWith('payment_')) {
             paymentId = startParam.replace('payment_', '').split('_')[0];
-            console.log('PaymentCallback: extracted payment_id:', paymentId);
           }
         }
         
         // Try tgWebAppStartParam from URL (Telegram passes it in iframe URL)
         if (!paymentId) {
           const tgStartParam = urlParams.get('tgWebAppStartParam');
-          if (tgStartParam) {
-            console.log('PaymentCallback: found tgWebAppStartParam:', tgStartParam);
-            if (tgStartParam.startsWith('payment_')) {
-              paymentId = tgStartParam.replace('payment_', '').split('_')[0];
-              console.log('PaymentCallback: extracted payment_id:', paymentId);
-            }
+          if (tgStartParam && tgStartParam.startsWith('payment_')) {
+            paymentId = tgStartParam.replace('payment_', '').split('_')[0];
           }
         }
         
         // Fallback to session storage
         if (!paymentId) {
           paymentId = sessionStorage.getItem('pending_payment_id');
-          if (paymentId) {
-            console.log('PaymentCallback: found in sessionStorage:', paymentId);
-          }
         }
 
         // Get CNP callback parameters (userId and cardId come from successful card registration)
@@ -100,24 +78,19 @@ export const PaymentCallback: React.FC = () => {
         const cnpCardId = searchParams.get('cardId');
         // customerReference is also returned but we use payment_id instead
 
-        // If we have CNP card registration data, sync it with backend
-        if (cnpUserId && cnpCardId && token) {
-          try {
-            await paymentsApi.cards.sync(
-              parseInt(cnpUserId),
-              parseInt(cnpCardId),
-              token
-            );
-            console.log('Card synced successfully:', { cnpUserId, cnpCardId });
-          } catch (syncError) {
-            console.error('Error syncing card:', syncError);
-            // Don't fail the whole flow if sync fails
-          }
-        }
-
         if (!paymentId) {
           // If no payment_id but we have card data, it might be just card registration
-          if (cnpUserId && cnpCardId) {
+          if (cnpUserId && cnpCardId && token) {
+            // Sync card to backend
+            try {
+              await paymentsApi.cards.sync(
+                parseInt(cnpUserId),
+                parseInt(cnpCardId),
+                token
+              );
+            } catch {
+              // Ignore sync errors
+            }
             setStatus('success');
             setMessage('Карта успешно привязана!');
             return;
@@ -127,7 +100,48 @@ export const PaymentCallback: React.FC = () => {
           return;
         }
 
-        // Check payment status with backend
+        // If we have CNP card data AND payment_id, complete the payment
+        if (cnpUserId && cnpCardId && token) {
+          try {
+            // Complete payment after card registration
+            const completeResponse = await paymentsApi.gateway.complete(
+              parseInt(paymentId),
+              parseInt(cnpUserId),
+              parseInt(cnpCardId),
+              token
+            );
+
+            const paymentData = completeResponse.data;
+            setPaymentDetails({
+              payment_id: paymentData.payment_id,
+              amount: paymentData.amount,
+              currency: paymentData.currency,
+            });
+
+            if (paymentData.status === 'paid') {
+              setStatus('success');
+              setMessage(t('clubs.payment.success.description') || 'Payment successful!');
+              
+              // Clear session storage
+              sessionStorage.removeItem('pending_payment_id');
+              sessionStorage.removeItem('payment_return_url');
+              return;
+            } else {
+              setStatus('error');
+              setMessage(t('clubs.payment.error.description') || 'Payment failed');
+              return;
+            }
+          } catch (completeError) {
+            console.error('Error completing payment:', completeError);
+            const { getErrorMessage } = await import('@/lib/utils/errorHandler');
+            const errorMessage = getErrorMessage(completeError, t('clubs.payment.error.generic') || 'Payment failed');
+            setStatus('error');
+            setMessage(errorMessage);
+            return;
+          }
+        }
+
+        // No card data - just check payment status (OneClick or already completed payment)
         const response = await paymentsApi.gateway.getStatus(
           parseInt(paymentId),
           token
@@ -151,13 +165,9 @@ export const PaymentCallback: React.FC = () => {
           setStatus('error');
           setMessage(t('clubs.payment.error.description') || 'Payment failed or was cancelled');
         } else if (paymentData.status === 'processing' || paymentData.status === 'pending') {
-          // Payment still processing - poll for status
-          // In a real app, you might want to implement polling or webhooks
-          setStatus('loading');
-          setMessage('Payment is being processed...');
-          
-          // Retry after delay
-          setTimeout(checkPaymentStatus, 3000);
+          // Payment still processing
+          setStatus('error');
+          setMessage('Оплата не была завершена. Попробуйте снова.');
         }
       } catch (error) {
         console.error('Error checking payment status:', error);

@@ -193,6 +193,14 @@ export const paymentsApi = {
         'GET',
         token
       ),
+
+    // Complete payment after card registration
+    complete: (paymentId: number, cnpUserId: number, cnpCardId: number, token: string | null) =>
+      axiosRequest<GatewayPaymentResponse>(
+        `${ENDPOINTS.PAYMENTS.GATEWAY_COMPLETE}?payment_id=${paymentId}&cnp_user_id=${cnpUserId}&cnp_card_id=${cnpCardId}`,
+        'POST',
+        token
+      ),
   },
 
   // Card management for OneClick payments

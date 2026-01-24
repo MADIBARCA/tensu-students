@@ -37,6 +37,7 @@ export const ENDPOINTS = {
     GATEWAY_INITIATE: '/students/payments/gateway/initiate',
     GATEWAY_ONECLICK: '/students/payments/gateway/oneclick',
     GATEWAY_STATUS: (paymentId: number) => `/students/payments/gateway/status/${paymentId}`,
+    GATEWAY_COMPLETE: '/students/payments/gateway/complete',
     GATEWAY_CALLBACK: '/students/payments/gateway/callback',
     // Card registration
     CARDS: '/students/payments/cards',
