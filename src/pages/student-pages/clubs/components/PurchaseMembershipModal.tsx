@@ -33,7 +33,7 @@ interface PurchaseMembershipModalProps {
   onSuccess: () => void;
 }
 
-type PaymentStatus = 'idle' | 'processing' | 'success' | 'error';
+type PaymentStatus = 'idle' | 'processing' | 'success' | 'error' | 'pending';
 
 export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = ({
   club,
@@ -146,10 +146,23 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
           sessionStorage.setItem('pending_payment_id', String(gatewayResponse.data.payment_id));
           sessionStorage.setItem('payment_return_url', currentUrl);
           
-          // Redirect to gateway payment page
+          const redirectUrl = gatewayResponse.data.redirect_url;
+          
           // CNP gateway doesn't allow iframe embedding (X-Frame-Options: sameorigin)
-          // Use window.location.replace for a clean navigation without history entry
-          window.location.replace(gatewayResponse.data.redirect_url);
+          // Check if we're in Telegram WebApp and openLink method exists
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const tgAny = tg as any;
+          if (tgAny?.openLink) {
+            // Telegram WebApp - use openLink to open in external browser
+            // This is the only reliable way to open external payment pages from Telegram
+            tgAny.openLink(redirectUrl);
+            // Show message that user needs to complete payment in browser
+            setPaymentStatus('pending');
+            setPaymentError('Откройте браузер для завершения оплаты');
+          } else {
+            // Regular browser - direct navigation
+            window.location.href = redirectUrl;
+          }
           return;
         } else if (gatewayResponse.data.status === 'paid') {
           // Payment already completed (shouldn't happen normally)
