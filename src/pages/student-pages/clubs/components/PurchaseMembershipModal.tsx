@@ -136,7 +136,7 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
         
         // Use Telegram deep link as return URL so user returns to Mini App after payment
         // Backend will append payment_id as startapp parameter
-        const telegramDeepLink = 'https://t.me/tensu_students_test_bot/app';
+        const telegramDeepLink = 'https://t.me/tensu_students_test_bot/tensu_students_test';
         
         const gatewayResponse = await paymentsApi.gateway.initiate({
           club_id: club.id,
