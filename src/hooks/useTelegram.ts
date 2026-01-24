@@ -33,7 +33,11 @@ declare global {
         disableVerticalSwipes(): void;
         expand(): void;
         initData: string;
-        initDataUnsafe: { user: TelegramUser };
+        initDataUnsafe: { 
+          user: TelegramUser;
+          start_param?: string;  // From startapp query parameter in deep links
+        };
+        startParam?: string;  // Direct access to start parameter
         ready: () => void;
         sendData: (data: string) => void;
         showAlert: (message: string) => void;

@@ -32,24 +32,67 @@ export const PaymentCallback: React.FC = () => {
         const tg = window.Telegram?.WebApp;
         const token = tg?.initData || null;
 
+        // Debug: log all available data sources
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const tgAny = tg as any;
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        console.log('PaymentCallback: === DEBUG START ===');
+        console.log('PaymentCallback: window.location.href:', window.location.href);
+        console.log('PaymentCallback: window.location.search:', window.location.search);
+        console.log('PaymentCallback: tg.startParam:', tgAny?.startParam);
+        console.log('PaymentCallback: tg.initDataUnsafe:', JSON.stringify(tgAny?.initDataUnsafe));
+        console.log('PaymentCallback: sessionStorage.pending_payment_id:', sessionStorage.getItem('pending_payment_id'));
+        console.log('PaymentCallback: searchParams.payment_id:', searchParams.get('payment_id'));
+        console.log('PaymentCallback: URL tgWebAppStartParam:', urlParams.get('tgWebAppStartParam'));
+        console.log('PaymentCallback: === DEBUG END ===');
+
         // Get payment ID from multiple sources:
         // 1. URL query params (direct navigation)
         // 2. Telegram startParam (from deep link like ?startapp=payment_123)
-        // 3. Session storage (backup)
+        // 3. initDataUnsafe.start_param (alternative location per docs)
+        // 4. tgWebAppStartParam from URL (iframe parameter)
+        // 5. Session storage (backup)
         let paymentId = searchParams.get('payment_id');
         
+        // Try tg.startParam
         if (!paymentId && tg?.startParam) {
-          // Check if startParam contains payment ID (format: payment_123)
           const startParam = tg.startParam;
-          console.log('PaymentCallback: checking startParam:', startParam);
+          console.log('PaymentCallback: found tg.startParam:', startParam);
           if (startParam.startsWith('payment_')) {
             paymentId = startParam.replace('payment_', '').split('_')[0];
-            console.log('PaymentCallback: extracted payment_id from startParam:', paymentId);
+            console.log('PaymentCallback: extracted payment_id:', paymentId);
           }
         }
         
+        // Try initDataUnsafe.start_param (documented alternative)
+        if (!paymentId && tgAny?.initDataUnsafe?.start_param) {
+          const startParam = tgAny.initDataUnsafe.start_param;
+          console.log('PaymentCallback: found initDataUnsafe.start_param:', startParam);
+          if (startParam.startsWith('payment_')) {
+            paymentId = startParam.replace('payment_', '').split('_')[0];
+            console.log('PaymentCallback: extracted payment_id:', paymentId);
+          }
+        }
+        
+        // Try tgWebAppStartParam from URL (Telegram passes it in iframe URL)
+        if (!paymentId) {
+          const tgStartParam = urlParams.get('tgWebAppStartParam');
+          if (tgStartParam) {
+            console.log('PaymentCallback: found tgWebAppStartParam:', tgStartParam);
+            if (tgStartParam.startsWith('payment_')) {
+              paymentId = tgStartParam.replace('payment_', '').split('_')[0];
+              console.log('PaymentCallback: extracted payment_id:', paymentId);
+            }
+          }
+        }
+        
+        // Fallback to session storage
         if (!paymentId) {
           paymentId = sessionStorage.getItem('pending_payment_id');
+          if (paymentId) {
+            console.log('PaymentCallback: found in sessionStorage:', paymentId);
+          }
         }
 
         // Get CNP callback parameters (userId and cardId come from successful card registration)
