@@ -30,12 +30,23 @@ function TelegramStartAppHandler() {
     // startParam is a direct property of WebApp, not in initDataUnsafe
     const startParam = tg?.startParam;
 
+    // Debug logging - remove after testing
+    console.log('=== TelegramStartAppHandler Debug ===');
+    console.log('tg object exists:', !!tg);
+    console.log('startParam:', startParam);
+    console.log('initData:', tg?.initData);
+    console.log('initDataUnsafe:', JSON.stringify(tg?.initDataUnsafe));
+    console.log('window.location.href:', window.location.href);
+    console.log('window.location.hash:', window.location.hash);
+    console.log('=====================================');
+
     if (startParam) {
       console.log('Telegram startapp param:', startParam);
       
       // Handle payment callback: payment_ID or payment_ID_userId_cardId
       if (startParam.startsWith('payment_')) {
         const paymentId = startParam.replace('payment_', '').split('_')[0];
+        console.log('Parsed paymentId:', paymentId);
         // Store payment ID and redirect to callback page
         sessionStorage.setItem('pending_payment_id', paymentId);
         navigate(`/payment/callback?payment_id=${paymentId}`, { replace: true });
