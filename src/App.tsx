@@ -18,9 +18,33 @@ import ClubsPage from "./pages/student-pages/clubs/ClubsPage";
 import PaymentCallback from "./pages/student-pages/payment/PaymentCallback";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 
+/**
+ * Check Telegram startapp parameter synchronously to determine initial route.
+ * This runs before React renders to ensure we navigate to the correct page.
+ */
+function getTelegramStartParam(): { type: 'payment'; paymentId: string } | null {
+  const tg = window.Telegram?.WebApp;
+  const startParam = tg?.startParam;
+
+  if (startParam) {
+    console.log('Telegram startapp param:', startParam);
+    
+    // Handle payment callback: payment_ID or payment_ID_userId_cardId
+    if (startParam.startsWith('payment_')) {
+      const paymentId = startParam.replace('payment_', '').split('_')[0];
+      // Store payment ID for callback handling
+      sessionStorage.setItem('pending_payment_id', paymentId);
+      return { type: 'payment', paymentId };
+    }
+  }
+  
+  return null;
+}
+
 // Component to handle Telegram startapp parameter (deep links)
 function TelegramStartAppHandler() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [handled, setHandled] = useState(false);
 
   useEffect(() => {
@@ -30,42 +54,39 @@ function TelegramStartAppHandler() {
     // startParam is a direct property of WebApp, not in initDataUnsafe
     const startParam = tg?.startParam;
 
-    // Debug logging - remove after testing
-    console.log('=== TelegramStartAppHandler Debug ===');
-    console.log('tg object exists:', !!tg);
-    console.log('startParam:', startParam);
-    console.log('initData:', tg?.initData);
-    console.log('initDataUnsafe:', JSON.stringify(tg?.initDataUnsafe));
-    console.log('window.location.href:', window.location.href);
-    console.log('window.location.hash:', window.location.hash);
-    console.log('=====================================');
-
     if (startParam) {
-      console.log('Telegram startapp param:', startParam);
+      console.log('TelegramStartAppHandler: startapp param:', startParam);
       
-      // Handle payment callback: payment_ID
+      // Handle payment callback: payment_ID or payment_ID_userId_cardId
       if (startParam.startsWith('payment_')) {
         const paymentId = startParam.replace('payment_', '').split('_')[0];
-        console.log('Parsed paymentId:', paymentId);
-        // Store payment ID and redirect to callback page
-        sessionStorage.setItem('pending_payment_id', paymentId);
-        navigate(`/payment/callback?payment_id=${paymentId}`, { replace: true });
-        setHandled(true);
-      }
-      // Handle success redirect from external browser
-      else if (startParam.startsWith('success_')) {
-        const paymentId = startParam.replace('success_', '');
-        console.log('Payment success redirect, paymentId:', paymentId);
-        // Go directly to profile page with success state
-        sessionStorage.setItem('payment_success', 'true');
-        sessionStorage.setItem('success_payment_id', paymentId);
-        navigate('/student/profile', { replace: true });
+        
+        // Only navigate if we're not already on the payment callback page
+        if (!location.pathname.includes('/payment/callback')) {
+          console.log('Navigating to payment callback for payment:', paymentId);
+          sessionStorage.setItem('pending_payment_id', paymentId);
+          navigate(`/payment/callback?payment_id=${paymentId}`, { replace: true });
+        }
         setHandled(true);
       }
     }
-  }, [navigate, handled]);
+  }, [navigate, handled, location.pathname]);
 
   return null;
+}
+
+// Component to handle default route with Telegram deep link support
+function DefaultRoute() {
+  // Check if we have a Telegram startapp parameter that should override the default route
+  const startParam = getTelegramStartParam();
+  
+  if (startParam?.type === 'payment') {
+    // Redirect to payment callback instead of onboarding
+    return <Navigate to={`/payment/callback?payment_id=${startParam.paymentId}`} replace />;
+  }
+  
+  // Default behavior - go to onboarding
+  return <Navigate to="/onboarding" replace />;
 }
 
 function AppRoutes() {
@@ -85,8 +106,8 @@ function AppRoutes() {
         <Route path="/student/clubs" element={<ClubsPage />} />
         <Route path="/payment/callback" element={<PaymentCallback />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
-        {/* Default route - go to onboarding first */}
-        <Route path="*" element={<Navigate to="/onboarding" replace />} />
+        {/* Default route - checks for Telegram startapp before going to onboarding */}
+        <Route path="*" element={<DefaultRoute />} />
       </Routes>
       <ToastContainer position="top-right" autoClose={3000} />
     </div>

@@ -112,25 +112,15 @@ export const PaymentCallback: React.FC = () => {
     checkPaymentStatus();
   }, [searchParams, t]);
 
-  // Auto redirect after success - redirect back to Telegram Mini App
+  // Auto redirect after success
   useEffect(() => {
     if (status === 'success') {
       const timer = setTimeout(() => {
-        const tg = window.Telegram?.WebApp;
-        
-        // If we're in Telegram WebApp already, just navigate
-        if (tg?.initData) {
-          navigate('/student/profile');
-        } else {
-          // We're in external browser (after CNP redirect)
-          // Redirect to Telegram deep link to open Mini App
-          const paymentId = paymentDetails?.payment_id || '';
-          window.location.href = `https://t.me/tensu_students_test_bot/tensu_students_test?startapp=success_${paymentId}`;
-        }
-      }, 2000); // Shorter delay for better UX
+        navigate('/student/profile');
+      }, 5000);
       return () => clearTimeout(timer);
     }
-  }, [status, navigate, paymentDetails]);
+  }, [status, navigate]);
 
   const formatPrice = (amount: number, currency: string = 'KZT') => {
     return new Intl.NumberFormat('ru-RU', {
