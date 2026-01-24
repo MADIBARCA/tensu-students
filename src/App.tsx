@@ -14,15 +14,17 @@ import StudentMainPage from "./pages/student-pages/main/StudentMainPage";
 import SchedulePage from "./pages/student-pages/schedule/SchedulePage";
 import ProfilePage from "./pages/student-pages/profile/ProfilePage";
 import ClubsPage from "./pages/student-pages/clubs/ClubsPage";
+import PaymentCallback from "./pages/student-pages/payment/PaymentCallback";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 function AppRoutes() {
   const location = useLocation();
   const isOnboarding = location.pathname === "/onboarding";
   const isPrivacy = location.pathname === "/privacy";
+  const isPaymentCallback = location.pathname === "/payment/callback";
 
   return (
-    <div className={isOnboarding || isPrivacy ? "" : "pt-20"}>
+    <div className={isOnboarding || isPrivacy || isPaymentCallback ? "" : "pt-20"}>
       <Routes>
         <Route path="/onboarding" element={<OnboardingPage />} />
         <Route path="/student/main" element={<StudentMainPage />} />
@@ -30,6 +32,7 @@ function AppRoutes() {
         <Route path="/student/groups" element={<ClubsPage />} />
         <Route path="/student/profile" element={<ProfilePage />} />
         <Route path="/student/clubs" element={<ClubsPage />} />
+        <Route path="/payment/callback" element={<PaymentCallback />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         {/* Default route - go to onboarding first */}
         <Route path="*" element={<Navigate to="/onboarding" replace />} />

@@ -27,6 +27,9 @@ import type {
   InitiatePaymentResponse,
   CompletePaymentResponse,
   PaymentStatsResponse,
+  GatewayPaymentResponse,
+  CardRegistrationResponse,
+  RegisteredCardsResponse,
   SessionResponse,
   SessionListResponse,
   TrainerResponse,
@@ -149,6 +152,7 @@ export const paymentsApi = {
     );
   },
 
+  // Mock payment flow (for testing/fallback)
   initiate: (data: InitiatePaymentRequest, token: string | null) =>
     axiosRequest<InitiatePaymentResponse>(ENDPOINTS.PAYMENTS.INITIATE, 'POST', token, data),
 
@@ -157,6 +161,71 @@ export const paymentsApi = {
 
   getStats: (token: string | null) =>
     axiosRequest<PaymentStatsResponse>(ENDPOINTS.PAYMENTS.STATS, 'GET', token),
+
+  // CNP Gateway payment flow
+  gateway: {
+    // Initiate payment via CNP gateway - returns redirect URL
+    initiate: (data: InitiatePaymentRequest, token: string | null, returnUrl?: string) => {
+      const params = returnUrl ? `?return_url=${encodeURIComponent(returnUrl)}` : '';
+      return axiosRequest<GatewayPaymentResponse>(
+        `${ENDPOINTS.PAYMENTS.GATEWAY_INITIATE}${params}`,
+        'POST',
+        token,
+        data
+      );
+    },
+
+    // Pay with registered card (OneClick)
+    payWithCard: (
+      data: { club_id: number; tariff_id: number; card_id: number; group_id?: number },
+      token: string | null
+    ) => axiosRequest<GatewayPaymentResponse>(
+      ENDPOINTS.PAYMENTS.GATEWAY_ONECLICK,
+      'POST',
+      token,
+      data
+    ),
+
+    // Check payment status
+    getStatus: (paymentId: number, token: string | null) =>
+      axiosRequest<GatewayPaymentResponse>(
+        ENDPOINTS.PAYMENTS.GATEWAY_STATUS(paymentId),
+        'GET',
+        token
+      ),
+  },
+
+  // Card management for OneClick payments
+  cards: {
+    // Get registered cards
+    getAll: (token: string | null) =>
+      axiosRequest<RegisteredCardsResponse>(ENDPOINTS.PAYMENTS.CARDS, 'GET', token),
+
+    // Initiate card registration - returns redirect URL
+    register: (token: string | null, returnUrl?: string) =>
+      axiosRequest<CardRegistrationResponse>(
+        ENDPOINTS.PAYMENTS.CARDS_REGISTER,
+        'POST',
+        token,
+        { return_url: returnUrl }
+      ),
+
+    // Sync card from gateway after registration callback
+    sync: (cnpUserId: number, cnpCardId: number, token: string | null) =>
+      axiosRequest<{ success: boolean; card?: unknown }>(
+        `${ENDPOINTS.PAYMENTS.CARDS_SYNC}?cnp_user_id=${cnpUserId}&cnp_card_id=${cnpCardId}`,
+        'POST',
+        token
+      ),
+
+    // Delete a registered card
+    delete: (cardId: number, token: string | null) =>
+      axiosRequest<{ success: boolean }>(
+        ENDPOINTS.PAYMENTS.CARDS_DELETE(cardId),
+        'DELETE',
+        token
+      ),
+  },
 };
 
 // Schedule/Sessions API

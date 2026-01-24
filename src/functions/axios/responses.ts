@@ -174,8 +174,8 @@ export interface AttendanceStatsResponse {
 }
 
 // Payment types
-export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded' | 'cancelled';
-export type PaymentMethod = 'card' | 'kaspi' | 'cash' | 'transfer';
+export type PaymentStatus = 'pending' | 'processing' | 'paid' | 'failed' | 'refunded' | 'cancelled';
+export type PaymentMethod = 'card' | 'kaspi' | 'cash' | 'transfer' | 'cnp_oneclick';
 
 export interface PaymentResponse {
   id: number;
@@ -220,6 +220,36 @@ export interface PaymentStatsResponse {
   pending_payments: number;
   payments_this_month: number;
   amount_this_month: number;
+}
+
+// CNP Gateway types
+export interface GatewayPaymentResponse {
+  payment_id: number;
+  amount: number;
+  currency: string;
+  status: PaymentStatus;
+  redirect_url: string | null;
+  requires_redirect: boolean;
+  external_reference: string | null;
+}
+
+export interface CardRegistrationResponse {
+  success: boolean;
+  redirect_url: string | null;
+  cnp_user_id: number | null;
+  error_message: string | null;
+}
+
+export interface RegisteredCard {
+  card_id: number;
+  pan_masked: string | null;
+  card_holder: string | null;
+  status: string;
+  is_active: boolean;
+}
+
+export interface RegisteredCardsResponse {
+  cards: RegisteredCard[];
 }
 
 // Schedule/Session types

@@ -127,27 +127,59 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
       const tg = window.Telegram?.WebApp;
       const token = tg?.initData || null;
 
-      // Step 1: Initiate payment - creates payment record with pending status
-      const initiateResponse = await paymentsApi.initiate({
-        club_id: club.id,
-        tariff_id: plan.id,
-        payment_method: 'card',
-      }, token);
+      // Check if we should use the real gateway or mock flow
+      const useRealGateway = import.meta.env.VITE_USE_REAL_PAYMENT === 'true';
 
-      const paymentId = initiateResponse.data.payment_id;
+      if (useRealGateway) {
+        // Real CNP Gateway flow - redirect to payment page
+        const currentUrl = window.location.href;
+        const returnUrl = `${window.location.origin}/payment/callback`;
+        
+        const gatewayResponse = await paymentsApi.gateway.initiate({
+          club_id: club.id,
+          tariff_id: plan.id,
+          payment_method: 'card',
+        }, token, returnUrl);
 
-      // Step 2: Simulate card processing delay (mock)
-      // In production, this would be replaced with actual payment gateway integration
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // Step 3: Complete payment - marks as paid and creates enrollment
-      const completeResponse = await paymentsApi.complete(paymentId, token);
-
-      if (completeResponse.data.success) {
-        setPaymentStatus('success');
-        setShowSuccessAnimation(true);
+        if (gatewayResponse.data.requires_redirect && gatewayResponse.data.redirect_url) {
+          // Store payment ID for callback handling
+          sessionStorage.setItem('pending_payment_id', String(gatewayResponse.data.payment_id));
+          sessionStorage.setItem('payment_return_url', currentUrl);
+          
+          // Redirect to gateway payment page
+          window.location.href = gatewayResponse.data.redirect_url;
+          return;
+        } else if (gatewayResponse.data.status === 'paid') {
+          // Payment already completed (shouldn't happen normally)
+          setPaymentStatus('success');
+          setShowSuccessAnimation(true);
+          return;
+        } else {
+          throw new Error('Failed to get payment redirect URL');
+        }
       } else {
-        throw new Error(completeResponse.data.message || 'Payment completion failed');
+        // Mock payment flow (for testing)
+        // Step 1: Initiate payment - creates payment record with pending status
+        const initiateResponse = await paymentsApi.initiate({
+          club_id: club.id,
+          tariff_id: plan.id,
+          payment_method: 'card',
+        }, token);
+
+        const paymentId = initiateResponse.data.payment_id;
+
+        // Step 2: Simulate card processing delay (mock)
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
+        // Step 3: Complete payment - marks as paid and creates enrollment
+        const completeResponse = await paymentsApi.complete(paymentId, token);
+
+        if (completeResponse.data.success) {
+          setPaymentStatus('success');
+          setShowSuccessAnimation(true);
+        } else {
+          throw new Error(completeResponse.data.message || 'Payment completion failed');
+        }
       }
     } catch (error: unknown) {
       console.error('Payment error:', error);

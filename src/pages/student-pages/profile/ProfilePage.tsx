@@ -9,6 +9,7 @@ import { MembershipsSection } from './components/MembershipsSection';
 import { MembershipHistorySection } from './components/MembershipHistorySection';
 import { AttendanceHistorySection } from './components/AttendanceHistorySection';
 import { PaymentHistorySection } from './components/PaymentHistorySection';
+import { RegisteredCardsSection } from './components/RegisteredCardsSection';
 import { SettingsSection } from './components/SettingsSection';
 import { EditProfileModal } from './components/EditProfileModal';
 import { PaymentModal } from './components/PaymentModal';
@@ -154,6 +155,9 @@ export default function ProfilePage() {
 
         {/* Payment History Section */}
         <PaymentHistorySection />
+
+        {/* Registered Cards Section */}
+        <RegisteredCardsSection />
 
         {/* Settings Section */}
         <SettingsSection />
