@@ -87,23 +87,6 @@ export const PaymentCallback: React.FC = () => {
           const paymentData = verifyResponse.data;
           
           // Log full response for debugging
-          console.log('PaymentCallback: Full verify response:', JSON.stringify(paymentData, null, 2));
-          
-          // Log saved card details
-          if (paymentData.saved_card) {
-            console.log('PaymentCallback: Saved card info:', {
-              cnp_user_id: paymentData.saved_card.cnp_user_id,
-              cnp_card_id: paymentData.saved_card.cnp_card_id,
-              pan_masked: paymentData.saved_card.pan_masked,
-              card_holder: paymentData.saved_card.card_holder,
-              cnp_status: paymentData.saved_card.cnp_status,
-              is_active: paymentData.saved_card.is_active,
-              is_primary: paymentData.saved_card.is_primary,
-            });
-          } else {
-            console.log('PaymentCallback: No saved card in response');
-          }
-          
           setPaymentDetails({
             payment_id: paymentData.payment_id,
             amount: paymentData.amount,
@@ -239,42 +222,18 @@ export const PaymentCallback: React.FC = () => {
               </div>
             )}
             
-            {/* Saved card info - for debugging */}
-            {paymentDetails?.saved_card && (
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 mb-6 text-left">
-                <p className="text-xs text-blue-600 font-medium mb-2">Карта сохранена</p>
-                <div className="space-y-1.5 text-sm">
-                  {paymentDetails.saved_card.pan_masked && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">Номер:</span>
-                      <span className="font-mono text-gray-900">{paymentDetails.saved_card.pan_masked}</span>
-                    </div>
-                  )}
-                  {paymentDetails.saved_card.card_holder && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">Держатель:</span>
-                      <span className="text-gray-900">{paymentDetails.saved_card.card_holder}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">CNP статус:</span>
-                    <span className={`font-medium ${paymentDetails.saved_card.cnp_status === 'ACTIVE' ? 'text-emerald-600' : 'text-amber-600'}`}>
-                      {paymentDetails.saved_card.cnp_status ?? 'N/A'}
-                    </span>
+            {/* Saved card info - user friendly */}
+            {paymentDetails?.saved_card?.is_active && paymentDetails.saved_card.pan_masked && (
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                    </svg>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Активна в БД:</span>
-                    <span className={`font-medium ${paymentDetails.saved_card.is_active ? 'text-emerald-600' : 'text-red-600'}`}>
-                      {paymentDetails.saved_card.is_active ? 'Да' : 'Нет'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Основная:</span>
-                    <span className="text-gray-900">{paymentDetails.saved_card.is_primary ? 'Да' : 'Нет'}</span>
-                  </div>
-                  <div className="pt-2 border-t border-blue-200 mt-2 text-xs text-gray-400">
-                    <div>CNP User ID: {paymentDetails.saved_card.cnp_user_id}</div>
-                    <div>CNP Card ID: {paymentDetails.saved_card.cnp_card_id}</div>
+                  <div className="text-left">
+                    <p className="text-xs text-blue-600 font-medium">Карта сохранена для быстрых платежей</p>
+                    <p className="font-mono text-gray-900">{paymentDetails.saved_card.pan_masked}</p>
                   </div>
                 </div>
               </div>
