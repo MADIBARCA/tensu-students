@@ -195,12 +195,14 @@ export const paymentsApi = {
       ),
 
     // Verify E-COM payment after user returns from CNP payment page
-    verify: (paymentId: number, token: string | null) =>
-      axiosRequest<GatewayPaymentResponse>(
-        `${ENDPOINTS.PAYMENTS.GATEWAY_VERIFY}?payment_id=${paymentId}`,
-        'POST',
-        token
-      ),
+    // If cnpUserId and cnpCardId are provided, the card will be saved for future OneClick payments
+    verify: (paymentId: number, token: string | null, cnpUserId?: number, cnpCardId?: number) => {
+      let url = `${ENDPOINTS.PAYMENTS.GATEWAY_VERIFY}?payment_id=${paymentId}`;
+      if (cnpUserId && cnpCardId) {
+        url += `&cnp_user_id=${cnpUserId}&cnp_card_id=${cnpCardId}`;
+      }
+      return axiosRequest<GatewayPaymentResponse>(url, 'POST', token);
+    },
 
     // Complete payment after card registration (OneClick flow - legacy)
     complete: (paymentId: number, cnpUserId: number, cnpCardId: number, token: string | null) =>

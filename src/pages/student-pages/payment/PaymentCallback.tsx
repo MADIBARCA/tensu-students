@@ -72,10 +72,14 @@ export const PaymentCallback: React.FC = () => {
 
         // E-COM flow: Verify payment status with backend
         // The payment was already processed on CNP page, we just need to verify
+        // Also pass cnpUserId and cnpCardId if available - CNP returns these after successful payment
+        // so we can save the card for future OneClick payments
         try {
           const verifyResponse = await paymentsApi.gateway.verify(
             parseInt(paymentId),
-            token
+            token,
+            cnpUserId ? parseInt(cnpUserId) : undefined,
+            cnpCardId ? parseInt(cnpCardId) : undefined
           );
 
           const paymentData = verifyResponse.data;
