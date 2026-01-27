@@ -74,9 +74,20 @@ export const PaymentCallback: React.FC = () => {
         }
 
         // Get CNP callback parameters (userId and cardId come from successful card registration)
-        const cnpUserId = searchParams.get('userId');
-        const cnpCardId = searchParams.get('cardId');
-        // customerReference is also returned but we use payment_id instead
+        // These can come from URL query params or from tgWebAppData hash
+        let cnpUserId = searchParams.get('userId');
+        let cnpCardId = searchParams.get('cardId');
+        
+        // Also check URL params (CNP adds these to return URL)
+        if (!cnpUserId) cnpUserId = urlParams.get('userId');
+        if (!cnpCardId) cnpCardId = urlParams.get('cardId');
+        
+        // Debug: Log all available parameters
+        console.log('PaymentCallback: paymentId=', paymentId);
+        console.log('PaymentCallback: cnpUserId=', cnpUserId);
+        console.log('PaymentCallback: cnpCardId=', cnpCardId);
+        console.log('PaymentCallback: full URL=', window.location.href);
+        console.log('PaymentCallback: hash=', window.location.hash);
 
         if (!paymentId) {
           // If no payment_id but we have card data, it might be just card registration
