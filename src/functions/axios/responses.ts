@@ -223,6 +223,16 @@ export interface PaymentStatsResponse {
 }
 
 // CNP Gateway types
+export interface SavedCardInfo {
+  cnp_user_id: number;
+  cnp_card_id: number;
+  pan_masked: string | null;
+  card_holder: string | null;
+  cnp_status: string | null;  // Status from CNP (e.g., "ACTIVE", "BLOCKED")
+  is_active: boolean;
+  is_primary: boolean;
+}
+
 export interface GatewayPaymentResponse {
   payment_id: number;
   amount: number;
@@ -231,6 +241,7 @@ export interface GatewayPaymentResponse {
   redirect_url: string | null;
   requires_redirect: boolean;
   external_reference: string | null;
+  saved_card: SavedCardInfo | null;  // Card saved after E-COM payment
 }
 
 export interface CardRegistrationResponse {
