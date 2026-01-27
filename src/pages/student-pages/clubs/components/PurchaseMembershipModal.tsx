@@ -131,12 +131,11 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
       const useRealGateway = import.meta.env.VITE_USE_REAL_PAYMENT === 'true';
 
       if (useRealGateway) {
-        // Real CNP Gateway flow - redirect to payment page
-        const currentUrl = window.location.href;
+        // Real CNP Gateway flow - redirect to payment page inside Telegram WebView
+        // CNP works inside WebView (same as card registration in profile)
         
-        // Use web URL for payment callback - this allows CNP to append userId and cardId
-        // The callback page will then redirect to Telegram Mini App if needed
-        const paymentCallbackUrl = 'https://student.tensu.kz/payment/callback';
+        // Return URL points to payment callback page which will handle card sync and payment completion
+        const paymentCallbackUrl = `${window.location.origin}/payment/callback`;
         
         const gatewayResponse = await paymentsApi.gateway.initiate({
           club_id: club.id,
@@ -145,26 +144,12 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
         }, token, paymentCallbackUrl);
 
         if (gatewayResponse.data.requires_redirect && gatewayResponse.data.redirect_url) {
-          // Store payment ID for callback handling (backup for web flow)
+          // Store payment ID for callback handling
           sessionStorage.setItem('pending_payment_id', String(gatewayResponse.data.payment_id));
-          sessionStorage.setItem('payment_return_url', currentUrl);
+          sessionStorage.setItem('payment_return_url', window.location.href);
           
-          const redirectUrl = gatewayResponse.data.redirect_url;
-          
-          // CNP gateway doesn't allow iframe embedding (X-Frame-Options: sameorigin)
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const tgAny = tg as any;
-          if (tgAny?.openLink) {
-            // Telegram WebApp - use openLink to open in external browser
-            // After payment, CNP will redirect to Telegram deep link which opens Mini App
-            tgAny.openLink(redirectUrl);
-            // Keep modal open showing pending state - user will return via deep link
-            setPaymentStatus('pending');
-            setPaymentError('Завершите оплату в браузере. После оплаты вы автоматически вернётесь в приложение.');
-          } else {
-            // Regular browser - direct navigation
-            window.location.href = redirectUrl;
-          }
+          // Navigate to CNP inside Telegram WebView (like card registration does)
+          window.location.href = gatewayResponse.data.redirect_url;
           return;
         } else if (gatewayResponse.data.status === 'paid') {
           // Payment already completed (shouldn't happen normally)

@@ -32,90 +32,29 @@ export const PaymentCallback: React.FC = () => {
         const tg = window.Telegram?.WebApp;
         const token = tg?.initData || null;
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const tgAny = tg as any;
         const urlParams = new URLSearchParams(window.location.search);
 
         // Get CNP callback parameters from URL (CNP adds these after card registration)
+        // CNP returns userId and cardId in the return URL
         const cnpUserId = urlParams.get('userId') || searchParams.get('userId');
         const cnpCardId = urlParams.get('cardId') || searchParams.get('cardId');
         
-        // Get payment ID from URL first
+        // Get payment ID from URL or session storage
         let paymentId = urlParams.get('payment_id') || searchParams.get('payment_id');
-
-        // If opened in regular browser (not in Telegram) with CNP parameters,
-        // redirect to Telegram Mini App with all necessary data
-        if (!token && paymentId && cnpUserId && cnpCardId) {
-          // Build Telegram deep link with all parameters encoded in startapp
-          // Format: payment_ID_userId_cardId
-          const startParam = `payment_${paymentId}_${cnpUserId}_${cnpCardId}`;
-          const telegramLink = `https://t.me/tensu_students_test_bot/payment?startapp=${startParam}`;
-          
-          console.log('Redirecting to Telegram Mini App:', telegramLink);
-          window.location.href = telegramLink;
-          return;
-        }
         
-        // Try Telegram startParam (from deep link)
-        if (!paymentId && tg?.startParam) {
-          const startParam = tg.startParam;
-          if (startParam.startsWith('payment_')) {
-            // Parse format: payment_ID or payment_ID_userId_cardId
-            const parts = startParam.replace('payment_', '').split('_');
-            paymentId = parts[0];
-          }
-        }
-        
-        // Try initDataUnsafe.start_param (documented alternative)
-        if (!paymentId && tgAny?.initDataUnsafe?.start_param) {
-          const startParam = tgAny.initDataUnsafe.start_param;
-          if (startParam.startsWith('payment_')) {
-            const parts = startParam.replace('payment_', '').split('_');
-            paymentId = parts[0];
-          }
-        }
-        
-        // Try tgWebAppStartParam from URL (Telegram passes it in iframe URL)
-        if (!paymentId) {
-          const tgStartParam = urlParams.get('tgWebAppStartParam');
-          if (tgStartParam && tgStartParam.startsWith('payment_')) {
-            const parts = tgStartParam.replace('payment_', '').split('_');
-            paymentId = parts[0];
-          }
-        }
-        
-        // Fallback to session storage
+        // Fallback to session storage (set before redirect to CNP)
         if (!paymentId) {
           paymentId = sessionStorage.getItem('pending_payment_id');
         }
 
-        // Parse userId and cardId from startParam if available
-        let parsedUserId: string | null = cnpUserId;
-        let parsedCardId: string | null = cnpCardId;
-        
-        // Try to get from startParam format: payment_ID_userId_cardId
-        const startParam = tgAny?.initDataUnsafe?.start_param || urlParams.get('tgWebAppStartParam');
-        if (startParam && startParam.startsWith('payment_')) {
-          const parts = startParam.replace('payment_', '').split('_');
-          if (parts.length >= 3) {
-            // Format: ID_userId_cardId
-            if (!parsedUserId) parsedUserId = parts[1];
-            if (!parsedCardId) parsedCardId = parts[2];
-          }
-        }
-
-        console.log('PaymentCallback: paymentId=', paymentId);
-        console.log('PaymentCallback: parsedUserId=', parsedUserId);
-        console.log('PaymentCallback: parsedCardId=', parsedCardId);
-
         if (!paymentId) {
           // If no payment_id but we have card data, it might be just card registration
-          if (parsedUserId && parsedCardId && token) {
+          if (cnpUserId && cnpCardId && token) {
             // Sync card to backend
             try {
               await paymentsApi.cards.sync(
-                parseInt(parsedUserId),
-                parseInt(parsedCardId),
+                parseInt(cnpUserId),
+                parseInt(cnpCardId),
                 token
               );
             } catch {
@@ -131,13 +70,13 @@ export const PaymentCallback: React.FC = () => {
         }
 
         // If we have CNP card data AND payment_id, complete the payment
-        if (parsedUserId && parsedCardId && token) {
+        if (cnpUserId && cnpCardId && token) {
           try {
             // Complete payment after card registration
             const completeResponse = await paymentsApi.gateway.complete(
               parseInt(paymentId),
-              parseInt(parsedUserId),
-              parseInt(parsedCardId),
+              parseInt(cnpUserId),
+              parseInt(cnpCardId),
               token
             );
 
