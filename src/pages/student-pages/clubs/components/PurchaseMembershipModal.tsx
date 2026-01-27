@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useI18n } from '@/i18n/i18n';
 import { 
   X, 
@@ -10,11 +10,13 @@ import {
   Calendar, 
   Building2,
   Sparkles,
-  ShieldCheck
+  ShieldCheck,
+  Plus
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { paymentsApi } from '@/functions/axios/axiosFunctions';
 import type { Club } from '../ClubsPage';
+import type { RegisteredCard } from '@/functions/axios/responses';
 
 interface MembershipPlan {
   id: number;
@@ -43,82 +45,59 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
   const { t } = useI18n();
   const navigate = useNavigate();
   
-  const [customerName, setCustomerName] = useState('');
-  const [cardNumber, setCardNumber] = useState('');
-  const [expiryDate, setExpiryDate] = useState('');
-  const [cvv, setCvv] = useState('');
+  // Saved cards state
+  const [savedCards, setSavedCards] = useState<RegisteredCard[]>([]);
+  const [selectedCardId, setSelectedCardId] = useState<number | null>(null);
+  const [loadingCards, setLoadingCards] = useState(true);
+  
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>('idle');
-  const [errors, setErrors] = useState<Record<string, string>>({});
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
 
-  const formatCardNumber = (value: string) => {
-    const cleaned = value.replace(/\D/g, '');
-    const formatted = cleaned.match(/.{1,4}/g)?.join(' ') || cleaned;
-    return formatted.slice(0, 19);
+  // Load saved cards on mount
+  const loadSavedCards = useCallback(async () => {
+    try {
+      const tg = window.Telegram?.WebApp;
+      const token = tg?.initData || null;
+      
+      const response = await paymentsApi.cards.getAll(token);
+      const cards = response.data.cards || [];
+      setSavedCards(cards);
+      
+      // Auto-select first active card
+      const activeCard = cards.find((c: RegisteredCard) => c.is_active);
+      if (activeCard) {
+        setSelectedCardId(activeCard.card_id);
+      }
+    } catch (error) {
+      console.error('Failed to load cards:', error);
+    } finally {
+      setLoadingCards(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadSavedCards();
+  }, [loadSavedCards]);
+
+  // Detect card type from PAN
+  const getCardType = (pan: string | null): 'visa' | 'mastercard' | 'other' => {
+    if (!pan) return 'other';
+    const firstDigit = pan[0];
+    if (firstDigit === '4') return 'visa';
+    if (firstDigit === '5' || firstDigit === '2') return 'mastercard';
+    return 'other';
   };
 
-  const formatExpiry = (value: string) => {
-    const cleaned = value.replace(/\D/g, '');
-    if (cleaned.length >= 2) {
-      return `${cleaned.slice(0, 2)}/${cleaned.slice(2, 4)}`;
-    }
-    return cleaned;
+  // Format masked PAN for display
+  const formatPan = (pan: string | null) => {
+    if (!pan) return '•••• •••• •••• ••••';
+    return pan.replace(/(.{4})/g, '$1 ').trim();
   };
 
-  // Detect card brand based on number
-  const getCardBrand = (number: string) => {
-    const cleaned = number.replace(/\s/g, '');
-    if (cleaned.startsWith('4')) return 'visa';
-    if (/^5[1-5]/.test(cleaned) || /^2[2-7]/.test(cleaned)) return 'mastercard';
-    if (cleaned.startsWith('62')) return 'unionpay';
-    return null;
-  };
-
-  const cardBrand = getCardBrand(cardNumber);
-
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
-
-    if (!customerName.trim()) {
-      newErrors.customerName = t('clubs.payment.errors.name');
-    }
-
-    const cardDigits = cardNumber.replace(/\s/g, '');
-    if (cardDigits.length !== 16) {
-      newErrors.cardNumber = t('clubs.payment.errors.card');
-    }
-
-    const [month, year] = expiryDate.split('/');
-    const currentDate = new Date();
-    const currentMonth = currentDate.getMonth() + 1;
-    const currentYear = currentDate.getFullYear() % 100;
-    
-    if (!month || !year || parseInt(month) < 1 || parseInt(month) > 12) {
-      newErrors.expiryDate = t('clubs.payment.errors.expiry');
-    } else if (parseInt(year) < currentYear || (parseInt(year) === currentYear && parseInt(month) < currentMonth)) {
-      newErrors.expiryDate = t('clubs.payment.errors.expiryPast');
-    }
-
-    if (cvv.length !== 3) {
-      newErrors.cvv = t('clubs.payment.errors.cvv');
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const isFormValid = () => {
-    return (
-      customerName.trim() &&
-      cardNumber.replace(/\s/g, '').length === 16 &&
-      expiryDate.length === 5 &&
-      cvv.length === 3
-    );
-  };
-
-  const handlePayment = async () => {
-    if (!validateForm()) return;
+  // Handle OneClick payment with saved card
+  const handleOneClickPayment = async () => {
+    if (!selectedCardId) return;
 
     setPaymentStatus('processing');
     setPaymentError(null);
@@ -127,70 +106,65 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
       const tg = window.Telegram?.WebApp;
       const token = tg?.initData || null;
 
-      // Check if we should use the real gateway or mock flow
-      const useRealGateway = import.meta.env.VITE_USE_REAL_PAYMENT === 'true';
+      // Call OneClick API - no redirect needed!
+      const response = await paymentsApi.gateway.payWithCard({
+        club_id: club.id,
+        tariff_id: plan.id,
+        card_id: selectedCardId,
+      }, token);
 
-      if (useRealGateway) {
-        // Real CNP Gateway flow - redirect to payment page inside Telegram WebView
-        // CNP works inside WebView (same as card registration in profile)
-        
-        // Return URL points to payment callback page which will handle card sync and payment completion
-        const paymentCallbackUrl = `${window.location.origin}/payment/callback`;
-        
-        const gatewayResponse = await paymentsApi.gateway.initiate({
-          club_id: club.id,
-          tariff_id: plan.id,
-          payment_method: 'card',
-        }, token, paymentCallbackUrl);
-
-        if (gatewayResponse.data.requires_redirect && gatewayResponse.data.redirect_url) {
-          // Store payment ID for callback handling
-          sessionStorage.setItem('pending_payment_id', String(gatewayResponse.data.payment_id));
-          sessionStorage.setItem('payment_return_url', window.location.href);
-          
-          // Navigate to CNP inside Telegram WebView (like card registration does)
-          window.location.href = gatewayResponse.data.redirect_url;
-          return;
-        } else if (gatewayResponse.data.status === 'paid') {
-          // Payment already completed (shouldn't happen normally)
-          setPaymentStatus('success');
-          setShowSuccessAnimation(true);
-          return;
-        } else {
-          throw new Error('Failed to get payment redirect URL');
-        }
+      if (response.data.status === 'paid') {
+        setPaymentStatus('success');
+        setShowSuccessAnimation(true);
       } else {
-        // Mock payment flow (for testing)
-        // Step 1: Initiate payment - creates payment record with pending status
-        const initiateResponse = await paymentsApi.initiate({
-          club_id: club.id,
-          tariff_id: plan.id,
-          payment_method: 'card',
-        }, token);
-
-        const paymentId = initiateResponse.data.payment_id;
-
-        // Step 2: Simulate card processing delay (mock)
-        await new Promise(resolve => setTimeout(resolve, 1500));
-
-        // Step 3: Complete payment - marks as paid and creates enrollment
-        const completeResponse = await paymentsApi.complete(paymentId, token);
-
-        if (completeResponse.data.success) {
-          setPaymentStatus('success');
-          setShowSuccessAnimation(true);
-        } else {
-          throw new Error(completeResponse.data.message || 'Payment completion failed');
-        }
+        throw new Error('Payment failed');
       }
-    } catch (error: unknown) {
-      console.error('Payment error:', error);
-      setPaymentStatus('error');
-      
-      // Extract error message from backend response
+    } catch (error) {
+      console.error('OneClick payment error:', error);
       const { getErrorMessage } = await import('@/lib/utils/errorHandler');
-      const errorMessage = getErrorMessage(error, t('clubs.payment.error.generic') || 'Ошибка при оплате');
-      setPaymentError(errorMessage);
+      setPaymentError(getErrorMessage(error, 'Ошибка оплаты'));
+      setPaymentStatus('error');
+    }
+  };
+
+  // Handle new card payment (redirect to CNP E-COM page)
+  const handleNewCardPayment = async () => {
+    setPaymentStatus('processing');
+    setPaymentError(null);
+
+    try {
+      const tg = window.Telegram?.WebApp;
+      const token = tg?.initData || null;
+
+      // Return URL points to payment callback page
+      const paymentCallbackUrl = `${window.location.origin}/payment/callback`;
+      
+      const gatewayResponse = await paymentsApi.gateway.initiate({
+        club_id: club.id,
+        tariff_id: plan.id,
+        payment_method: 'card',
+      }, token, paymentCallbackUrl);
+
+      if (gatewayResponse.data.requires_redirect && gatewayResponse.data.redirect_url) {
+        // Store payment ID for callback handling
+        sessionStorage.setItem('pending_payment_id', String(gatewayResponse.data.payment_id));
+        sessionStorage.setItem('payment_return_url', window.location.href);
+        
+        // Navigate to CNP payment page (E-COM with amount shown)
+        window.location.href = gatewayResponse.data.redirect_url;
+        return;
+      } else if (gatewayResponse.data.status === 'paid') {
+        setPaymentStatus('success');
+        setShowSuccessAnimation(true);
+        return;
+      } else {
+        throw new Error('Failed to get payment redirect URL');
+      }
+    } catch (error) {
+      console.error('Payment error:', error);
+      const { getErrorMessage } = await import('@/lib/utils/errorHandler');
+      setPaymentError(getErrorMessage(error, 'Ошибка оплаты'));
+      setPaymentStatus('error');
     }
   };
 
@@ -410,141 +384,89 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
             </div>
           </div>
 
-          {/* Card Form */}
+          {/* Payment Method Selection */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 mb-4">
               <CreditCard size={18} className="text-gray-400" />
-              <p className="text-sm font-medium text-gray-700">{t('clubs.payment.cardInfo')}</p>
+              <p className="text-sm font-medium text-gray-700">Способ оплаты</p>
             </div>
 
-            {/* Card Holder Name */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                {t('clubs.payment.customerName')}
-              </label>
-              <input
-                type="text"
-                value={customerName}
-                onChange={(e) => setCustomerName(e.target.value)}
-                placeholder="IVAN IVANOV"
-                className={`w-full border-2 rounded-xl p-3.5 transition-all focus:outline-none focus:ring-0 uppercase ${
-                  errors.customerName 
-                    ? 'border-red-300 focus:border-red-500 bg-red-50' 
-                    : 'border-gray-200 focus:border-blue-500'
-                }`}
-                disabled={paymentStatus === 'processing'}
-              />
-              {errors.customerName && (
-                <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
-                  <AlertCircle size={12} />
-                  {errors.customerName}
-                </p>
-              )}
-            </div>
+            {loadingCards ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 size={24} className="animate-spin text-blue-500" />
+              </div>
+            ) : (
+              <>
+                {/* Saved Cards List */}
+                {savedCards.length > 0 && (
+                  <div className="space-y-2 mb-4">
+                    {savedCards.map((card) => (
+                      <button
+                        key={card.card_id}
+                        onClick={() => setSelectedCardId(card.card_id)}
+                        disabled={paymentStatus === 'processing'}
+                        className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${
+                          selectedCardId === card.card_id
+                            ? 'border-blue-500 bg-blue-50'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        {/* Card type icon */}
+                        <div className={`w-10 h-6 rounded flex items-center justify-center text-xs font-bold
+                          ${getCardType(card.pan_masked) === 'visa' ? 'bg-blue-600 text-white' : 
+                            getCardType(card.pan_masked) === 'mastercard' ? 'bg-orange-500 text-white' : 
+                            'bg-gray-400 text-white'}`}
+                        >
+                          {getCardType(card.pan_masked) === 'visa' ? 'VISA' : 
+                           getCardType(card.pan_masked) === 'mastercard' ? 'MC' : 'CARD'}
+                        </div>
+                        <div className="flex-1 text-left">
+                          <p className="font-mono text-sm text-gray-900">{formatPan(card.pan_masked)}</p>
+                          {card.card_holder && (
+                            <p className="text-xs text-gray-500">{card.card_holder}</p>
+                          )}
+                        </div>
+                        {selectedCardId === card.card_id && (
+                          <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+                            <Check size={12} className="text-white" />
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                )}
 
-            {/* Card Number */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                {t('clubs.payment.cardNumber')}
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  value={cardNumber}
-                  onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
-                  placeholder="0000 0000 0000 0000"
-                  maxLength={19}
-                  className={`w-full border-2 rounded-xl p-3.5 pr-14 transition-all focus:outline-none focus:ring-0 font-mono ${
-                    errors.cardNumber 
-                      ? 'border-red-300 focus:border-red-500 bg-red-50' 
-                      : 'border-gray-200 focus:border-blue-500'
-                  }`}
+                {/* Add New Card Option */}
+                <button
+                  onClick={() => setSelectedCardId(null)}
                   disabled={paymentStatus === 'processing'}
-                />
-                {/* Card brand icon */}
-                <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                  {cardBrand === 'visa' && (
-                    <div className="text-[#1A1F71] font-bold text-lg italic">VISA</div>
-                  )}
-                  {cardBrand === 'mastercard' && (
-                    <div className="flex">
-                      <div className="w-5 h-5 bg-red-500 rounded-full -mr-2" />
-                      <div className="w-5 h-5 bg-amber-400 rounded-full opacity-80" />
+                  className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 border-dashed transition-all ${
+                    selectedCardId === null && savedCards.length > 0
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-300 hover:border-blue-400 hover:bg-blue-50/50'
+                  }`}
+                >
+                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <Plus size={20} className="text-gray-500" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <p className="font-medium text-gray-900">Оплатить новой картой</p>
+                    <p className="text-xs text-gray-500">Вы будете перенаправлены на защищённую страницу оплаты</p>
+                  </div>
+                  {selectedCardId === null && savedCards.length > 0 && (
+                    <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+                      <Check size={12} className="text-white" />
                     </div>
                   )}
-                  {!cardBrand && cardNumber.length === 0 && (
-                    <CreditCard size={20} className="text-gray-300" />
-                  )}
-                </div>
-              </div>
-              {errors.cardNumber && (
-                <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
-                  <AlertCircle size={12} />
-                  {errors.cardNumber}
-                </p>
-              )}
-            </div>
+                </button>
 
-            {/* Expiry & CVV */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  {t('clubs.payment.expiry')}
-                </label>
-                <input
-                  type="text"
-                  value={expiryDate}
-                  onChange={(e) => setExpiryDate(formatExpiry(e.target.value))}
-                  placeholder="MM/YY"
-                  maxLength={5}
-                  className={`w-full border-2 rounded-xl p-3.5 transition-all focus:outline-none focus:ring-0 font-mono text-center ${
-                    errors.expiryDate 
-                      ? 'border-red-300 focus:border-red-500 bg-red-50' 
-                      : 'border-gray-200 focus:border-blue-500'
-                  }`}
-                  disabled={paymentStatus === 'processing'}
-                />
-                {errors.expiryDate && (
-                  <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
-                    <AlertCircle size={12} />
-                    {errors.expiryDate}
-                  </p>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  CVV
-                </label>
-                <div className="relative">
-                  <input
-                    type="password"
-                    value={cvv}
-                    onChange={(e) => setCvv(e.target.value.replace(/\D/g, '').slice(0, 3))}
-                    placeholder="•••"
-                    maxLength={3}
-                    className={`w-full border-2 rounded-xl p-3.5 transition-all focus:outline-none focus:ring-0 font-mono text-center ${
-                      errors.cvv 
-                        ? 'border-red-300 focus:border-red-500 bg-red-50' 
-                        : 'border-gray-200 focus:border-blue-500'
-                    }`}
-                    disabled={paymentStatus === 'processing'}
-                  />
-                  <Lock size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300" />
+                {/* Security badge */}
+                <div className="flex items-center justify-center gap-2 py-3">
+                  <ShieldCheck size={16} className="text-emerald-500" />
+                  <span className="text-xs text-gray-500">Данные защищены шифрованием SSL</span>
                 </div>
-                {errors.cvv && (
-                  <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
-                    <AlertCircle size={12} />
-                    {errors.cvv}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {/* Security badge */}
-            <div className="flex items-center justify-center gap-2 py-2">
-              <ShieldCheck size={16} className="text-emerald-500" />
-              <span className="text-xs text-gray-500">Данные защищены шифрованием SSL</span>
-            </div>
+              </>
+            )}
           </div>
 
           {/* Actions */}
@@ -557,12 +479,16 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
               {t('clubs.payment.cancel')}
             </button>
             <button
-              onClick={handlePayment}
-              disabled={!isFormValid() || paymentStatus === 'processing'}
+              onClick={selectedCardId ? handleOneClickPayment : handleNewCardPayment}
+              disabled={paymentStatus === 'processing' || loadingCards}
               className="flex-1 px-4 py-3.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-200 disabled:shadow-none flex items-center justify-center gap-2"
             >
-              <Lock size={16} />
-              {t('clubs.payment.pay')}
+              {paymentStatus === 'processing' ? (
+                <Loader2 size={18} className="animate-spin" />
+              ) : (
+                <Lock size={16} />
+              )}
+              {selectedCardId ? `Оплатить ${formatPrice(plan.price)}` : 'Перейти к оплате'}
             </button>
           </div>
         </div>

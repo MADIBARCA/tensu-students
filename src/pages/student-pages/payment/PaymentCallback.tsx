@@ -34,11 +34,6 @@ export const PaymentCallback: React.FC = () => {
 
         const urlParams = new URLSearchParams(window.location.search);
 
-        // Get CNP callback parameters from URL (CNP adds these after card registration)
-        // CNP returns userId and cardId in the return URL
-        const cnpUserId = urlParams.get('userId') || searchParams.get('userId');
-        const cnpCardId = urlParams.get('cardId') || searchParams.get('cardId');
-        
         // Get payment ID from URL or session storage
         let paymentId = urlParams.get('payment_id') || searchParams.get('payment_id');
         
@@ -46,6 +41,12 @@ export const PaymentCallback: React.FC = () => {
         if (!paymentId) {
           paymentId = sessionStorage.getItem('pending_payment_id');
         }
+
+        // Get CNP callback parameters (for card registration flow)
+        const cnpUserId = urlParams.get('userId') || searchParams.get('userId');
+        const cnpCardId = urlParams.get('cardId') || searchParams.get('cardId');
+
+        console.log('PaymentCallback: paymentId=', paymentId, 'cnpUserId=', cnpUserId, 'cnpCardId=', cnpCardId);
 
         if (!paymentId) {
           // If no payment_id but we have card data, it might be just card registration
@@ -69,79 +70,52 @@ export const PaymentCallback: React.FC = () => {
           return;
         }
 
-        // If we have CNP card data AND payment_id, complete the payment
-        if (cnpUserId && cnpCardId && token) {
-          try {
-            // Complete payment after card registration
-            const completeResponse = await paymentsApi.gateway.complete(
-              parseInt(paymentId),
-              parseInt(cnpUserId),
-              parseInt(cnpCardId),
-              token
-            );
+        // E-COM flow: Verify payment status with backend
+        // The payment was already processed on CNP page, we just need to verify
+        try {
+          const verifyResponse = await paymentsApi.gateway.verify(
+            parseInt(paymentId),
+            token
+          );
 
-            const paymentData = completeResponse.data;
-            setPaymentDetails({
-              payment_id: paymentData.payment_id,
-              amount: paymentData.amount,
-              currency: paymentData.currency,
-            });
+          const paymentData = verifyResponse.data;
+          setPaymentDetails({
+            payment_id: paymentData.payment_id,
+            amount: paymentData.amount,
+            currency: paymentData.currency,
+          });
 
-            if (paymentData.status === 'paid') {
-              setStatus('success');
-              setMessage(t('clubs.payment.success.description') || 'Payment successful!');
-              
-              // Clear session storage
-              sessionStorage.removeItem('pending_payment_id');
-              sessionStorage.removeItem('payment_return_url');
-              return;
-            } else {
-              setStatus('error');
-              setMessage(t('clubs.payment.error.description') || 'Payment failed');
-              return;
-            }
-          } catch (completeError) {
-            console.error('Error completing payment:', completeError);
-            const { getErrorMessage } = await import('@/lib/utils/errorHandler');
-            const errorMessage = getErrorMessage(completeError, t('clubs.payment.error.generic') || 'Payment failed');
+          if (paymentData.status === 'paid') {
+            setStatus('success');
+            setMessage(t('clubs.payment.success.description') || 'Оплата прошла успешно!');
+            
+            // Clear session storage
+            sessionStorage.removeItem('pending_payment_id');
+            sessionStorage.removeItem('payment_return_url');
+            return;
+          } else if (paymentData.status === 'processing') {
+            // Still processing - show loading state and poll
+            setStatus('loading');
+            setMessage('Обработка платежа...');
+            // Could implement polling here if needed
+            return;
+          } else {
             setStatus('error');
-            setMessage(errorMessage);
+            setMessage(t('clubs.payment.error.description') || 'Оплата не прошла');
             return;
           }
-        }
-
-        // No card data - just check payment status (OneClick or already completed payment)
-        const response = await paymentsApi.gateway.getStatus(
-          parseInt(paymentId),
-          token
-        );
-
-        const paymentData = response.data;
-        setPaymentDetails({
-          payment_id: paymentData.payment_id,
-          amount: paymentData.amount,
-          currency: paymentData.currency,
-        });
-
-        if (paymentData.status === 'paid') {
-          setStatus('success');
-          setMessage(t('clubs.payment.success.description') || 'Payment successful!');
-          
-          // Clear session storage
-          sessionStorage.removeItem('pending_payment_id');
-          sessionStorage.removeItem('payment_return_url');
-        } else if (paymentData.status === 'failed' || paymentData.status === 'cancelled') {
+        } catch (verifyError) {
+          console.error('Error verifying payment:', verifyError);
+          const { getErrorMessage } = await import('@/lib/utils/errorHandler');
+          const errorMessage = getErrorMessage(verifyError, t('clubs.payment.error.generic') || 'Ошибка оплаты');
           setStatus('error');
-          setMessage(t('clubs.payment.error.description') || 'Payment failed or was cancelled');
-        } else if (paymentData.status === 'processing' || paymentData.status === 'pending') {
-          // Payment still processing
-          setStatus('error');
-          setMessage('Оплата не была завершена. Попробуйте снова.');
+          setMessage(errorMessage);
+          return;
         }
       } catch (error) {
         console.error('Error checking payment status:', error);
         setStatus('error');
-        setMessage(t('clubs.payment.error.generic') || 'Error checking payment status');
+        setMessage(t('clubs.payment.error.generic') || 'Ошибка проверки статуса оплаты');
       }
     };
 
