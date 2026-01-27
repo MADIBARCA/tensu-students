@@ -36,19 +36,33 @@ export const PaymentCallback: React.FC = () => {
         const tgAny = tg as any;
         const urlParams = new URLSearchParams(window.location.search);
 
-        // Get payment ID from multiple sources:
-        // 1. URL query params (direct navigation)
-        // 2. Telegram startParam (from deep link like ?startapp=payment_123)
-        // 3. initDataUnsafe.start_param (alternative location per docs)
-        // 4. tgWebAppStartParam from URL (iframe parameter)
-        // 5. Session storage (backup)
-        let paymentId = searchParams.get('payment_id');
+        // Get CNP callback parameters from URL (CNP adds these after card registration)
+        const cnpUserId = urlParams.get('userId') || searchParams.get('userId');
+        const cnpCardId = urlParams.get('cardId') || searchParams.get('cardId');
         
-        // Try tg.startParam
+        // Get payment ID from URL first
+        let paymentId = urlParams.get('payment_id') || searchParams.get('payment_id');
+
+        // If opened in regular browser (not in Telegram) with CNP parameters,
+        // redirect to Telegram Mini App with all necessary data
+        if (!token && paymentId && cnpUserId && cnpCardId) {
+          // Build Telegram deep link with all parameters encoded in startapp
+          // Format: payment_ID_userId_cardId
+          const startParam = `payment_${paymentId}_${cnpUserId}_${cnpCardId}`;
+          const telegramLink = `https://t.me/tensu_students_test_bot/payment?startapp=${startParam}`;
+          
+          console.log('Redirecting to Telegram Mini App:', telegramLink);
+          window.location.href = telegramLink;
+          return;
+        }
+        
+        // Try Telegram startParam (from deep link)
         if (!paymentId && tg?.startParam) {
           const startParam = tg.startParam;
           if (startParam.startsWith('payment_')) {
-            paymentId = startParam.replace('payment_', '').split('_')[0];
+            // Parse format: payment_ID or payment_ID_userId_cardId
+            const parts = startParam.replace('payment_', '').split('_');
+            paymentId = parts[0];
           }
         }
         
@@ -56,7 +70,8 @@ export const PaymentCallback: React.FC = () => {
         if (!paymentId && tgAny?.initDataUnsafe?.start_param) {
           const startParam = tgAny.initDataUnsafe.start_param;
           if (startParam.startsWith('payment_')) {
-            paymentId = startParam.replace('payment_', '').split('_')[0];
+            const parts = startParam.replace('payment_', '').split('_');
+            paymentId = parts[0];
           }
         }
         
@@ -64,7 +79,8 @@ export const PaymentCallback: React.FC = () => {
         if (!paymentId) {
           const tgStartParam = urlParams.get('tgWebAppStartParam');
           if (tgStartParam && tgStartParam.startsWith('payment_')) {
-            paymentId = tgStartParam.replace('payment_', '').split('_')[0];
+            const parts = tgStartParam.replace('payment_', '').split('_');
+            paymentId = parts[0];
           }
         }
         
@@ -73,30 +89,33 @@ export const PaymentCallback: React.FC = () => {
           paymentId = sessionStorage.getItem('pending_payment_id');
         }
 
-        // Get CNP callback parameters (userId and cardId come from successful card registration)
-        // These can come from URL query params or from tgWebAppData hash
-        let cnpUserId = searchParams.get('userId');
-        let cnpCardId = searchParams.get('cardId');
+        // Parse userId and cardId from startParam if available
+        let parsedUserId: string | null = cnpUserId;
+        let parsedCardId: string | null = cnpCardId;
         
-        // Also check URL params (CNP adds these to return URL)
-        if (!cnpUserId) cnpUserId = urlParams.get('userId');
-        if (!cnpCardId) cnpCardId = urlParams.get('cardId');
-        
-        // Debug: Log all available parameters
+        // Try to get from startParam format: payment_ID_userId_cardId
+        const startParam = tgAny?.initDataUnsafe?.start_param || urlParams.get('tgWebAppStartParam');
+        if (startParam && startParam.startsWith('payment_')) {
+          const parts = startParam.replace('payment_', '').split('_');
+          if (parts.length >= 3) {
+            // Format: ID_userId_cardId
+            if (!parsedUserId) parsedUserId = parts[1];
+            if (!parsedCardId) parsedCardId = parts[2];
+          }
+        }
+
         console.log('PaymentCallback: paymentId=', paymentId);
-        console.log('PaymentCallback: cnpUserId=', cnpUserId);
-        console.log('PaymentCallback: cnpCardId=', cnpCardId);
-        console.log('PaymentCallback: full URL=', window.location.href);
-        console.log('PaymentCallback: hash=', window.location.hash);
+        console.log('PaymentCallback: parsedUserId=', parsedUserId);
+        console.log('PaymentCallback: parsedCardId=', parsedCardId);
 
         if (!paymentId) {
           // If no payment_id but we have card data, it might be just card registration
-          if (cnpUserId && cnpCardId && token) {
+          if (parsedUserId && parsedCardId && token) {
             // Sync card to backend
             try {
               await paymentsApi.cards.sync(
-                parseInt(cnpUserId),
-                parseInt(cnpCardId),
+                parseInt(parsedUserId),
+                parseInt(parsedCardId),
                 token
               );
             } catch {
@@ -112,13 +131,13 @@ export const PaymentCallback: React.FC = () => {
         }
 
         // If we have CNP card data AND payment_id, complete the payment
-        if (cnpUserId && cnpCardId && token) {
+        if (parsedUserId && parsedCardId && token) {
           try {
             // Complete payment after card registration
             const completeResponse = await paymentsApi.gateway.complete(
               parseInt(paymentId),
-              parseInt(cnpUserId),
-              parseInt(cnpCardId),
+              parseInt(parsedUserId),
+              parseInt(parsedCardId),
               token
             );
 

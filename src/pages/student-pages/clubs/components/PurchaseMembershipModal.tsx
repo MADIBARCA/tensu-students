@@ -134,16 +134,15 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
         // Real CNP Gateway flow - redirect to payment page
         const currentUrl = window.location.href;
         
-        // Use Telegram Direct Link for payment callback page
-        // This opens Mini App directly on /payment/callback
-        // Backend will append payment_id as startapp parameter
-        const telegramDeepLink = 'https://t.me/tensu_students_test_bot/payment';
+        // Use web URL for payment callback - this allows CNP to append userId and cardId
+        // The callback page will then redirect to Telegram Mini App if needed
+        const paymentCallbackUrl = 'https://student.tensu.kz/payment/callback';
         
         const gatewayResponse = await paymentsApi.gateway.initiate({
           club_id: club.id,
           tariff_id: plan.id,
           payment_method: 'card',
-        }, token, telegramDeepLink);
+        }, token, paymentCallbackUrl);
 
         if (gatewayResponse.data.requires_redirect && gatewayResponse.data.redirect_url) {
           // Store payment ID for callback handling (backup for web flow)
