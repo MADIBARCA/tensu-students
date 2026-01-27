@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useI18n } from '@/i18n/i18n';
 import { Check, AlertCircle, Loader2, Sparkles } from 'lucide-react';
 import { paymentsApi } from '@/functions/axios/axiosFunctions';
+import type { SavedCardInfo } from '@/functions/axios/responses';
 
 type CallbackStatus = 'loading' | 'success' | 'error';
 
@@ -24,15 +25,7 @@ export const PaymentCallback: React.FC = () => {
     payment_id: number;
     amount?: number;
     currency?: string;
-    saved_card?: {
-      cnp_user_id: number;
-      cnp_card_id: number;
-      pan_masked?: string;
-      card_holder?: string;
-      cnp_status?: string;
-      is_active: boolean;
-      is_primary: boolean;
-    };
+    saved_card?: SavedCardInfo | null;
   } | null>(null);
 
   useEffect(() => {
@@ -266,7 +259,7 @@ export const PaymentCallback: React.FC = () => {
                   <div className="flex justify-between">
                     <span className="text-gray-500">CNP статус:</span>
                     <span className={`font-medium ${paymentDetails.saved_card.cnp_status === 'ACTIVE' ? 'text-emerald-600' : 'text-amber-600'}`}>
-                      {paymentDetails.saved_card.cnp_status || 'N/A'}
+                      {paymentDetails.saved_card.cnp_status ?? 'N/A'}
                     </span>
                   </div>
                   <div className="flex justify-between">
