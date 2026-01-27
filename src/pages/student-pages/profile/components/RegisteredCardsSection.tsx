@@ -40,8 +40,13 @@ export const RegisteredCardsSection: React.FC = () => {
   // Check if we're returning from card registration
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const cnpUserId = urlParams.get('cnp_user_id');
-    const cnpCardId = urlParams.get('cnp_card_id');
+    
+    // CNP returns userId and cardId (without cnp_ prefix)
+    // Also check legacy format cnp_user_id/cnp_card_id for backwards compatibility
+    const cnpUserId = urlParams.get('userId') || urlParams.get('cnp_user_id');
+    const cnpCardId = urlParams.get('cardId') || urlParams.get('cnp_card_id');
+    
+    console.log('Card registration callback - userId:', cnpUserId, 'cardId:', cnpCardId, 'URL:', window.location.href);
     
     if (cnpUserId && cnpCardId) {
       // Sync the newly registered card
@@ -52,8 +57,10 @@ export const RegisteredCardsSection: React.FC = () => {
           await paymentsApi.cards.sync(parseInt(cnpUserId), parseInt(cnpCardId), token);
           await loadCards();
           
-          // Clean up URL
+          // Clean up URL - remove all possible parameter names
           const url = new URL(window.location.href);
+          url.searchParams.delete('userId');
+          url.searchParams.delete('cardId');
           url.searchParams.delete('cnp_user_id');
           url.searchParams.delete('cnp_card_id');
           window.history.replaceState({}, '', url.toString());
