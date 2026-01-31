@@ -116,6 +116,21 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
       if (response.data.status === 'paid') {
         setPaymentStatus('success');
         setShowSuccessAnimation(true);
+      } else if (response.data.status === 'processing' || response.data.status === 'awaiting_confirmation') {
+        // Payment is being processed (MID_DISABLED, PROCESSING, etc.)
+        // Redirect to callback page for polling
+        sessionStorage.setItem('pending_payment_id', String(response.data.payment_id));
+        sessionStorage.setItem('payment_return_url', window.location.href);
+        
+        // Show message briefly then redirect
+        setPaymentError(response.data.message || 'Платёж обрабатывается...');
+        setPaymentStatus('pending');
+        
+        setTimeout(() => {
+          navigate('/payment/callback');
+        }, 1500);
+      } else if (response.data.status === 'failed') {
+        throw new Error(response.data.message || 'Payment failed');
       } else {
         throw new Error('Payment failed');
       }

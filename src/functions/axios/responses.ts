@@ -174,7 +174,7 @@ export interface AttendanceStatsResponse {
 }
 
 // Payment types
-export type PaymentStatus = 'pending' | 'processing' | 'paid' | 'failed' | 'refunded' | 'cancelled';
+export type PaymentStatus = 'pending' | 'processing' | 'awaiting_confirmation' | 'paid' | 'failed' | 'refunded' | 'cancelled';
 export type PaymentMethod = 'card' | 'kaspi' | 'cash' | 'transfer' | 'cnp_oneclick';
 
 export interface PaymentResponse {
@@ -242,6 +242,11 @@ export interface GatewayPaymentResponse {
   requires_redirect: boolean;
   external_reference: string | null;
   saved_card: SavedCardInfo | null;  // Card saved after E-COM payment
+  
+  // Polling support fields
+  retry_after_seconds: number | null;  // How long to wait before retrying status check
+  message: string | null;  // User-friendly message about payment status
+  cnp_raw_status: string | null;  // Raw status from CNP for debugging
 }
 
 export interface CardRegistrationResponse {

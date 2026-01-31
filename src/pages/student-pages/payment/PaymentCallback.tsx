@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useI18n } from '@/i18n/i18n';
 import { Check, AlertCircle, Loader2, Sparkles } from 'lucide-react';
@@ -7,12 +7,19 @@ import type { SavedCardInfo } from '@/functions/axios/responses';
 
 type CallbackStatus = 'loading' | 'success' | 'error';
 
+// Polling configuration
+const MAX_POLLING_ATTEMPTS = 15;  // 15 attempts (15 minutes with 1 min interval)
+const DEFAULT_POLLING_INTERVAL_MS = 60000;  // 1 minute
+
 /**
  * Payment Callback Page
  * 
  * This page handles the return from the CNP payment gateway.
  * After the user completes payment on the gateway page, they are redirected
  * here. We then check the payment status with our backend.
+ * 
+ * If the payment is still processing (MID_DISABLED, PROCESSING, etc.),
+ * we poll the backend until we get a final status.
  */
 export const PaymentCallback: React.FC = () => {
   const { t } = useI18n();
@@ -21,115 +28,189 @@ export const PaymentCallback: React.FC = () => {
   
   const [status, setStatus] = useState<CallbackStatus>('loading');
   const [message, setMessage] = useState('');
+  const [pollingAttempt, setPollingAttempt] = useState(0);
   const [paymentDetails, setPaymentDetails] = useState<{
     payment_id: number;
     amount?: number;
     currency?: string;
     saved_card?: SavedCardInfo | null;
   } | null>(null);
+  
+  // Refs for polling
+  const pollingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const paymentIdRef = useRef<string | null>(null);
+  const cnpUserIdRef = useRef<string | null>(null);
+  const cnpCardIdRef = useRef<string | null>(null);
 
-  useEffect(() => {
-    const checkPaymentStatus = async () => {
-      try {
-        const tg = window.Telegram?.WebApp;
-        const token = tg?.initData || null;
+  const checkPaymentStatus = useCallback(async (attempt: number = 0) => {
+    try {
+      const tg = window.Telegram?.WebApp;
+      const token = tg?.initData || null;
 
-        const urlParams = new URLSearchParams(window.location.search);
+      const urlParams = new URLSearchParams(window.location.search);
 
-        // Get payment ID from URL or session storage
-        let paymentId = urlParams.get('payment_id') || searchParams.get('payment_id');
-        
-        // Fallback to session storage (set before redirect to CNP)
-        if (!paymentId) {
-          paymentId = sessionStorage.getItem('pending_payment_id');
-        }
+      // Get payment ID from URL, refs, or session storage
+      let paymentId = paymentIdRef.current || urlParams.get('payment_id') || searchParams.get('payment_id');
+      
+      // Fallback to session storage (set before redirect to CNP)
+      if (!paymentId) {
+        paymentId = sessionStorage.getItem('pending_payment_id');
+      }
+      
+      // Store for subsequent polling calls
+      if (paymentId) {
+        paymentIdRef.current = paymentId;
+      }
 
-        // Get CNP callback parameters (for card registration flow)
-        const cnpUserId = urlParams.get('userId') || searchParams.get('userId');
-        const cnpCardId = urlParams.get('cardId') || searchParams.get('cardId');
+      // Get CNP callback parameters (for card registration flow)
+      const cnpUserId = cnpUserIdRef.current || urlParams.get('userId') || searchParams.get('userId');
+      const cnpCardId = cnpCardIdRef.current || urlParams.get('cardId') || searchParams.get('cardId');
+      
+      // Store for subsequent polling calls
+      if (cnpUserId) cnpUserIdRef.current = cnpUserId;
+      if (cnpCardId) cnpCardIdRef.current = cnpCardId;
 
-        console.log('PaymentCallback: paymentId=', paymentId, 'cnpUserId=', cnpUserId, 'cnpCardId=', cnpCardId);
+      console.log(`PaymentCallback [attempt ${attempt + 1}/${MAX_POLLING_ATTEMPTS}]: paymentId=${paymentId}, cnpUserId=${cnpUserId}, cnpCardId=${cnpCardId}`);
 
-        if (!paymentId) {
-          // If no payment_id but we have card data, it might be just card registration
-          if (cnpUserId && cnpCardId && token) {
-            // Sync card to backend
-            try {
-              await paymentsApi.cards.sync(
-                parseInt(cnpUserId),
-                parseInt(cnpCardId),
-                token
-              );
-            } catch {
-              // Ignore sync errors
-            }
-            setStatus('success');
-            setMessage('Карта успешно привязана!');
-            return;
+      if (!paymentId) {
+        // If no payment_id but we have card data, it might be just card registration
+        if (cnpUserId && cnpCardId && token) {
+          try {
+            await paymentsApi.cards.sync(
+              parseInt(cnpUserId),
+              parseInt(cnpCardId),
+              token
+            );
+          } catch {
+            // Ignore sync errors
           }
-          setStatus('error');
-          setMessage('Payment information not found');
+          setStatus('success');
+          setMessage('Карта успешно привязана!');
           return;
         }
+        setStatus('error');
+        setMessage('Payment information not found');
+        return;
+      }
 
-        // E-COM flow: Verify payment status with backend
-        // The payment was already processed on CNP page, we just need to verify
-        // Also pass cnpUserId and cnpCardId if available - CNP returns these after successful payment
-        // so we can save the card for future OneClick payments
-        try {
-          const verifyResponse = await paymentsApi.gateway.verify(
-            parseInt(paymentId),
-            token,
-            cnpUserId ? parseInt(cnpUserId) : undefined,
-            cnpCardId ? parseInt(cnpCardId) : undefined
-          );
+      // E-COM flow: Verify payment status with backend
+      try {
+        const verifyResponse = await paymentsApi.gateway.verify(
+          parseInt(paymentId),
+          token,
+          cnpUserId ? parseInt(cnpUserId) : undefined,
+          cnpCardId ? parseInt(cnpCardId) : undefined
+        );
 
-          const paymentData = verifyResponse.data;
+        const paymentData = verifyResponse.data;
+        
+        // Update payment details
+        setPaymentDetails({
+          payment_id: paymentData.payment_id,
+          amount: paymentData.amount,
+          currency: paymentData.currency,
+          saved_card: paymentData.saved_card,
+        });
+
+        // Handle different statuses
+        if (paymentData.status === 'paid') {
+          // Success! Clear polling and show success
+          if (pollingTimeoutRef.current) {
+            clearTimeout(pollingTimeoutRef.current);
+          }
+          setStatus('success');
+          setMessage(paymentData.message || t('clubs.payment.success.description') || 'Оплата прошла успешно!');
           
-          // Log full response for debugging
-          setPaymentDetails({
-            payment_id: paymentData.payment_id,
-            amount: paymentData.amount,
-            currency: paymentData.currency,
-            saved_card: paymentData.saved_card,
-          });
-
-          if (paymentData.status === 'paid') {
-            setStatus('success');
-            setMessage(t('clubs.payment.success.description') || 'Оплата прошла успешно!');
-            
-            // Clear session storage
-            sessionStorage.removeItem('pending_payment_id');
-            sessionStorage.removeItem('payment_return_url');
+          // Clear session storage
+          sessionStorage.removeItem('pending_payment_id');
+          sessionStorage.removeItem('payment_return_url');
+          return;
+          
+        } else if (paymentData.status === 'failed') {
+          // Failed - show error
+          if (pollingTimeoutRef.current) {
+            clearTimeout(pollingTimeoutRef.current);
+          }
+          setStatus('error');
+          setMessage(paymentData.message || t('clubs.payment.error.description') || 'Оплата не прошла');
+          return;
+          
+        } else if (paymentData.status === 'processing' || paymentData.status === 'awaiting_confirmation') {
+          // Still processing - need to poll
+          setStatus('loading');
+          setPollingAttempt(attempt + 1);
+          
+          // Check if we've exceeded max attempts
+          if (attempt >= MAX_POLLING_ATTEMPTS - 1) {
+            setStatus('error');
+            setMessage('Время ожидания истекло. Пожалуйста, проверьте статус платежа в профиле.');
             return;
-          } else if (paymentData.status === 'processing') {
-            // Still processing - show loading state and poll
-            setStatus('loading');
-            setMessage('Обработка платежа...');
-            // Could implement polling here if needed
-            return;
+          }
+          
+          // Show progress message
+          const statusInfo = paymentData.cnp_raw_status ? ` (${paymentData.cnp_raw_status})` : '';
+          setMessage(paymentData.message || `Обработка платежа${statusInfo}... (${attempt + 1}/${MAX_POLLING_ATTEMPTS})`);
+          
+          // Schedule next poll
+          const retryAfter = (paymentData.retry_after_seconds || 60) * 1000;
+          console.log(`PaymentCallback: Scheduling retry in ${retryAfter}ms`);
+          
+          pollingTimeoutRef.current = setTimeout(() => {
+            checkPaymentStatus(attempt + 1);
+          }, Math.min(retryAfter, DEFAULT_POLLING_INTERVAL_MS));
+          
+          return;
+          
+        } else {
+          // Unknown status - treat as processing and poll
+          setStatus('loading');
+          setMessage(`Проверка статуса платежа... (${attempt + 1}/${MAX_POLLING_ATTEMPTS})`);
+          
+          if (attempt < MAX_POLLING_ATTEMPTS - 1) {
+            pollingTimeoutRef.current = setTimeout(() => {
+              checkPaymentStatus(attempt + 1);
+            }, DEFAULT_POLLING_INTERVAL_MS);
           } else {
             setStatus('error');
-            setMessage(t('clubs.payment.error.description') || 'Оплата не прошла');
-            return;
+            setMessage('Не удалось получить статус платежа. Проверьте в профиле.');
           }
-        } catch (verifyError) {
-          console.error('Error verifying payment:', verifyError);
-          const { getErrorMessage } = await import('@/lib/utils/errorHandler');
-          const errorMessage = getErrorMessage(verifyError, t('clubs.payment.error.generic') || 'Ошибка оплаты');
-          setStatus('error');
-          setMessage(errorMessage);
           return;
         }
-      } catch (error) {
-        console.error('Error checking payment status:', error);
+      } catch (verifyError) {
+        console.error('Error verifying payment:', verifyError);
+        
+        // On error, we could still retry a few times
+        if (attempt < 3) {
+          console.log(`PaymentCallback: Verify error, retrying in 5 seconds...`);
+          pollingTimeoutRef.current = setTimeout(() => {
+            checkPaymentStatus(attempt + 1);
+          }, 5000);
+          return;
+        }
+        
+        const { getErrorMessage } = await import('@/lib/utils/errorHandler');
+        const errorMessage = getErrorMessage(verifyError, t('clubs.payment.error.generic') || 'Ошибка оплаты');
         setStatus('error');
-        setMessage(t('clubs.payment.error.generic') || 'Ошибка проверки статуса оплаты');
+        setMessage(errorMessage);
+        return;
+      }
+    } catch (error) {
+      console.error('Error checking payment status:', error);
+      setStatus('error');
+      setMessage(t('clubs.payment.error.generic') || 'Ошибка проверки статуса оплаты');
+    }
+  }, [searchParams, t]);
+
+  useEffect(() => {
+    checkPaymentStatus(0);
+    
+    // Cleanup on unmount
+    return () => {
+      if (pollingTimeoutRef.current) {
+        clearTimeout(pollingTimeoutRef.current);
       }
     };
-
-    checkPaymentStatus();
-  }, [searchParams, t]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Auto redirect after success
   useEffect(() => {
@@ -160,9 +241,22 @@ export const PaymentCallback: React.FC = () => {
           <h2 className="text-xl font-bold text-gray-900 mb-2">
             {t('clubs.payment.processing') || 'Processing payment...'}
           </h2>
-          <p className="text-gray-500">
+          <p className="text-gray-500 mb-4">
             {message || 'Please wait while we confirm your payment'}
           </p>
+          {pollingAttempt > 0 && (
+            <div className="mt-4">
+              <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-blue-500 transition-all duration-500"
+                  style={{ width: `${(pollingAttempt / MAX_POLLING_ATTEMPTS) * 100}%` }}
+                />
+              </div>
+              <p className="text-xs text-gray-400 mt-2">
+                Проверка {pollingAttempt}/{MAX_POLLING_ATTEMPTS}
+              </p>
+            </div>
+          )}
         </div>
       </div>
     );
