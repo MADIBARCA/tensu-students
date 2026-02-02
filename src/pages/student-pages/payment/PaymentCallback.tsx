@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useI18n } from '@/i18n/i18n';
-import { Check, AlertCircle, Loader2, Sparkles } from 'lucide-react';
+import { Check, AlertCircle, Loader2, Sparkles, CreditCard, XCircle } from 'lucide-react';
 import { paymentsApi } from '@/functions/axios/axiosFunctions';
 import type { SavedCardInfo } from '@/functions/axios/responses';
 
-type CallbackStatus = 'loading' | 'success' | 'error';
+type CallbackStatus = 'loading' | 'success' | 'error' | 'card_error';
 
 // Polling configuration
 const MAX_POLLING_ATTEMPTS = 15;  // 15 attempts (15 minutes with 1 min interval)
@@ -73,19 +73,29 @@ export const PaymentCallback: React.FC = () => {
       console.log(`PaymentCallback [attempt ${attempt + 1}/${MAX_POLLING_ATTEMPTS}]: paymentId=${paymentId}, cnpUserId=${cnpUserId}, cnpCardId=${cnpCardId}`);
 
       if (!paymentId) {
-        // If no payment_id but we have card data, it might be just card registration
+        // Check if this is a card registration callback
         if (cnpUserId && cnpCardId && token) {
+          // Card registration successful - we have both userId and cardId
           try {
             await paymentsApi.cards.sync(
               parseInt(cnpUserId),
               parseInt(cnpCardId),
               token
             );
+            setStatus('success');
+            setMessage('Карта успешно привязана!');
           } catch {
-            // Ignore sync errors
+            // Card sync failed but we still show success since CNP registered it
+            setStatus('success');
+            setMessage('Карта успешно привязана!');
           }
-          setStatus('success');
-          setMessage('Карта успешно привязана!');
+          return;
+        } else if (cnpUserId && !cnpCardId) {
+          // Card registration FAILED - CNP returned userId but no cardId
+          // This happens when the card is declined/invalid
+          console.log('PaymentCallback: Card registration failed - userId present but no cardId');
+          setStatus('card_error');
+          setMessage('Не удалось привязать карту. Карта была отклонена или недействительна.');
           return;
         }
         setStatus('error');
@@ -359,6 +369,84 @@ export const PaymentCallback: React.FC = () => {
           @keyframes slideUp {
             from { transform: translateY(20px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
+          }
+        `}</style>
+      </div>
+    );
+  }
+
+  // Card registration error state - special UI for card binding failures
+  if (status === 'card_error') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div 
+          className="bg-white w-full max-w-md rounded-2xl p-6 text-center shadow-lg"
+          style={{ animation: 'fadeIn 0.3s ease-out' }}
+        >
+          {/* Card error icon */}
+          <div className="relative w-20 h-20 mx-auto mb-5">
+            <div className="w-20 h-20 bg-gradient-to-br from-amber-100 to-amber-200 rounded-full flex items-center justify-center">
+              <CreditCard size={36} className="text-amber-600" />
+            </div>
+            <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-red-500 rounded-full flex items-center justify-center shadow-lg">
+              <XCircle size={18} className="text-white" />
+            </div>
+          </div>
+          
+          <h2 className="text-xl font-bold text-gray-900 mb-2">
+            Карта не привязана
+          </h2>
+          
+          <p className="text-gray-600 mb-4">
+            {message}
+          </p>
+          
+          {/* Helpful tips */}
+          <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 mb-6 text-left">
+            <p className="text-sm font-medium text-gray-700 mb-2">Возможные причины:</p>
+            <ul className="text-sm text-gray-600 space-y-1.5">
+              <li className="flex items-start gap-2">
+                <span className="text-amber-500 mt-0.5">•</span>
+                <span>Карта заблокирована или истёк срок действия</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-amber-500 mt-0.5">•</span>
+                <span>Недостаточно средств для проверочного списания</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-amber-500 mt-0.5">•</span>
+                <span>Операции по карте ограничены банком</span>
+              </li>
+            </ul>
+          </div>
+          
+          <div className="flex gap-3">
+            <button
+              onClick={() => navigate('/student/profile')}
+              className="flex-1 px-4 py-3 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium"
+            >
+              В профиль
+            </button>
+            <button
+              onClick={() => {
+                const returnUrl = sessionStorage.getItem('payment_return_url');
+                if (returnUrl) {
+                  window.location.href = returnUrl;
+                } else {
+                  navigate('/student/clubs');
+                }
+              }}
+              className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all font-medium shadow-lg shadow-blue-200"
+            >
+              Попробовать снова
+            </button>
+          </div>
+        </div>
+        
+        <style>{`
+          @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
           }
         `}</style>
       </div>
