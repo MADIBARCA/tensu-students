@@ -46,16 +46,25 @@ export const RegisteredCardsSection: React.FC = () => {
     const cnpUserId = urlParams.get('userId') || urlParams.get('cnp_user_id');
     const cnpCardId = urlParams.get('cardId') || urlParams.get('cnp_card_id');
     
-    console.log('Card registration callback - userId:', cnpUserId, 'cardId:', cnpCardId, 'URL:', window.location.href);
+    // Check if we're returning from card registration (flag set before redirect)
+    const wasRegistering = sessionStorage.getItem('card_registration_pending');
+    
+    console.log('Card registration callback - userId:', cnpUserId, 'cardId:', cnpCardId, 'wasRegistering:', wasRegistering, 'URL:', window.location.href);
+    
+    // Clean up registration flag
+    if (wasRegistering) {
+      sessionStorage.removeItem('card_registration_pending');
+    }
     
     if (cnpUserId && cnpCardId) {
-      // Sync the newly registered card
+      // Card registration successful - sync the card
       const syncCard = async () => {
         try {
           const tg = window.Telegram?.WebApp;
           const token = tg?.initData || null;
           await paymentsApi.cards.sync(parseInt(cnpUserId), parseInt(cnpCardId), token);
           await loadCards();
+          setExpanded(true);
           
           // Clean up URL - remove all possible parameter names
           const url = new URL(window.location.href);
@@ -69,6 +78,17 @@ export const RegisteredCardsSection: React.FC = () => {
         }
       };
       syncCard();
+    } else if (wasRegistering && !cnpCardId) {
+      // We were registering but didn't get cardId back = registration failed
+      // This happens when the card is declined/invalid
+      setError('Не удалось привязать карту. Карта была отклонена или недействительна.');
+      setExpanded(true);
+      
+      // Clean up URL if there are any parameters
+      const url = new URL(window.location.href);
+      url.searchParams.delete('userId');
+      url.searchParams.delete('cnp_user_id');
+      window.history.replaceState({}, '', url.toString());
     }
   }, [loadCards]);
 
@@ -86,6 +106,8 @@ export const RegisteredCardsSection: React.FC = () => {
       const response = await paymentsApi.cards.register(token, returnUrl);
       
       if (response.data.success && response.data.redirect_url) {
+        // Set flag to detect failed registration on return
+        sessionStorage.setItem('card_registration_pending', 'true');
         // Redirect to CNP card registration page
         window.location.href = response.data.redirect_url;
       } else {
