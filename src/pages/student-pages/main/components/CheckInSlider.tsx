@@ -122,14 +122,6 @@ export const CheckInSlider: React.FC<CheckInSliderProps> = ({ onCheckIn }) => {
             style={{ width: `${percentage}%` }}
           />
           
-          {/* Text overlay */}
-          <div className="absolute inset-0 flex items-center justify-center z-10">
-            <span className={`font-medium transition-colors ${
-              percentage > 50 ? 'text-white' : 'text-gray-600'
-            }`}>
-              {isCheckedIn ? t('home.checkin.success') : t('home.checkin.slide')}
-            </span>
-          </div>
         </div>
 
         {/* Thumb */}
