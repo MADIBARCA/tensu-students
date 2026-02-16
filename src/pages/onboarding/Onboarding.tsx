@@ -337,7 +337,7 @@ export default function OnboardingPage() {
         {/* Footer */}
         <div className={`text-center mt-6 transition-all duration-700 delay-300 ${showCard ? 'opacity-100' : 'opacity-0'}`}>
           <p className="text-white/60 text-xs">
-            © 2024 Tensu. All rights reserved.
+            © 2026 Tensu. All rights reserved.
           </p>
         </div>
       </div>
