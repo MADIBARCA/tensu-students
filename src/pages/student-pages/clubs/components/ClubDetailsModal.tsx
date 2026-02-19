@@ -1487,17 +1487,22 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
       </div>
 
       {/* Payment Modal */}
-      {showPaymentModal && selectedPlan && (
-        <PurchaseMembershipModal
-          club={club}
-          plan={selectedPlan}
-          onClose={() => {
-            setShowPaymentModal(false);
-            setSelectedPlan(null);
-          }}
-          onSuccess={handlePurchaseSuccess}
-        />
-      )}
+      {showPaymentModal && selectedPlan && (() => {
+        const priceInfo = getEffectivePrice(selectedPlan);
+        return (
+          <PurchaseMembershipModal
+            club={club}
+            plan={selectedPlan}
+            effectivePrice={priceInfo.isDiscounted ? priceInfo.price : undefined}
+            discountPercent={priceInfo.isDiscounted ? priceInfo.discount : undefined}
+            onClose={() => {
+              setShowPaymentModal(false);
+              setSelectedPlan(null);
+            }}
+            onSuccess={handlePurchaseSuccess}
+          />
+        );
+      })()}
 
       {/* Freeze Modal */}
       {showFreezeModal && activeMembershipForClub && (

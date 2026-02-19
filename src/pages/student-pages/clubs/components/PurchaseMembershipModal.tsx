@@ -11,7 +11,8 @@ import {
   Building2,
   Sparkles,
   ShieldCheck,
-  Plus
+  Plus,
+  Percent
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { paymentsApi } from '@/functions/axios/axiosFunctions';
@@ -31,6 +32,8 @@ interface MembershipPlan {
 interface PurchaseMembershipModalProps {
   club: Club;
   plan: MembershipPlan;
+  effectivePrice?: number;
+  discountPercent?: number;
   onClose: () => void;
   onSuccess: () => void;
 }
@@ -40,8 +43,12 @@ type PaymentStatus = 'idle' | 'processing' | 'success' | 'error' | 'pending';
 export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = ({
   club,
   plan,
+  effectivePrice,
+  discountPercent,
   onClose,
 }) => {
+  const displayPrice = effectivePrice ?? plan.price;
+  const hasDiscount = effectivePrice !== undefined && effectivePrice < plan.price;
   const { t } = useI18n();
   const navigate = useNavigate();
   
@@ -271,7 +278,7 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
                   <p className="text-xs text-gray-500">{t('clubs.payment.membership')}</p>
                   <p className="font-medium text-gray-900">{plan.name}</p>
                 </div>
-                <p className="text-lg font-bold text-emerald-600">{formatPrice(plan.price)}</p>
+                <p className="text-lg font-bold text-emerald-600">{formatPrice(displayPrice)}</p>
               </div>
             </div>
             
@@ -395,7 +402,24 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
             
             <div className="flex items-center justify-between mt-4 pt-3 border-t border-blue-100">
               <span className="font-medium text-gray-600">{t('clubs.payment.total')}</span>
-              <span className="text-2xl font-bold text-blue-600">{formatPrice(plan.price)}</span>
+              <div className="text-right">
+                {hasDiscount ? (
+                  <>
+                    <div className="flex items-center gap-2 justify-end">
+                      <span className="text-sm text-gray-400 line-through">{formatPrice(plan.price)}</span>
+                      {discountPercent && (
+                        <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-semibold rounded-md flex items-center gap-0.5">
+                          <Percent size={10} />
+                          -{discountPercent}%
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-2xl font-bold text-emerald-600">{formatPrice(displayPrice)}</span>
+                  </>
+                ) : (
+                  <span className="text-2xl font-bold text-blue-600">{formatPrice(displayPrice)}</span>
+                )}
+              </div>
             </div>
           </div>
 
@@ -503,7 +527,7 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
               ) : (
                 <Lock size={16} />
               )}
-              {selectedCardId ? `Оплатить ${formatPrice(plan.price)}` : 'Перейти к оплате'}
+              {selectedCardId ? `Оплатить ${formatPrice(displayPrice)}` : 'Перейти к оплате'}
             </button>
           </div>
         </div>
