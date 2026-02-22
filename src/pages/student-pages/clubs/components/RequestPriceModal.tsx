@@ -29,12 +29,12 @@ interface RequestPriceModalProps {
 }
 
 const DISCOUNT_REASONS = [
-  { key: 'female_discount', labelKey: 'clubs.priceRequest.reasons.female' },
-  { key: 'family_member', labelKey: 'clubs.priceRequest.reasons.family' },
-  { key: 'student_discount', labelKey: 'clubs.priceRequest.reasons.student' },
-  { key: 'referral', labelKey: 'clubs.priceRequest.reasons.referral' },
-  { key: 'loyal_customer', labelKey: 'clubs.priceRequest.reasons.loyal' },
-  { key: 'other', labelKey: 'clubs.priceRequest.reasons.other' },
+  { key: 'female_discount', labelKey: 'clubs.priceRequest.reasons.female', reasonKey: 'female' },
+  { key: 'family_member', labelKey: 'clubs.priceRequest.reasons.family', reasonKey: 'family' },
+  { key: 'student_discount', labelKey: 'clubs.priceRequest.reasons.student', reasonKey: 'student' },
+  { key: 'referral', labelKey: 'clubs.priceRequest.reasons.referral', reasonKey: 'referral' },
+  { key: 'loyal_customer', labelKey: 'clubs.priceRequest.reasons.loyal', reasonKey: 'loyal' },
+  { key: 'other', labelKey: 'clubs.priceRequest.reasons.other', reasonKey: 'other' },
 ];
 
 export const RequestPriceModal: React.FC<RequestPriceModalProps> = ({
@@ -86,9 +86,10 @@ export const RequestPriceModal: React.FC<RequestPriceModalProps> = ({
       const tg = window.Telegram?.WebApp;
       const token = tg?.initData || null;
 
+      const selectedReasonObj = DISCOUNT_REASONS.find(r => r.key === selectedReason);
       const reasonText = selectedReason === 'other' 
         ? customReason.trim() 
-        : t(`clubs.priceRequest.reasons.${selectedReason?.replace('_discount', '')}`);
+        : t(`clubs.priceRequest.reasons.${selectedReasonObj?.reasonKey || 'other'}`);
 
       await priceRequestsApi.create({
         club_id: clubId,
