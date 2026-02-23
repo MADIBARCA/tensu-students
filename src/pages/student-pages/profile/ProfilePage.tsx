@@ -80,21 +80,25 @@ export default function ProfilePage() {
   };
 
   const handleSaveProfile = async (updatedData: { first_name: string; last_name?: string }) => {
-    try {
-      const tg = window.Telegram?.WebApp;
-      const token = tg?.initData || null;
-      if (!token) return;
+    const tg = window.Telegram?.WebApp;
+    const token = tg?.initData || null;
+    if (!token) return;
 
-      const response = await studentsApi.updateMe(updatedData, token);
-      setStudentData(response.data);
-      setShowEditModal(false);
+    try {
+      await studentsApi.updateMe(updatedData, token);
     } catch (error) {
       console.error('Failed to update profile:', error);
-      const tgApp = window.Telegram?.WebApp;
-      if (tgApp) {
-        tgApp.showAlert('Ошибка при обновлении профиля');
-      }
+      tg?.showAlert(t('profile.errors.updateFailed'));
+      return;
     }
+
+    setStudentData((prev) => prev ? { 
+      ...prev, 
+      first_name: updatedData.first_name,
+      last_name: updatedData.last_name || null,
+    } : prev);
+    setShowEditModal(false);
+    tg?.showAlert(t('profile.saved'));
   };
 
   const handlePayment = (membership: SelectedMembership) => {
