@@ -27,7 +27,7 @@ export const RegisteredCardsSection: React.FC = () => {
       setCards(response.data.cards);
     } catch (error) {
       console.error('Failed to load cards:', error);
-      setError(t('profile.cards.loadError') || 'Failed to load cards');
+      setError(t('profile.cards.loadError'));
     } finally {
       setLoading(false);
     }
@@ -111,11 +111,11 @@ export const RegisteredCardsSection: React.FC = () => {
         // Redirect to CNP card registration page
         window.location.href = response.data.redirect_url;
       } else {
-        setError(response.data.error_message || t('profile.cards.registerError') || 'Failed to start card registration');
+        setError(response.data.error_message || t('profile.cards.registerError'));
       }
     } catch (error) {
       console.error('Card registration error:', error);
-      setError(t('profile.cards.registerError') || 'Failed to start card registration');
+      setError(t('profile.cards.registerError'));
     } finally {
       setRegistering(false);
     }
@@ -126,7 +126,7 @@ export const RegisteredCardsSection: React.FC = () => {
     const tg = window.Telegram?.WebApp;
     if (tg?.showConfirm) {
       tg.showConfirm(
-        t('profile.cards.deleteConfirm') || 'Are you sure you want to delete this card?',
+        t('profile.cards.deleteConfirm'),
         async (confirmed: boolean) => {
           if (confirmed) {
             await deleteCard(cardId);
@@ -135,7 +135,7 @@ export const RegisteredCardsSection: React.FC = () => {
       );
     } else {
       // Fallback for non-Telegram environment
-      if (window.confirm(t('profile.cards.deleteConfirm') || 'Are you sure you want to delete this card?')) {
+      if (window.confirm(t('profile.cards.deleteConfirm'))) {
         await deleteCard(cardId);
       }
     }
@@ -151,7 +151,7 @@ export const RegisteredCardsSection: React.FC = () => {
       if (response.data.success) {
         setCards(cards.filter(c => c.card_id !== cardId));
       } else {
-        setError(t('profile.cards.deleteError') || 'Failed to delete card');
+        setError(t('profile.cards.deleteError'));
       }
     } catch (error) {
       console.error('Delete card error:', error);
@@ -185,7 +185,7 @@ export const RegisteredCardsSection: React.FC = () => {
             <CreditCard className="text-gray-400" size={20} />
           </div>
           <span className="font-semibold text-gray-900">
-            {t('profile.cards.title') || 'Payment Cards'}
+            {t('profile.cards.title')}
           </span>
         </div>
         <div className="flex items-center justify-center py-4">
@@ -212,7 +212,7 @@ export const RegisteredCardsSection: React.FC = () => {
             </span>
             {cards.length > 0 && (
               <p className="text-sm text-gray-500">
-                {cards.length} {cards.length === 1 ? 'card' : 'cards'} saved
+                {t('profile.cards.savedCount', { count: cards.length })}
               </p>
             )}
           </div>
@@ -263,7 +263,7 @@ export const RegisteredCardsSection: React.FC = () => {
                 {card.is_active && (
                   <span className="flex items-center gap-1 text-xs text-green-600">
                     <Check size={12} />
-                    Active
+                    {t('profile.cards.active')}
                   </span>
                 )}
                 <button
@@ -295,19 +295,19 @@ export const RegisteredCardsSection: React.FC = () => {
             {registering ? (
               <>
                 <Loader2 className="animate-spin" size={18} />
-                <span>{t('profile.cards.registering') || 'Connecting...'}</span>
+                <span>{t('profile.cards.registering')}</span>
               </>
             ) : (
               <>
                 <Plus size={18} />
-                <span>{t('profile.cards.addCard') || 'Add new card'}</span>
+                <span>{t('profile.cards.addCard')}</span>
               </>
             )}
           </button>
 
           {/* Info text */}
           <p className="text-xs text-gray-400 text-center">
-            {t('profile.cards.info') || 'Save your card for faster checkout with OneClick payments'}
+            {t('profile.cards.info')}
           </p>
         </div>
       )}
