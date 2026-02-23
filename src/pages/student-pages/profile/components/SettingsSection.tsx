@@ -2,35 +2,23 @@ import React, { useState, useEffect } from 'react';
 import { SectionHeader } from '@/components/Layout';
 import { Card } from '@/components/ui';
 import { useI18n } from '@/i18n/i18n';
-import { Bell, MapPin, Globe, HelpCircle, FileText, Shield, ChevronRight } from 'lucide-react';
+import { MapPin, Globe, HelpCircle, FileText, Shield, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export const SettingsSection: React.FC = () => {
   const { t, lang, setLang } = useI18n();
   const navigate = useNavigate();
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [locationAccess, setLocationAccess] = useState(false);
   const [showLangModal, setShowLangModal] = useState(false);
 
   useEffect(() => {
     // Load settings from API or localStorage
-    const savedNotifications = localStorage.getItem('notifications_enabled');
     const savedLocation = localStorage.getItem('location_access');
     
-    if (savedNotifications !== null) {
-      setNotificationsEnabled(savedNotifications === 'true');
-    }
     if (savedLocation !== null) {
       setLocationAccess(savedLocation === 'true');
     }
   }, []);
-
-  const handleNotificationsToggle = async (enabled: boolean) => {
-    setNotificationsEnabled(enabled);
-    localStorage.setItem('notifications_enabled', enabled.toString());
-    // TODO: Save to API
-    // await studentsApi.updatePreferences({ notifications_enabled: enabled }, token);
-  };
 
   const handleLocationToggle = async (enabled: boolean) => {
     setLocationAccess(enabled);
