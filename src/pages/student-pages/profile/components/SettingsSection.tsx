@@ -50,26 +50,6 @@ export const SettingsSection: React.FC = () => {
       <SectionHeader title={t('profile.settings')} />
       <Card>
         <div className="space-y-0">
-          {/* Notifications */}
-          <div className="flex items-center justify-between py-3 border-b border-gray-100">
-            <div className="flex items-center gap-3">
-              <Bell size={20} className="text-gray-400" />
-              <div>
-                <p className="font-medium text-gray-900">{t('settings.notifications')}</p>
-                <p className="text-xs text-gray-500">{t('settings.notifications.desc')}</p>
-              </div>
-            </div>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={notificationsEnabled}
-                onChange={(e) => handleNotificationsToggle(e.target.checked)}
-                className="sr-only peer"
-              />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
-            </label>
-          </div>
-
           {/* Geolocation */}
           <div className="flex items-center justify-between py-3 border-b border-gray-100">
             <div className="flex items-center gap-3">
