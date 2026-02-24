@@ -48,4 +48,29 @@ input[type="number"].no-spinner::-webkit-inner-spin-button {
 /* Hide number-input spinner in Firefox */
 input[type="number"].no-spinner {
   -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* Prevent iOS zoom on input focus - minimum 16px font-size */
+input,
+textarea,
+select {
+  font-size: 16px !important;
+  touch-action: manipulation;
+}
+
+/* Scroll focused input into view above the keyboard */
+@supports (height: 1dvh) {
+  input:focus,
+  textarea:focus,
+  select:focus {
+    scroll-margin-bottom: 40vh;
+  }
+}
+
+/* Full-screen modals: use dvh so keyboard doesn't cover content */
+@supports (height: 1dvh) {
+  .fixed.inset-0 {
+    height: 100dvh;
+  }
 }
