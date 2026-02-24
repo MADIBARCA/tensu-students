@@ -770,7 +770,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                 {club.phone && (
                   <button 
                     onClick={() => handleContactClick('phone')}
-                    className="w-full flex items-center gap-2 p-2 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors text-left"
+                    className="w-full flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors text-left"
                   >
                     <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
                       <Phone size={18} className="text-emerald-600" />
@@ -786,11 +786,11 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
 
               {/* Contact Buttons */}
               {(club.telegram_url || club.instagram_url || club.whatsapp_url) && (
-                <div className="flex gap-2">
+                <div className="flex gap-1">
                   {club.telegram_url && (
                     <button
                       onClick={() => handleContactClick('telegram')}
-                      className="flex-1 px-4 py-3 bg-[#229ED9]/10 text-[#229ED9] rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-[#229ED9]/20 transition-colors"
+                      className="flex-1 px-3 py-3 bg-[#229ED9]/10 text-[#229ED9] rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-[#229ED9]/20 transition-colors"
                     >
                       <TelegramIcon size={18} />
                       Telegram
@@ -799,7 +799,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                   {club.instagram_url && (
                     <button
                       onClick={() => handleContactClick('instagram')}
-                      className="flex-1 px-4 py-3 bg-pink-50 text-pink-500 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-pink-100 transition-colors"
+                      className="flex-1 px-3 py-3 bg-pink-50 text-pink-500 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-pink-100 transition-colors"
                     >
                       <InstagramIcon size={18} />
                       Instagram
@@ -808,7 +808,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                   {club.whatsapp_url && (
                     <button
                       onClick={() => handleContactClick('whatsapp')}
-                      className="flex-1 px-4 py-3 bg-[#25D366]/10 text-[#25D366] rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-[#25D366]/20 transition-colors"
+                      className="flex-1 px-3 py-3 bg-[#25D366]/10 text-[#25D366] rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-[#25D366]/20 transition-colors"
                     >
                       <WhatsAppIcon size={18} />
                       WhatsApp
