@@ -770,7 +770,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                 {club.phone && (
                   <button 
                     onClick={() => handleContactClick('phone')}
-                    className="w-full flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors text-left"
+                    className="w-full flex items-center gap-2 p-2 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors text-left"
                   >
                     <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
                       <Phone size={18} className="text-emerald-600" />
