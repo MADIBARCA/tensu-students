@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { SectionHeader } from '@/components/Layout';
 import { Card } from '@/components/ui';
 import { useI18n } from '@/i18n/i18n';
-import { ChevronRight, CreditCard, Calendar } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { ChevronRight, ChevronDown, CreditCard, Calendar } from 'lucide-react';
 import { paymentsApi } from '@/functions/axios/axiosFunctions';
 import type { PaymentResponse, PaymentStatus } from '@/functions/axios/responses';
+
+const INITIAL_DISPLAY_COUNT = 2;
 
 interface Payment {
   id: number;
@@ -18,9 +19,9 @@ interface Payment {
 
 export const PaymentHistorySection: React.FC = () => {
   const { t } = useI18n();
-  const navigate = useNavigate();
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
     const loadPayments = async () => {
@@ -28,7 +29,7 @@ export const PaymentHistorySection: React.FC = () => {
         const tg = window.Telegram?.WebApp;
         const token = tg?.initData || null;
         
-        const response = await paymentsApi.getHistory(token, 1, 5);
+        const response = await paymentsApi.getHistory(token, 1, 20);
         
         // Map API response to component format
         const mappedPayments: Payment[] = response.data.payments.map((p: PaymentResponse) => ({
@@ -107,21 +108,26 @@ export const PaymentHistorySection: React.FC = () => {
     );
   }
 
+  const displayedPayments = showAll ? payments : payments.slice(0, INITIAL_DISPLAY_COUNT);
+  const hasMore = payments.length > INITIAL_DISPLAY_COUNT;
+
   return (
     <div className="mb-4">
       <div className="flex items-center justify-between mb-3">
-        <SectionHeader title="История платежей" />
-        <button
-          onClick={() => navigate('/student/payments')}
-          className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1"
-        >
-          {t('payments.view.all')}
-          <ChevronRight size={16} />
-        </button>
+        <SectionHeader title={t('profile.payments')} />
+        {hasMore && (
+          <button
+            onClick={() => setShowAll(!showAll)}
+            className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1"
+          >
+            {showAll ? t('payments.collapse') : t('payments.view.all')}
+            {showAll ? <ChevronDown size={16} className="rotate-180" /> : <ChevronRight size={16} />}
+          </button>
+        )}
       </div>
 
       <div className="space-y-2">
-        {payments.map((payment) => (
+        {displayedPayments.map((payment) => (
           <Card key={payment.id}>
             <div className="flex items-center justify-between">
               <div className="flex-1">
