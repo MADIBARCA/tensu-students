@@ -663,7 +663,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                 />
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
-                  <Building2 size={28} className="text-blue-600" />
+                  <Building2 size={28} className="text-[#2563EB]" />
                 </div>
               )}
             </div>
@@ -691,8 +691,8 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
           {/* Stats pills */}
           <div className="flex gap-2 mt-3 flex-wrap">
             <div className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 rounded-full">
-              <Layers size={14} className="text-blue-600" />
-              <span className="text-xs font-medium text-blue-700">{sections.length || club.sections_count} {t('clubs.card.sections')}</span>
+              <Layers size={14} className="text-[#2563EB]" />
+              <span className="text-xs font-medium text-[#1D4ED8]">{sections.length || club.sections_count} {t('clubs.card.sections')}</span>
             </div>
             <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 rounded-full">
               <Users size={14} className="text-emerald-600" />
@@ -720,7 +720,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
             >
               {t('clubs.details.info')}
               {activeTab === 'info' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 rounded-full" />
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2563EB] rounded-full" />
               )}
             </button>
             <button
@@ -733,7 +733,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
             >
               {t('clubs.details.memberships')}
               {activeTab === 'memberships' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 rounded-full" />
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2563EB] rounded-full" />
               )}
             </button>
           </div>
@@ -759,7 +759,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                 {club.working_hours && (
                   <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
                     <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
-                      <Clock size={18} className="text-blue-600" />
+                      <Clock size={18} className="text-[#2563EB]" />
                     </div>
                     <div>
                       <p className="text-xs text-gray-500">{t('clubs.details.hours')}</p>
@@ -778,7 +778,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                     </div>
                     <div className="flex-1">
                       <p className="text-xs text-gray-500">{t('clubs.details.phone')}</p>
-                      <p className="text-sm font-medium text-blue-600">{formatPhone(club.phone)}</p>
+                      <p className="text-sm font-medium text-[#2563EB]">{formatPhone(club.phone)}</p>
                     </div>
                     <ChevronRight size={18} className="text-gray-400" />
                   </button>
@@ -827,7 +827,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                       {t('clubs.details.trainers')}
                     </h3>
                     {coaches.length > 4 && (
-                      <button className="text-xs text-blue-600 font-medium">
+                      <button className="text-xs text-[#2563EB] font-medium">
                         {t('clubs.details.viewAll')}
                       </button>
                     )}
@@ -964,7 +964,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                               {membership.includedSections.map((section) => (
                                 <span 
                                   key={`section-${section.id}`} 
-                                  className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-lg text-xs font-medium"
+                                  className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-[#1D4ED8] rounded-lg text-xs font-medium"
                                 >
                                   <Layers size={12} />
                                   {section.name}
@@ -1022,7 +1022,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                                   handleFreeze();
                                 }}
                                 disabled={membership.freezeDaysAvailable <= 0}
-                                className="px-3 py-2.5 bg-blue-50 text-blue-700 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="px-3 py-2.5 bg-blue-50 text-[#1D4ED8] rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                               >
                                 <Snowflake size={16} />
                                 {t('clubs.membership.freeze')}
@@ -1033,7 +1033,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                                   setActiveMembershipForClub(membership);
                                   handleFreeze();
                                 }}
-                                className="px-3 py-2.5 bg-blue-50 text-blue-700 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors"
+                                className="px-3 py-2.5 bg-blue-50 text-[#1D4ED8] rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors"
                               >
                                 <Snowflake size={16} />
                                 {t('clubs.membership.unfreeze')}
@@ -1056,7 +1056,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                               setActiveMembershipForClub(membership);
                               handleFreeze();
                             }}
-                            className="w-full px-3 py-2.5 bg-blue-50 text-blue-700 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors"
+                            className="w-full px-3 py-2.5 bg-blue-50 text-[#1D4ED8] rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors"
                           >
                             <Snowflake size={16} />
                             {t('clubs.membership.unfreeze')}
@@ -1293,14 +1293,14 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
               {scheduledMemberships.length > 0 && (
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <Clock size={18} className="text-blue-600" />
+                    <Clock size={18} className="text-[#2563EB]" />
                     <h3 className="font-semibold text-gray-900">{t('clubs.membership.scheduledPlans')}</h3>
                   </div>
 
                   {scheduledMemberships.map((membership) => (
                     <Card key={membership.membershipId} className="p-4 border-2 border-blue-200 bg-blue-50/30 relative overflow-hidden">
                       <div className="absolute top-0 right-0">
-                        <div className="bg-blue-500 text-white text-[10px] font-semibold px-3 py-1 rounded-bl-lg flex items-center gap-1">
+                        <div className="bg-[#2563EB] text-white text-[10px] font-semibold px-3 py-1 rounded-bl-lg flex items-center gap-1">
                           <Calendar size={12} />
                           {t('clubs.membership.scheduled')}
                         </div>
@@ -1314,7 +1314,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-xl font-bold text-blue-600">{formatPrice(membership.price)}</p>
+                          <p className="text-xl font-bold text-[#2563EB]">{formatPrice(membership.price)}</p>
                         </div>
                       </div>
 
@@ -1324,7 +1324,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                           {membership.includedSections.slice(0, 2).map((section) => (
                             <span 
                               key={`section-${section.id}`} 
-                              className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded text-[10px] font-medium"
+                              className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-blue-100 text-[#1D4ED8] rounded text-[10px] font-medium"
                             >
                               <Layers size={10} />
                               {section.name}
@@ -1343,7 +1343,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                       )}
 
                       <div className="w-full px-4 py-3 rounded-xl bg-blue-100 border border-blue-200">
-                        <div className="flex items-center justify-between text-blue-700">
+                        <div className="flex items-center justify-between text-[#1D4ED8]">
                           <div className="flex items-center gap-2">
                             <Clock size={16} />
                             <span className="text-sm font-medium">
@@ -1377,7 +1377,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                       >
                         {isPopular && (
                           <div className="absolute top-0 right-0">
-                            <div className="bg-blue-500 text-white text-[10px] font-semibold px-3 py-1 rounded-bl-lg">
+                            <div className="bg-[#2563EB] text-white text-[10px] font-semibold px-3 py-1 rounded-bl-lg">
                               {t('clubs.membership.popular')}
                             </div>
                           </div>
@@ -1404,7 +1404,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                                       </>
                                     )}
                                     <span className="text-xs text-gray-300">•</span>
-                                    <span className="text-xs text-blue-600 font-medium">{getPackageTypeLabel(plan.packageType)}</span>
+                                    <span className="text-xs text-[#2563EB] font-medium">{getPackageTypeLabel(plan.packageType)}</span>
                                   </div>
                                 </div>
                                 <div className="text-right">
@@ -1422,7 +1422,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                                     </>
                                   ) : (
                                     <>
-                                      <p className="text-2xl font-bold text-blue-600">{formatPrice(plan.price)}</p>
+                                      <p className="text-2xl font-bold text-[#2563EB]">{formatPrice(plan.price)}</p>
                                       {plan.duration_days && plan.duration_days >= 30 && (
                                         <p className="text-xs text-gray-400">
                                           {formatPrice(Math.round(plan.price / (plan.duration_days / 30)))}{t('clubs.details.perMonth')}
@@ -1475,7 +1475,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                                   onClick={() => handlePurchase(plan)}
                                   className={`w-full px-4 py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2 ${
                                     isPopular
-                                      ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-md'
+                                      ? 'bg-[#2563EB] text-white hover:bg-[#1D4ED8] shadow-md'
                                       : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
                                   }`}
                                 >

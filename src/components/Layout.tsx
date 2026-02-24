@@ -59,11 +59,11 @@ export const Layout: React.FC<LayoutProps> = ({
   }, [title]);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-[#F9FAFB] flex flex-col">
       {/* Header */}
       {title && (
         <header className={clsx(
-          "sticky top-0 z-20 bg-white border-b border-gray-100 overflow-hidden",
+          "sticky top-0 z-20 bg-white/95 backdrop-blur-sm border-b border-gray-100 overflow-hidden",
           "transition-[padding-top] duration-300 ease-out will-change-[padding-top]",
           isScrolled ? "pt-20" : "pt-0"
         )}>
@@ -73,12 +73,12 @@ export const Layout: React.FC<LayoutProps> = ({
                 {showBackButton && (
                   <button
                     onClick={() => navigate(-1)}
-                    className="p-2 -ml-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="p-2 -ml-2 text-[#6B7280] hover:bg-gray-100 rounded-xl transition-colors"
                   >
                     <ChevronLeft size={20} />
                   </button>
                 )}
-                <h1 className="text-xl font-semibold text-gray-900">{title}</h1>
+                <h1 className="text-[22px] font-semibold text-[#111827] tracking-tight">{title}</h1>
               </div>
               {actions && (
                 <div className="flex items-center gap-2">{actions}</div>
@@ -92,7 +92,7 @@ export const Layout: React.FC<LayoutProps> = ({
       <main className="flex-1 pb-20">{children}</main>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 z-20">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-100 z-20">
         <div className="flex justify-around pt-2 pb-5">
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
@@ -103,18 +103,18 @@ export const Layout: React.FC<LayoutProps> = ({
                 key={item.path}
                 onClick={() => navigate(item.path)}
                 className={`
-                  flex flex-col items-center py-2 px-3 rounded-lg
+                  flex flex-col items-center py-2 px-3 rounded-xl
                   transition-all duration-200
                   ${
                     isActive
-                      ? "text-blue-600"
-                      : "text-gray-400 hover:text-gray-600 hover:bg-gray-50"
+                      ? "text-[#2563EB]"
+                      : "text-[#9CA3AF] hover:text-[#6B7280]"
                   }
                 `}
               >
-                <Icon size={22} strokeWidth={isActive ? 2.5 : 2} />
+                <Icon size={22} strokeWidth={isActive ? 2.5 : 1.8} />
                 <span
-                  className={`text-xs mt-1 ${isActive ? "font-medium" : ""}`}
+                  className={`text-[11px] mt-1 ${isActive ? "font-semibold" : "font-medium"}`}
                 >
                   {item.label}
                 </span>
@@ -151,16 +151,37 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
 }) => {
   return (
     <div className="flex items-center justify-between mb-4">
-      <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+      <h2 className="text-[17px] font-semibold text-[#111827]">{title}</h2>
       {action && (
         <button
           onClick={action.onClick}
-          className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1"
+          className="text-[13px] text-[#2563EB] hover:text-[#1D4ED8] font-medium flex items-center gap-1"
         >
           {action.icon && <action.icon size={16} />}
           {action.label}
         </button>
       )}
+    </div>
+  );
+};
+
+// Card component — shared wrapper
+export const Card: React.FC<{
+  children: React.ReactNode;
+  className?: string;
+  onClick?: () => void;
+}> = ({ children, className = "", onClick }) => {
+  return (
+    <div
+      onClick={onClick}
+      className={clsx(
+        "bg-white rounded-[16px] p-[18px]",
+        "shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_12px_rgba(0,0,0,0.03)]",
+        onClick && "cursor-pointer hover:shadow-[0_2px_6px_rgba(0,0,0,0.06),0_8px_18px_rgba(0,0,0,0.04)] transition-shadow duration-200",
+        className,
+      )}
+    >
+      {children}
     </div>
   );
 };

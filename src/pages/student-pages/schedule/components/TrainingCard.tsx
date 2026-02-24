@@ -208,7 +208,11 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
         ) : (
           <button
             onClick={onBook}
-            className="w-full py-2.5 bg-[#111] text-white text-[13px] font-medium rounded-xl hover:bg-[#222] active:bg-[#333] transition-colors"
+            className="w-full py-3 text-white text-[13px] font-semibold rounded-[14px] transition-colors"
+            style={{ backgroundColor: 'rgb(11,60,111)' }}
+            onMouseDown={e => (e.currentTarget.style.backgroundColor = 'rgb(8,39,71)')}
+            onMouseUp={e => (e.currentTarget.style.backgroundColor = 'rgb(9,46,85)')}
+            onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'rgb(11,60,111)')}
           >
             {t('schedule.book')}
           </button>

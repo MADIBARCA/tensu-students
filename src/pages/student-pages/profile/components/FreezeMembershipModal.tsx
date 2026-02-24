@@ -207,7 +207,8 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
                 <button
                   onClick={handleUnfreeze}
                   disabled={processing}
-                  className="flex-1 px-4 py-2.5 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors disabled:opacity-50 font-medium flex items-center justify-center gap-2"
+                  className="flex-1 px-4 py-2.5 text-white rounded-xl hover:opacity-90 transition-colors disabled:opacity-50 font-medium flex items-center justify-center gap-2"
+                style={{ backgroundColor: 'rgb(11,60,111)' }}
                 >
                   {processing ? t('common.processing') : (
                     <>
@@ -258,7 +259,8 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
                 </button>
                 <button
                   onClick={() => setShowUnfreezeConfirm(true)}
-                  className="flex-1 px-4 py-2.5 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors font-medium"
+                  className="flex-1 px-4 py-2.5 text-white rounded-xl hover:opacity-90 transition-colors font-medium"
+                style={{ backgroundColor: 'rgb(11,60,111)' }}
                 >
                   {t('freeze.unfreeze.process')}
                 </button>
@@ -340,7 +342,8 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
               <button
                 onClick={handleFreeze}
                 disabled={!isValid || processing}
-                className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-2 text-white rounded-lg hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ backgroundColor: 'rgb(11,60,111)' }}
               >
                 {processing ? 'Обработка...' : 'Заморозить'}
               </button>

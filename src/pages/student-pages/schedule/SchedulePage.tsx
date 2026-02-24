@@ -352,7 +352,7 @@ export default function SchedulePage() {
             <p className="text-red-500">{error}</p>
             <button
               onClick={loadData}
-              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg"
+              className="mt-4 px-4 py-2 text-white rounded-lg"
             >
               {t('common.retry')}
             </button>
@@ -384,7 +384,8 @@ export default function SchedulePage() {
             {/* CTA Button */}
             <button
               onClick={() => navigate('/student/clubs')}
-              className="w-full max-w-xs mx-auto px-6 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors font-medium flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25"
+              className="w-full max-w-xs mx-auto px-6 py-3 text-white rounded-xl hover:opacity-90 transition-colors font-medium flex items-center justify-center gap-2 shadow-lg shadow-[rgb(11,60,111)]/20"
+            style={{ backgroundColor: 'rgb(11,60,111)' }}
             >
               <ShoppingBag size={20} />
               {t('schedule.noMembership.buyButton')}
@@ -411,8 +412,8 @@ export default function SchedulePage() {
               onClick={() => setActiveTab('list')}
               className={`px-5 py-2 rounded-[10px] text-[13px] font-medium transition-all duration-200 ${
                 activeTab === 'list'
-                  ? 'bg-white text-[#111] shadow-[0_1px_3px_rgba(0,0,0,0.08)]'
-                  : 'text-[#6B7280] hover:text-[#111]'
+                  ? 'bg-white text-[#111827] shadow-[0_1px_3px_rgba(0,0,0,0.08)]'
+                  : 'text-[#6B7280] hover:text-[#111827]'
               }`}
             >
               {t('schedule.tabs.list')}
@@ -421,8 +422,8 @@ export default function SchedulePage() {
               onClick={() => setActiveTab('calendar')}
               className={`px-5 py-2 rounded-[10px] text-[13px] font-medium transition-all duration-200 ${
                 activeTab === 'calendar'
-                  ? 'bg-white text-[#111] shadow-[0_1px_3px_rgba(0,0,0,0.08)]'
-                  : 'text-[#6B7280] hover:text-[#111]'
+                  ? 'bg-white text-[#111827] shadow-[0_1px_3px_rgba(0,0,0,0.08)]'
+                  : 'text-[#6B7280] hover:text-[#111827]'
               }`}
             >
               {t('schedule.tabs.calendar')}
@@ -432,12 +433,12 @@ export default function SchedulePage() {
           {/* Filter */}
           <button
             onClick={() => setShowFiltersModal(true)}
-            className="relative flex items-center gap-1.5 px-3 py-2 rounded-xl text-[13px] text-[#6B7280] hover:text-[#111] hover:bg-gray-50 transition-colors"
+            className="relative flex items-center gap-1.5 px-3 py-2 rounded-xl text-[13px] text-[#6B7280] hover:text-[#111827] hover:bg-gray-50 transition-colors"
           >
             <Filter size={16} />
             <span>{t('schedule.filters')}</span>
             {activeFiltersCount > 0 && (
-              <span className="ml-0.5 w-[18px] h-[18px] bg-[#111] text-white text-[10px] rounded-full flex items-center justify-center font-medium">
+              <span className="ml-0.5 w-[18px] h-[18px] text-white text-[10px] rounded-full flex items-center justify-center font-medium" style={{ backgroundColor: 'rgb(11,60,111)' }}>
                 {activeFiltersCount}
               </span>
             )}
@@ -448,15 +449,15 @@ export default function SchedulePage() {
         {activeFiltersCount > 0 && (
           <div className="flex flex-wrap gap-2 mb-4">
             {filters.clubId && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-[#111] rounded-full text-[12px] font-medium">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-[#111827] rounded-full text-[12px] font-medium">
                 {clubs.find(c => c.id === filters.clubId)?.name}
-                <button onClick={() => setFilters(f => ({ ...f, clubId: null }))} className="text-[#9CA3AF] hover:text-[#111]">
+                <button onClick={() => setFilters(f => ({ ...f, clubId: null }))} className="text-[#9CA3AF] hover:text-[#111827]">
                   <X size={12} />
                 </button>
               </span>
             )}
             {filters.trainerId && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-[#111] rounded-full text-[12px] font-medium">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-[#111827] rounded-full text-[12px] font-medium">
                 {trainers.find(t => t.id === filters.trainerId)?.name}
                 <button onClick={() => setFilters(f => ({ ...f, trainerId: null }))} className="text-[#9CA3AF] hover:text-[#111]">
                   <X size={12} />
@@ -464,7 +465,7 @@ export default function SchedulePage() {
               </span>
             )}
             {filters.sectionsType === 'my' && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-[#111] rounded-full text-[12px] font-medium">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-[#111827] rounded-full text-[12px] font-medium">
                 {t('schedule.filters.mySections')}
                 <button onClick={() => setFilters(f => ({ ...f, sectionsType: 'all' }))} className="text-[#9CA3AF] hover:text-[#111]">
                   <X size={12} />

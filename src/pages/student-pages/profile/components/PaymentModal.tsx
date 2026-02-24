@@ -167,7 +167,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ membership, onClose 
           <button
             onClick={handlePayment}
             disabled={processing || !cardNumber || !expiryDate || !cvv || !cardholderName}
-            className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 px-4 py-2 text-white rounded-lg hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{ backgroundColor: 'rgb(11,60,111)' }}
           >
             {processing ? 'Обработка...' : 'Оплатить'}
           </button>

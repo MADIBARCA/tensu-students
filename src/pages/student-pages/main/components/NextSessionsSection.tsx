@@ -331,7 +331,8 @@ export const NextSessionsSection: React.FC = () => {
               {canBook && (
                 <button
                   onClick={() => handleBookSession(session.id)}
-                  className="w-full px-4 py-2.5 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors text-sm font-semibold shadow-sm shadow-blue-500/25"
+                  className="w-full px-4 py-2.5 text-white rounded-xl hover:opacity-90 transition-colors text-sm font-semibold shadow-sm shadow-[rgb(11,60,111)]/20"
+                style={{ backgroundColor: 'rgb(11,60,111)' }}
                 >
                   {t('home.sessions.book')}
                 </button>

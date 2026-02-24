@@ -1,12 +1,56 @@
 /* index.css */
 @import "tailwindcss";
 
+/* ── Design Tokens ──────────────────────────────────── */
+:root {
+  /* Brand / CTA */
+  --color-primary: 11 60 111;          /* rgb(11,60,111) */
+  --color-primary-hover: 9 46 85;
+  --color-primary-active: 8 39 71;
+  --color-accent: 37 99 235;           /* #2563EB – nav, links */
+
+  /* Semantic */
+  --color-success: 34 197 94;          /* #22C55E */
+  --color-danger: 239 68 68;           /* #EF4444 */
+
+  /* Text */
+  --color-text: 17 24 39;             /* #111827 */
+  --color-text-secondary: 107 114 128; /* #6B7280 */
+  --color-text-muted: 156 163 175;     /* #9CA3AF */
+
+  /* Surface */
+  --color-bg: #F9FAFB;
+  --color-surface: #FFFFFF;
+  --color-border: 229 231 235;         /* #E5E7EB */
+
+  /* Radius */
+  --radius-card: 16px;
+  --radius-button: 14px;
+  --radius-chip: 12px;
+  --radius-input: 12px;
+
+  /* Shadow */
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+  --shadow-card-hover: 0 2px 6px rgba(0,0,0,0.06), 0 8px 18px rgba(0,0,0,0.04);
+
+  /* Spacing */
+  --spacing-screen: 16px;
+  --spacing-card: 18px;
+
+  /* Button */
+  --button-height: 48px;
+}
+
+/* ── Base ────────────────────────────────────────────── */
 html,
 body {
   height: 100vh;
   margin: 0;
   padding: 0;
-  background: #ffffff;
+  background: var(--color-bg);
+  color: rgb(var(--color-text));
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 #wrap {
@@ -15,53 +59,49 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 
+/* ── Phone Input ─────────────────────────────────────── */
 .PhoneInputInput {
   outline: none;
 }
-
 .PhoneInputCountrySelect {
   display: flex;
   align-items: center;
   justify-content: center;
   outline: none;
 }
-
 .PhoneInputCountryIcon {
   margin-right: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-
 .PhoneInputCountryIcon--border {
-  background-color: none;
+  background-color: transparent;
   box-shadow: none;
 }
 
-/* Hide number-input spinners in Chrome, Safari, Edge, Opera */
+/* ── Input tweaks ────────────────────────────────────── */
 input[type="number"].no-spinner::-webkit-outer-spin-button,
 input[type="number"].no-spinner::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
-
-/* Hide number-input spinner in Firefox */
 input[type="number"].no-spinner {
   -moz-appearance: textfield;
   appearance: textfield;
 }
 
-/* Prevent iOS zoom on input focus - minimum 16px font-size */
+/* Prevent iOS zoom on focus */
 input,
 textarea,
 select,
 [contenteditable="true"] {
   font-size: 16px !important;
   touch-action: manipulation;
-  caret-color: #000000;
+  caret-color: rgb(var(--color-primary));
 }
 
-/* Scroll focused input into view above the keyboard */
+/* Scroll into view above keyboard */
 @supports (height: 1dvh) {
   input:focus,
   textarea:focus,
@@ -70,7 +110,7 @@ select,
   }
 }
 
-/* Full-screen modals: use dvh so keyboard doesn't cover content */
+/* Full-screen modals: dvh */
 @supports (height: 1dvh) {
   .fixed.inset-0 {
     height: 100dvh;
