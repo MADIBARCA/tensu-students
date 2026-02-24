@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Layout, PageContainer } from '@/components/Layout';
 import { useI18n } from '@/i18n/i18n';
-import { Filter, List, CalendarDays, X, CreditCard, ShoppingBag } from 'lucide-react';
+import { Filter, X, CreditCard, ShoppingBag } from 'lucide-react';
 import { TrainingCard } from './components/TrainingCard';
 import { CalendarView } from './components/CalendarView';
 import { FiltersModal } from './components/FiltersModal';
@@ -369,7 +369,7 @@ export default function SchedulePage() {
         <PageContainer>
           <Card className="text-center py-10 px-6">
             {/* Icon */}
-            <div className="w-20 h-20 bg-gradient-to-br from-orange-100 to-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="w-20 h-20 bg-linear-to-br from-orange-100 to-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <CreditCard size={40} className="text-orange-500" />
             </div>
 
@@ -403,82 +403,71 @@ export default function SchedulePage() {
   return (
     <Layout title={t('nav.schedule')}>
       <PageContainer>
-        {/* Tabs and Filter Button */}
-        <div className="flex items-center justify-between mb-4">
-          {/* Tabs */}
-          <div className="flex bg-gray-100 rounded-lg p-1">
+        {/* Tabs and Filter */}
+        <div className="flex items-center justify-between mb-5">
+          {/* Segmented Control */}
+          <div className="flex bg-gray-100/80 rounded-xl p-1">
             <button
               onClick={() => setActiveTab('list')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              className={`px-5 py-2 rounded-[10px] text-[13px] font-medium transition-all duration-200 ${
                 activeTab === 'list'
-                  ? 'bg-white text-blue-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-white text-[#111] shadow-[0_1px_3px_rgba(0,0,0,0.08)]'
+                  : 'text-[#6B7280] hover:text-[#111]'
               }`}
             >
-              <List size={18} />
               {t('schedule.tabs.list')}
             </button>
             <button
               onClick={() => setActiveTab('calendar')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              className={`px-5 py-2 rounded-[10px] text-[13px] font-medium transition-all duration-200 ${
                 activeTab === 'calendar'
-                  ? 'bg-white text-blue-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-white text-[#111] shadow-[0_1px_3px_rgba(0,0,0,0.08)]'
+                  : 'text-[#6B7280] hover:text-[#111]'
               }`}
             >
-              <CalendarDays size={18} />
               {t('schedule.tabs.calendar')}
             </button>
           </div>
 
-          {/* Filter Button */}
+          {/* Filter */}
           <button
             onClick={() => setShowFiltersModal(true)}
-            className="relative flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors"
+            className="relative flex items-center gap-1.5 px-3 py-2 rounded-xl text-[13px] text-[#6B7280] hover:text-[#111] hover:bg-gray-50 transition-colors"
           >
-            <Filter size={18} className="text-gray-600" />
-            <span className="text-sm text-gray-700">{t('schedule.filters')}</span>
+            <Filter size={16} />
+            <span>{t('schedule.filters')}</span>
             {activeFiltersCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-blue-500 text-white text-xs rounded-full flex items-center justify-center">
+              <span className="ml-0.5 w-[18px] h-[18px] bg-[#111] text-white text-[10px] rounded-full flex items-center justify-center font-medium">
                 {activeFiltersCount}
               </span>
             )}
           </button>
         </div>
 
-        {/* Active Filters Display */}
+        {/* Active Filters */}
         {activeFiltersCount > 0 && (
           <div className="flex flex-wrap gap-2 mb-4">
             {filters.clubId && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-[#111] rounded-full text-[12px] font-medium">
                 {clubs.find(c => c.id === filters.clubId)?.name}
-                <button
-                  onClick={() => setFilters(f => ({ ...f, clubId: null }))}
-                  className="hover:text-blue-900"
-                >
-                  <X size={14} />
+                <button onClick={() => setFilters(f => ({ ...f, clubId: null }))} className="text-[#9CA3AF] hover:text-[#111]">
+                  <X size={12} />
                 </button>
               </span>
             )}
             {filters.trainerId && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-[#111] rounded-full text-[12px] font-medium">
                 {trainers.find(t => t.id === filters.trainerId)?.name}
-                <button
-                  onClick={() => setFilters(f => ({ ...f, trainerId: null }))}
-                  className="hover:text-blue-900"
-                >
-                  <X size={14} />
+                <button onClick={() => setFilters(f => ({ ...f, trainerId: null }))} className="text-[#9CA3AF] hover:text-[#111]">
+                  <X size={12} />
                 </button>
               </span>
             )}
             {filters.sectionsType === 'my' && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-[#111] rounded-full text-[12px] font-medium">
                 {t('schedule.filters.mySections')}
-                <button
-                  onClick={() => setFilters(f => ({ ...f, sectionsType: 'all' }))}
-                  className="hover:text-blue-900"
-                >
-                  <X size={14} />
+                <button onClick={() => setFilters(f => ({ ...f, sectionsType: 'all' }))} className="text-[#9CA3AF] hover:text-[#111]">
+                  <X size={12} />
                 </button>
               </span>
             )}
@@ -489,8 +478,8 @@ export default function SchedulePage() {
         {activeTab === 'list' ? (
           <div className="space-y-3">
             {upcomingTrainings.length === 0 ? (
-              <div className="text-center py-8">
-                <p className="text-gray-600">{t('schedule.noTrainings')}</p>
+              <div className="text-center py-12">
+                <p className="text-[#9CA3AF] text-[14px]">{t('schedule.noTrainings')}</p>
               </div>
             ) : (
               upcomingTrainings.map((training) => (
