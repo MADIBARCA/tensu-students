@@ -34,6 +34,32 @@ const getInitials = (firstName: string, lastName?: string | null): string => {
   return first + last;
 };
 
+// Generate club initials
+const getClubInitials = (name: string | null): string => {
+  if (!name) return '?';
+  const parts = name.split(' ');
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  }
+  return name.slice(0, 2).toUpperCase();
+};
+
+// Generate a gradient for club logo fallback
+const getClubGradient = (name: string | null): string => {
+  if (!name) return 'from-gray-400 to-gray-500';
+  const colors = [
+    'from-blue-400 to-blue-600',
+    'from-emerald-400 to-emerald-600',
+    'from-violet-400 to-violet-600',
+    'from-amber-400 to-amber-600',
+    'from-rose-400 to-rose-600',
+    'from-cyan-400 to-cyan-600',
+    'from-indigo-400 to-indigo-600',
+  ];
+  const index = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % colors.length;
+  return colors[index];
+};
+
 export const ParticipantsModal: React.FC<ParticipantsModalProps> = ({ training, onClose }) => {
   const { t } = useI18n();
   const [participants, setParticipants] = useState<ParticipantResponse[]>([]);
@@ -70,19 +96,40 @@ export const ParticipantsModal: React.FC<ParticipantsModalProps> = ({ training, 
         <div className="sticky top-0 bg-white border-b border-gray-100 px-5 py-4">
           <div className="flex items-center justify-between">
             <div className="flex-1">
-            <h2 className="text-lg font-semibold text-gray-900">
-              {t('schedule.participants.title')}
-            </h2>
-              <p className="text-sm text-gray-500 mt-0.5">
-              {training.section_name} • {training.time}
-            </p>
-          </div>
-          <button
-            onClick={onClose}
+              <h2 className="text-lg font-semibold text-gray-900">
+                {t('schedule.participants.title')}
+              </h2>
+            </div>
+            <button
+              onClick={onClose}
               className="p-2 -mr-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
-          >
-            <X size={20} />
-          </button>
+            >
+              <X size={20} />
+            </button>
+          </div>
+
+          {/* Club Logo + Name + Section Info */}
+          <div className="mt-3 flex items-center gap-3">
+            {/* Club Logo */}
+            <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0 shadow-sm">
+              {training.club_logo_url ? (
+                <img
+                  src={training.club_logo_url}
+                  alt={training.club_name || ''}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className={`w-full h-full bg-linear-to-br ${getClubGradient(training.club_name)} flex items-center justify-center`}>
+                  <span className="text-white text-xs font-bold">{getClubInitials(training.club_name)}</span>
+                </div>
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-900 truncate">{training.club_name}</p>
+              <p className="text-xs text-gray-500 truncate">
+                {training.section_name} • {training.time}
+              </p>
+            </div>
           </div>
 
           {/* Participants count badge */}
@@ -120,7 +167,7 @@ export const ParticipantsModal: React.FC<ParticipantsModalProps> = ({ training, 
                 <div className="flex items-center justify-center mb-6">
                   <div className="flex -space-x-3">
                     {participants.slice(0, 5).map((participant, index) => (
-                <div
+                      <div
                         key={participant.id}
                         className={`relative w-12 h-12 rounded-full border-3 border-white shadow-sm flex items-center justify-center ${
                           participant.photo_url ? '' : getAvatarColor(participant.id)
@@ -200,11 +247,11 @@ export const ParticipantsModal: React.FC<ParticipantsModalProps> = ({ training, 
                     {/* Current user badge */}
                     {participant.is_current_user && (
                       <span className="px-2.5 py-1 bg-green-500 text-white text-xs font-medium rounded-full shadow-sm">
-                      {t('schedule.participants.you')}
-                    </span>
-                  )}
-                </div>
-              ))}
+                        {t('schedule.participants.you')}
+                      </span>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
           ) : (

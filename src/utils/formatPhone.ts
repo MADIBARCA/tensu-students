@@ -50,3 +50,21 @@ export function phoneHref(raw: string | undefined | null): string {
   }
   return `tel:+${digits}`;
 }
+
+/**
+ * Programmatically trigger a phone call.
+ * Works reliably in Telegram Mini Apps WebView where
+ * window.location.href = 'tel:...' is often blocked.
+ */
+export function makeCall(raw: string | undefined | null): void {
+  if (!raw) return;
+  const href = phoneHref(raw);
+  if (!href) return;
+  const a = document.createElement('a');
+  a.href = href;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  // Clean up after a short delay
+  setTimeout(() => document.body.removeChild(a), 100);
+}

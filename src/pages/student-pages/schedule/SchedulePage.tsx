@@ -19,8 +19,10 @@ export interface Training {
   group_name?: string | null;
   trainer_name: string | null;
   trainer_id: number | null;
+  trainer_photo_url: string | null;
   club_id: number;
   club_name: string | null;
+  club_logo_url: string | null;
   date: string;
   time: string;
   location: string | null;
@@ -110,8 +112,10 @@ export default function SchedulePage() {
         group_name: s.group_name,
         trainer_name: s.coach_name,
         trainer_id: s.coach_id,
+        trainer_photo_url: s.coach_photo_url,
         club_id: s.club_id,
         club_name: s.club_name,
+        club_logo_url: s.club_logo_url,
         date: s.date,
         time: s.time,
         location: s.location || s.club_address,
@@ -182,12 +186,19 @@ export default function SchedulePage() {
     return result;
   }, [trainings, filters]);
 
-  // Get upcoming trainings for list view (max 3)
+  // Get upcoming trainings for list view — current week only (Mon–Sun)
   const upcomingTrainings = useMemo(() => {
-    const today = formatDate(new Date());
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayStr = formatDate(today);
+    // Get end of week (Sunday)
+    const dayOfWeek = today.getDay(); // 0=Sun, 1=Mon...
+    const daysUntilSunday = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
+    const endOfWeek = new Date(today);
+    endOfWeek.setDate(today.getDate() + daysUntilSunday);
+    const endOfWeekStr = formatDate(endOfWeek);
     return filteredTrainings
-      .filter(t => t.date >= today)
-      .slice(0, 10);
+      .filter(t => t.date >= todayStr && t.date <= endOfWeekStr);
   }, [filteredTrainings]);
 
   // Get trainings for selected date in calendar

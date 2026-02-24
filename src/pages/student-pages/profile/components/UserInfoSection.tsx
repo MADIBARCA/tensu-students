@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Edit2, Camera } from 'lucide-react';
 import { useTelegram } from '@/hooks/useTelegram';
 import type { StudentResponse } from '@/functions/axios/responses';
-import { formatPhone, phoneHref } from '@/utils/formatPhone';
+import { formatPhone, makeCall } from '@/utils/formatPhone';
 
 interface UserInfoSectionProps {
   student: StudentResponse | null;
@@ -78,7 +78,7 @@ export const UserInfoSection: React.FC<UserInfoSectionProps> = ({ student, onEdi
               <Edit2 size={16} />
             </button>
           </div>
-          <a href={phoneHref(displayPhone)} className="text-sm text-gray-600 hover:text-blue-600 transition-colors">{formatPhone(displayPhone)}</a>
+          <span onClick={() => makeCall(displayPhone)} className="text-sm text-gray-600 hover:text-blue-600 transition-colors cursor-pointer">{formatPhone(displayPhone)}</span>
         </div>
       </div>
     </div>

@@ -277,9 +277,11 @@ export interface SessionResponse {
   group_name: string | null;
   coach_id: number | null;
   coach_name: string | null;
+  coach_photo_url: string | null;
   club_id: number;
   club_name: string | null;
   club_address: string | null;
+  club_logo_url: string | null;
   date: string;
   time: string;
   duration_minutes: number;

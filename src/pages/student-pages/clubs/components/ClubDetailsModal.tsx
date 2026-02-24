@@ -32,7 +32,7 @@ import { clubsApi, membershipsApi, priceRequestsApi } from '@/functions/axios/ax
 import type { ClubDetailResponse, ClubSectionResponse, ClubTariffResponse, ClubCoachResponse, MembershipResponse, IndividualPriceResponse, PriceRequestResponse } from '@/functions/axios/responses';
 import type { Club } from '../ClubsPage';
 import { classifyMembershipChange } from '@/lib/utils/membershipClassification';
-import { formatPhone } from '@/utils/formatPhone';
+import { formatPhone, makeCall } from '@/utils/formatPhone';
 
 interface Section {
   id: number;
@@ -260,7 +260,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
     } else if (type === 'whatsapp' && club.whatsapp_url) {
       tg?.openLink?.(club.whatsapp_url);
     } else if (type === 'phone' && club.phone) {
-      window.location.href = `tel:${club.phone}`;
+      makeCall(club.phone);
     }
   };
 
