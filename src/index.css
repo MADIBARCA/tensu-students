@@ -54,9 +54,11 @@ input[type="number"].no-spinner {
 /* Prevent iOS zoom on input focus - minimum 16px font-size */
 input,
 textarea,
-select {
+select,
+[contenteditable="true"] {
   font-size: 16px !important;
   touch-action: manipulation;
+  caret-color: #000000;
 }
 
 /* Scroll focused input into view above the keyboard */

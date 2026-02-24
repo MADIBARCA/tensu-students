@@ -671,7 +671,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
           {/* Close button */}
           <button
             onClick={onClose}
-            className="absolute top-3 right-3 p-2 bg-white/20 hover:bg-white/30 rounded-full transition-colors backdrop-blur-sm"
+            className="absolute top-3 right-3 p-2 bg-black/40 hover:bg-black/60 rounded-full transition-colors backdrop-blur-sm shadow-lg"
           >
             <X size={20} className="text-white" />
           </button>
