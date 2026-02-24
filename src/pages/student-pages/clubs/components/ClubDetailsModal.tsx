@@ -1132,7 +1132,17 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                             </div>
                           </div>
                           <div className="text-right">
-                            <p className="text-xl font-bold text-violet-600">{formatPrice(plan.price)}</p>
+                            {(() => {
+                              const ep = getEffectivePrice(plan);
+                              return ep.isDiscounted ? (
+                                <>
+                                  <span className="text-sm text-gray-400 line-through">{formatPrice(plan.price)}</span>
+                                  <p className="text-xl font-bold text-emerald-600">{formatPrice(ep.price)}</p>
+                                </>
+                              ) : (
+                                <p className="text-xl font-bold text-violet-600">{formatPrice(plan.price)}</p>
+                              );
+                            })()}
                           </div>
                         </div>
 
@@ -1208,7 +1218,17 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                             <span className="text-xs text-gray-500">{getPackageTypeLabel(plan.packageType)}</span>
                           </div>
                         </div>
-                        <p className="text-lg font-bold text-gray-700">{formatPrice(plan.price)}</p>
+                        {(() => {
+                          const ep = getEffectivePrice(plan);
+                          return ep.isDiscounted ? (
+                            <>
+                              <span className="text-sm text-gray-400 line-through">{formatPrice(plan.price)}</span>
+                              <p className="text-lg font-bold text-emerald-600">{formatPrice(ep.price)}</p>
+                            </>
+                          ) : (
+                            <p className="text-lg font-bold text-gray-700">{formatPrice(plan.price)}</p>
+                          );
+                        })()}
                       </div>
 
                       {/* Access badges */}
@@ -1255,7 +1275,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                           <p className="text-xs text-gray-400">{getPlanDuration(plan)}</p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-gray-500">{formatPrice(plan.price)}</span>
+                          <span className="text-sm font-medium text-gray-500">{formatPrice(getEffectivePrice(plan).price)}</span>
                           <Lock size={14} className="text-gray-400" />
                         </div>
                       </div>
