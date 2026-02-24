@@ -32,6 +32,7 @@ import { clubsApi, membershipsApi, priceRequestsApi } from '@/functions/axios/ax
 import type { ClubDetailResponse, ClubSectionResponse, ClubTariffResponse, ClubCoachResponse, MembershipResponse, IndividualPriceResponse, PriceRequestResponse } from '@/functions/axios/responses';
 import type { Club } from '../ClubsPage';
 import { classifyMembershipChange } from '@/lib/utils/membershipClassification';
+import { formatPhone } from '@/utils/formatPhone';
 
 interface Section {
   id: number;
@@ -777,7 +778,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                     </div>
                     <div className="flex-1">
                       <p className="text-xs text-gray-500">{t('clubs.details.phone')}</p>
-                      <p className="text-sm font-medium text-blue-600">{club.phone}</p>
+                      <p className="text-sm font-medium text-blue-600">{formatPhone(club.phone)}</p>
                     </div>
                     <ChevronRight size={18} className="text-gray-400" />
                   </button>
