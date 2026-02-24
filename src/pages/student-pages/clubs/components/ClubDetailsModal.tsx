@@ -887,7 +887,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
               )}
             </div>
           ) : (
-            <div className="p-4 space-y-5">
+            <div className="p-4 space-y-5 pb-10">
               {/* Active Memberships Section - Show ALL active memberships */}
               {allActiveMembershipsForClub.length > 0 && (
                 <div className="space-y-3">
