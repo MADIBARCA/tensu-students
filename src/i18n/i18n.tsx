@@ -7,7 +7,7 @@ type Dict = Record<string, string>;
 const RU: Dict = {
   'nav.home': 'Главная',
   'nav.schedule': 'Расписание',
-  'nav.groups': 'Мои группы',
+  'nav.clubs': 'Клубы',
   'nav.profile': 'Профиль',
   'common.loading': 'Загрузка...',
   'common.error': 'Ошибка',
@@ -320,7 +320,7 @@ const RU: Dict = {
 const KK: Dict = {
   'nav.home': 'Басты бет',
   'nav.schedule': 'Кесте',
-  'nav.groups': 'Менің топтарым',
+  'nav.clubs': 'Клубтар',
   'nav.profile': 'Профиль',
   'common.loading': 'Жүктелуде...',
   'common.error': 'Қате',

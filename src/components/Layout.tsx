@@ -38,7 +38,7 @@ export const Layout: React.FC<LayoutProps> = ({
   const navItems: NavItem[] = [
     { icon: Home, label: t('nav.home'), path: "/student/main" },
     { icon: Calendar, label: t('nav.schedule'), path: "/student/schedule" },
-    { icon: Users, label: t('nav.groups'), path: "/student/groups" },
+    { icon: Users, label: t('nav.clubs'), path: "/student/clubs" },
     { icon: User, label: t('nav.profile'), path: "/student/profile" },
   ];
 
