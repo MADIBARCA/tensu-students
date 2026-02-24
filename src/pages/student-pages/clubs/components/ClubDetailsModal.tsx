@@ -745,7 +745,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
               <div className="w-8 h-8 border-3 border-blue-500 border-t-transparent rounded-full animate-spin" />
             </div>
           ) : activeTab === 'info' ? (
-            <div className="p-4 space-y-5">
+            <div className="p-4 space-y-5 pb-10">
               {/* Description */}
               {club.description && (
                 <div>
