@@ -93,7 +93,7 @@ export const Layout: React.FC<LayoutProps> = ({
 
       {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 z-20">
-        <div className="flex justify-around py-2">
+        <div className="flex justify-around pt-2 pb-5">
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
             const Icon = item.icon;
