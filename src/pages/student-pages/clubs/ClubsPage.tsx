@@ -18,6 +18,7 @@ export interface Club {
   cover_url?: string | null;
   phone?: string | null;
   telegram_url?: string | null;
+  instagram_url?: string | null;
   whatsapp_url?: string | null;
   working_hours?: string | null;
   description?: string | null;
@@ -57,6 +58,7 @@ export default function ClubsPage() {
           cover_url: c.cover_url,
           phone: c.phone,
           telegram_url: c.telegram_url,
+          instagram_url: c.instagram_url,
           whatsapp_url: c.whatsapp_url,
           working_hours: c.working_hours,
           description: c.description,

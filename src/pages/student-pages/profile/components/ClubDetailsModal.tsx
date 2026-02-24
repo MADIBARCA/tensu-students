@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { X, MapPin, Phone, Instagram, MessageCircle, Users, DollarSign } from 'lucide-react';
+import { X, MapPin, Phone, Users, DollarSign } from 'lucide-react';
+import { TelegramIcon, InstagramIcon } from '@/components/SocialIcons';
 import { Card } from '@/components/ui';
 
 interface ClubDetailsModalProps {
@@ -100,20 +101,24 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ onClose }) =
           {clubData.instagram_url && (
             <button
               onClick={() => tg?.openLink?.(clubData.instagram_url)}
-              className="flex items-center gap-3 w-full"
+              className="flex items-center gap-3 w-full p-3 bg-pink-50 rounded-xl hover:bg-pink-100 transition-colors text-left"
             >
-              <Instagram size={20} className="text-gray-400" />
-              <span className="text-sm text-blue-600">Instagram</span>
+              <div className="w-10 h-10 bg-pink-100 rounded-xl flex items-center justify-center">
+                <InstagramIcon size={18} className="text-pink-500" />
+              </div>
+              <span className="text-sm font-medium text-pink-600">Instagram</span>
             </button>
           )}
 
           {clubData.telegram_url && (
             <button
               onClick={() => tg?.openLink?.(clubData.telegram_url)}
-              className="flex items-center gap-3 w-full"
+              className="flex items-center gap-3 w-full p-3 bg-[#229ED9]/10 rounded-xl hover:bg-[#229ED9]/20 transition-colors text-left"
             >
-              <MessageCircle size={20} className="text-gray-400" />
-              <span className="text-sm text-blue-600">Telegram</span>
+              <div className="w-10 h-10 bg-[#229ED9]/15 rounded-xl flex items-center justify-center">
+                <TelegramIcon size={18} className="text-[#229ED9]" />
+              </div>
+              <span className="text-sm font-medium text-[#229ED9]">Telegram</span>
             </button>
           )}
         </div>

@@ -6,7 +6,6 @@ import {
   MapPin, 
   Clock, 
   Phone, 
-  MessageCircle, 
   Layers, 
   CreditCard, 
   Users, 
@@ -25,6 +24,7 @@ import {
   Tag,
   Percent
 } from 'lucide-react';
+import { TelegramIcon, InstagramIcon, WhatsAppIcon } from '@/components/SocialIcons';
 import { PurchaseMembershipModal } from './PurchaseMembershipModal';
 import { FreezeMembershipModal } from '../../profile/components/FreezeMembershipModal';
 import { RequestPriceModal } from './RequestPriceModal';
@@ -250,10 +250,12 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
     loadClubDetails();
   }, [club.id]);
 
-  const handleContactClick = (type: 'telegram' | 'whatsapp' | 'phone') => {
+  const handleContactClick = (type: 'telegram' | 'instagram' | 'whatsapp' | 'phone') => {
     const tg = window.Telegram?.WebApp;
     if (type === 'telegram' && club.telegram_url) {
       tg?.openLink?.(club.telegram_url);
+    } else if (type === 'instagram' && club.instagram_url) {
+      tg?.openLink?.(club.instagram_url);
     } else if (type === 'whatsapp' && club.whatsapp_url) {
       tg?.openLink?.(club.whatsapp_url);
     } else if (type === 'phone' && club.phone) {
@@ -783,15 +785,24 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
               </div>
 
               {/* Contact Buttons */}
-              {(club.telegram_url || club.whatsapp_url) && (
+              {(club.telegram_url || club.instagram_url || club.whatsapp_url) && (
                 <div className="flex gap-2">
                   {club.telegram_url && (
                     <button
                       onClick={() => handleContactClick('telegram')}
                       className="flex-1 px-4 py-3 bg-[#229ED9]/10 text-[#229ED9] rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-[#229ED9]/20 transition-colors"
                     >
-                      <MessageCircle size={18} />
+                      <TelegramIcon size={18} />
                       Telegram
+                    </button>
+                  )}
+                  {club.instagram_url && (
+                    <button
+                      onClick={() => handleContactClick('instagram')}
+                      className="flex-1 px-4 py-3 bg-pink-50 text-pink-500 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-pink-100 transition-colors"
+                    >
+                      <InstagramIcon size={18} />
+                      Instagram
                     </button>
                   )}
                   {club.whatsapp_url && (
@@ -799,7 +810,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                       onClick={() => handleContactClick('whatsapp')}
                       className="flex-1 px-4 py-3 bg-[#25D366]/10 text-[#25D366] rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-[#25D366]/20 transition-colors"
                     >
-                      <MessageCircle size={18} />
+                      <WhatsAppIcon size={18} />
                       WhatsApp
                     </button>
                   )}
