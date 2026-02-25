@@ -118,7 +118,7 @@ export const CheckInSlider: React.FC<CheckInSliderProps> = ({ onCheckIn }) => {
         <div className="h-14 bg-gray-200 rounded-full overflow-hidden relative">
           {/* Progress fill */}
           <div
-            className="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-200 ease-out"
+            className="absolute inset-y-0 left-0 bg-gradient-to-r from-[#1E3A8A] to-[#2563EB] transition-all duration-200 ease-out"
             style={{ width: `${percentage}%` }}
           />
           

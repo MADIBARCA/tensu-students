@@ -9,7 +9,7 @@ export const NoMembershipBanner: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 mb-6">
+    <Card className="bg-gradient-to-br from-[#1E3A8A] to-[#2563EB] text-white p-6 mb-6">
       <div className="flex items-start gap-4">
         <div className="bg-white bg-opacity-20 rounded-full p-3">
           <CreditCard size={24} />

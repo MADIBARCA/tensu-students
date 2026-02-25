@@ -345,7 +345,7 @@ export const PaymentCallback: React.FC = () => {
             
             <button
               onClick={() => navigate('/student/profile')}
-              className="w-full px-4 py-3.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all font-semibold shadow-lg shadow-blue-200"
+              className="w-full px-4 py-3.5 bg-gradient-to-r from-[#1E3A8A] to-[#2563EB] text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all font-semibold shadow-lg shadow-blue-200"
             >
               {t('clubs.payment.success.button') || 'Go to Profile'}
             </button>
@@ -436,7 +436,7 @@ export const PaymentCallback: React.FC = () => {
                   navigate('/student/clubs');
                 }
               }}
-              className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all font-medium shadow-lg shadow-blue-200"
+              className="flex-1 px-4 py-3 bg-gradient-to-r from-[#1E3A8A] to-[#2563EB] text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all font-medium shadow-lg shadow-blue-200"
             >
               Попробовать снова
             </button>
