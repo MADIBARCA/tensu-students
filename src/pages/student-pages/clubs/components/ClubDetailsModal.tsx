@@ -625,7 +625,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center">
       <div 
-        className="bg-white w-full sm:max-w-lg sm:rounded-2xl rounded-t-2xl max-h-[70vh] overflow-hidden flex flex-col shadow-2xl"
+        className="bg-white w-full sm:max-w-lg sm:rounded-2xl rounded-t-2xl max-h-[80vh] overflow-hidden flex flex-col shadow-2xl"
         style={{ animation: 'slideUp 0.3s ease-out' }}
       >
         {/* Header with cover image */}

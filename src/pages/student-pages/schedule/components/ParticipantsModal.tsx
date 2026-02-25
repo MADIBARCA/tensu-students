@@ -66,7 +66,7 @@ export const ParticipantsModal: React.FC<ParticipantsModalProps> = ({ training, 
   const isFull = !loading && participants.length > 0 && maxParticipants !== null && participants.length >= maxParticipants;
 
   return (
-    <div className="fixed inset-0 bg-black/40 z-50 flex items-end sm:items-center justify-center">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center">
       <div className="bg-white w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl max-h-[80vh] overflow-hidden flex flex-col animate-in slide-in-from-bottom duration-300">
 
         {/* ── Header ──────────────────────────────── */}
