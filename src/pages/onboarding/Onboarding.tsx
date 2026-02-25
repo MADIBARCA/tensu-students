@@ -225,7 +225,7 @@ export default function OnboardingPage() {
       {/* Animated gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-#1E3A8A via-blue-700 to-indigo-800">
         {/* Decorative circles */}
-        <div className="absolute top-[-20%] right-[-10%] w-[60vw] h-[60vw] bg-#2563EB/30 rounded-full blur-3xl" />
+        <div className="absolute top-[-20%] right-[-10%] w-[60vw] h-[60vw] bg-[#2563EB]/30 rounded-full blur-3xl" />
         <div className="absolute bottom-[-20%] left-[-10%] w-[50vw] h-[50vw] bg-indigo-500/30 rounded-full blur-3xl" />
         <div className="absolute top-[30%] left-[10%] w-[20vw] h-[20vw] bg-purple-500/20 rounded-full blur-2xl" />
       </div>
