@@ -467,7 +467,7 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
                           )}
                         </div>
                         {selectedCardId === card.card_id && (
-                          <div className="w-5 h-5 bg-[#2563EB] rounded-full flex items-center justify-center">
+                          <div className="w-5 h-5 bg-[#1D4ED8] rounded-full flex items-center justify-center">
                             <Check size={12} className="text-white" />
                           </div>
                         )}
@@ -494,7 +494,7 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
                     <p className="text-xs text-gray-500">Вы будете перенаправлены на защищённую страницу оплаты</p>
                   </div>
                   {selectedCardId === null && savedCards.length > 0 && (
-                    <div className="w-5 h-5 bg-[#2563EB] rounded-full flex items-center justify-center">
+                    <div className="w-5 h-5 bg-[#1D4ED8] rounded-full flex items-center justify-center">
                       <Check size={12} className="text-white" />
                     </div>
                   )}

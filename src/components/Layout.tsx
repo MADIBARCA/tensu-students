@@ -107,7 +107,7 @@ export const Layout: React.FC<LayoutProps> = ({
                   transition-all duration-200
                   ${
                     isActive
-                      ? "text-[#2563EB]"
+                      ? "text-[#1D4ED8]"
                       : "text-[#9CA3AF] hover:text-[#6B7280]"
                   }
                 `}
@@ -155,7 +155,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
       {action && (
         <button
           onClick={action.onClick}
-          className="text-[13px] text-[#2563EB] hover:text-[#1D4ED8] font-medium flex items-center gap-1"
+          className="text-[13px] text-[#1D4ED8] hover:text-[#1D4ED8] font-medium flex items-center gap-1"
         >
           {action.icon && <action.icon size={16} />}
           {action.label}
