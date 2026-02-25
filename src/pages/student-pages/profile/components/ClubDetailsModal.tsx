@@ -177,8 +177,8 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ onClose }) =
             // TODO: Navigate to membership purchase
             onClose();
           }}
-          className="w-full px-4 py-3 text-white rounded-lg hover:opacity-90 transition-colors font-medium"
-        style={{ backgroundColor: 'rgb(11,60,111)' }}
+          className="btn-primary w-full px-4 py-3 text-white rounded-lg hover:opacity-90 transition-colors font-medium"
+        
         >
           Приобрести абонемент
         </button>

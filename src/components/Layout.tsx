@@ -59,7 +59,7 @@ export const Layout: React.FC<LayoutProps> = ({
   }, [title]);
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] flex flex-col">
+    <div className="min-h-screen bg-[#FAFBFF] flex flex-col">
       {/* Header */}
       {title && (
         <header className={clsx(
@@ -176,8 +176,8 @@ export const Card: React.FC<{
       onClick={onClick}
       className={clsx(
         "bg-white rounded-[16px] p-[18px]",
-        "shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_12px_rgba(0,0,0,0.03)]",
-        onClick && "cursor-pointer hover:shadow-[0_2px_6px_rgba(0,0,0,0.06),0_8px_18px_rgba(0,0,0,0.04)] transition-shadow duration-200",
+        "shadow-[0_4px_14px_rgba(0,0,0,0.05)]",
+        onClick && "cursor-pointer hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] transition-shadow duration-200",
         className,
       )}
     >

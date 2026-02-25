@@ -185,8 +185,8 @@ export const FiltersModal: React.FC<FiltersModalProps> = ({
           </button>
           <button
             onClick={onClose}
-            className="flex-1 px-4 py-3 text-white rounded-lg hover:opacity-90 transition-colors font-medium"
-          style={{ backgroundColor: 'rgb(11,60,111)' }}
+            className="btn-primary flex-1 px-4 py-3 text-white rounded-lg hover:opacity-90 transition-colors font-medium"
+          
           >
             {t('schedule.filters.apply')}
           </button>

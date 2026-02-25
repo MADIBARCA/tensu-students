@@ -384,8 +384,8 @@ export default function SchedulePage() {
             {/* CTA Button */}
             <button
               onClick={() => navigate('/student/clubs')}
-              className="w-full max-w-xs mx-auto px-6 py-3 text-white rounded-xl hover:opacity-90 transition-colors font-medium flex items-center justify-center gap-2 shadow-lg shadow-[rgb(11,60,111)]/20"
-            style={{ backgroundColor: 'rgb(11,60,111)' }}
+              className="btn-primary w-full max-w-xs mx-auto px-6 py-3 text-white rounded-xl hover:opacity-90 transition-colors font-medium flex items-center justify-center gap-2 shadow-lg shadow-[rgb(11,60,111)]/20"
+            
             >
               <ShoppingBag size={20} />
               {t('schedule.noMembership.buyButton')}
@@ -438,7 +438,7 @@ export default function SchedulePage() {
             <Filter size={16} />
             <span>{t('schedule.filters')}</span>
             {activeFiltersCount > 0 && (
-              <span className="ml-0.5 w-[18px] h-[18px] text-white text-[10px] rounded-full flex items-center justify-center font-medium" style={{ backgroundColor: 'rgb(11,60,111)' }}>
+              <span className="ml-0.5 w-[18px] h-[18px] text-white text-[10px] rounded-full flex items-center justify-center font-medium" >
                 {activeFiltersCount}
               </span>
             )}

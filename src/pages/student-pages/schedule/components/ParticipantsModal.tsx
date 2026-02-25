@@ -180,11 +180,7 @@ export const ParticipantsModal: React.FC<ParticipantsModalProps> = ({ training, 
         <div className="sticky bottom-0 bg-white border-t border-gray-100 px-5 py-4">
           <button
             onClick={onClose}
-            className="w-full py-3 text-white text-[13px] font-semibold rounded-[14px] transition-colors"
-            style={{ backgroundColor: 'rgb(11,60,111)' }}
-            onMouseDown={e => (e.currentTarget.style.backgroundColor = 'rgb(8,39,71)')}
-            onMouseUp={e => (e.currentTarget.style.backgroundColor = 'rgb(9,46,85)')}
-            onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'rgb(11,60,111)')}
+            className="btn-primary w-full py-3 text-[13px]"
           >
             {t('common.close')}
           </button>

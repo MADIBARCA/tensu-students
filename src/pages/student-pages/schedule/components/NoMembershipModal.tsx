@@ -36,8 +36,8 @@ export const NoMembershipModal: React.FC<NoMembershipModalProps> = ({ onClose })
         <div className="space-y-3">
           <button
             onClick={handleBuyMembership}
-            className="w-full px-4 py-3 text-white rounded-lg hover:opacity-90 transition-colors font-medium flex items-center justify-center gap-2"
-          style={{ backgroundColor: 'rgb(11,60,111)' }}
+            className="btn-primary w-full px-4 py-3 text-white rounded-lg hover:opacity-90 transition-colors font-medium flex items-center justify-center gap-2"
+          
           >
             <ShoppingBag size={18} />
             {t('schedule.noMembership.buyButton')}

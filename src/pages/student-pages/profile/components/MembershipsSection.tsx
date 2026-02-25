@@ -118,8 +118,8 @@ export const MembershipsSection: React.FC<MembershipsSectionProps> = ({
           <p className="text-gray-600 mb-4">{t('no.memberships')}</p>
           <button
             onClick={() => navigate('/student/clubs')}
-            className="px-4 py-2 text-white rounded-lg hover:opacity-90 transition-colors"
-          style={{ backgroundColor: 'rgb(11,60,111)' }}
+            className="btn-primary px-4 py-2 text-white rounded-lg hover:opacity-90 transition-colors"
+          
           >
             {t('find.club')}
           </button>
@@ -186,8 +186,8 @@ export const MembershipsSection: React.FC<MembershipsSectionProps> = ({
                       e.stopPropagation();
                       onPayment(membership);
                     }}
-                    className="flex-1 px-3 py-2 text-white text-sm rounded-lg hover:opacity-90 transition-colors flex items-center justify-center gap-1"
-                  style={{ backgroundColor: 'rgb(11,60,111)' }}
+                    className="btn-primary flex-1 px-3 py-2 text-white text-sm rounded-lg hover:opacity-90 transition-colors flex items-center justify-center gap-1"
+                  
                   >
                     <CreditCard size={16} />
                     {t('membership.pay')}
@@ -212,8 +212,8 @@ export const MembershipsSection: React.FC<MembershipsSectionProps> = ({
                     e.stopPropagation();
                     onFreeze(membership);
                   }}
-                  className="w-full px-3 py-2 text-white text-sm rounded-lg hover:opacity-90 transition-colors flex items-center justify-center gap-1"
-                style={{ backgroundColor: 'rgb(11,60,111)' }}
+                  className="btn-primary w-full px-3 py-2 text-white text-sm rounded-lg hover:opacity-90 transition-colors flex items-center justify-center gap-1"
+                
                 >
                   <Snowflake size={16} />
                   {t('membership.unfreeze')}

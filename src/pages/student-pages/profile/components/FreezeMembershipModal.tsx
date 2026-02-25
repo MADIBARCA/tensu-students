@@ -207,8 +207,8 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
                 <button
                   onClick={handleUnfreeze}
                   disabled={processing}
-                  className="flex-1 px-4 py-2.5 text-white rounded-xl hover:opacity-90 transition-colors disabled:opacity-50 font-medium flex items-center justify-center gap-2"
-                style={{ backgroundColor: 'rgb(11,60,111)' }}
+                  className="btn-primary flex-1 px-4 py-2.5 text-white rounded-xl hover:opacity-90 transition-colors disabled:opacity-50 font-medium flex items-center justify-center gap-2"
+                
                 >
                   {processing ? t('common.processing') : (
                     <>
@@ -259,8 +259,8 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
                 </button>
                 <button
                   onClick={() => setShowUnfreezeConfirm(true)}
-                  className="flex-1 px-4 py-2.5 text-white rounded-xl hover:opacity-90 transition-colors font-medium"
-                style={{ backgroundColor: 'rgb(11,60,111)' }}
+                  className="btn-primary flex-1 px-4 py-2.5 text-white rounded-xl hover:opacity-90 transition-colors font-medium"
+                
                 >
                   {t('freeze.unfreeze.process')}
                 </button>
@@ -342,8 +342,8 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
               <button
                 onClick={handleFreeze}
                 disabled={!isValid || processing}
-                className="flex-1 px-4 py-2 text-white rounded-lg hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ backgroundColor: 'rgb(11,60,111)' }}
+                className="btn-primary flex-1 px-4 py-2 text-white rounded-lg hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              
               >
                 {processing ? 'Обработка...' : 'Заморозить'}
               </button>

@@ -98,8 +98,8 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
           </button>
           <button
             onClick={handleSave}
-            className="flex-1 px-4 py-2 text-white rounded-lg hover:opacity-90 transition-colors"
-          style={{ backgroundColor: 'rgb(11,60,111)' }}
+            className="btn-primary flex-1 px-4 py-2 text-white rounded-lg hover:opacity-90 transition-colors"
+          
           >
             Сохранить
           </button>

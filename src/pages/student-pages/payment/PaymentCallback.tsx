@@ -483,8 +483,8 @@ export const PaymentCallback: React.FC = () => {
                 navigate('/student/clubs');
               }
             }}
-            className="flex-1 px-4 py-3 text-white rounded-xl hover:opacity-90 transition-colors font-medium"
-          style={{ backgroundColor: 'rgb(11,60,111)' }}
+            className="btn-primary flex-1 px-4 py-3 text-white rounded-xl hover:opacity-90 transition-colors font-medium"
+          
           >
             {t('clubs.payment.error.retry') || 'Try Again'}
           </button>
