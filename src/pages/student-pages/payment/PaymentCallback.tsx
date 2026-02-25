@@ -246,7 +246,7 @@ export const PaymentCallback: React.FC = () => {
         <div className="bg-white w-full max-w-md rounded-2xl p-8 text-center shadow-lg">
           <div className="relative mx-auto mb-6 w-20 h-20">
             <div className="w-20 h-20 border-4 border-blue-100 rounded-full" />
-            <div className="absolute inset-0 w-20 h-20 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+            <div className="absolute inset-0 w-20 h-20 border-4 border-#2563EB border-t-transparent rounded-full animate-spin" />
           </div>
           <h2 className="text-xl font-bold text-gray-900 mb-2">
             {t('clubs.payment.processing') || 'Processing payment...'}
@@ -345,7 +345,7 @@ export const PaymentCallback: React.FC = () => {
             
             <button
               onClick={() => navigate('/student/profile')}
-              className="w-full px-4 py-3.5 bg-gradient-to-r from-[#1E3A8A] to-[#2563EB] text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all font-semibold shadow-lg shadow-blue-200"
+              className="w-full px-4 py-3.5 bg-gradient-to-r from-[#1E3A8A] to-[#2563EB] text-white rounded-xl hover:from-#1E3A8A hover:to-blue-700 transition-all font-semibold shadow-lg shadow-blue-200"
             >
               {t('clubs.payment.success.button') || 'Go to Profile'}
             </button>
@@ -436,7 +436,7 @@ export const PaymentCallback: React.FC = () => {
                   navigate('/student/clubs');
                 }
               }}
-              className="flex-1 px-4 py-3 bg-gradient-to-r from-[#1E3A8A] to-[#2563EB] text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all font-medium shadow-lg shadow-blue-200"
+              className="flex-1 px-4 py-3 bg-gradient-to-r from-[#1E3A8A] to-[#2563EB] text-white rounded-xl hover:from-#1E3A8A hover:to-blue-700 transition-all font-medium shadow-lg shadow-blue-200"
             >
               Попробовать снова
             </button>

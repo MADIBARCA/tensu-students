@@ -135,7 +135,7 @@ export const SettingsSection: React.FC = () => {
                 onClick={() => handleLanguageChange('ru')}
                 className={`w-full text-left px-4 py-3 rounded-lg border-2 transition-colors ${
                   lang === 'ru'
-                    ? 'border-blue-500 bg-blue-50'
+                    ? 'border-#2563EB bg-blue-50'
                     : 'border-gray-200 hover:bg-gray-50'
                 }`}
               >
@@ -145,7 +145,7 @@ export const SettingsSection: React.FC = () => {
                 onClick={() => handleLanguageChange('kk')}
                 className={`w-full text-left px-4 py-3 rounded-lg border-2 transition-colors ${
                   lang === 'kk'
-                    ? 'border-blue-500 bg-blue-50'
+                    ? 'border-#2563EB bg-blue-50'
                     : 'border-gray-200 hover:bg-gray-50'
                 }`}
               >

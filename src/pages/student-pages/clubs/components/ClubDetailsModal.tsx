@@ -440,7 +440,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
   // Generate a consistent color based on name
   const getAvatarColor = (coach: Coach) => {
     const colors = [
-      'bg-linear-to-br from-blue-400 to-blue-600',
+      'bg-linear-to-br from-blue-400 to-#1E3A8A',
       'bg-linear-to-br from-emerald-400 to-emerald-600',
       'bg-linear-to-br from-violet-400 to-violet-600',
       'bg-linear-to-br from-amber-400 to-amber-600',
@@ -639,7 +639,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700">
+              <div className="w-full h-full bg-gradient-to-br from-#2563EB via-#1E3A8A to-indigo-700">
                 {/* Decorative pattern overlay */}
                 <div className="absolute inset-0 opacity-20">
                   <div className="absolute top-4 right-8 w-20 h-20 border border-white/40 rounded-full" />
@@ -743,7 +743,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
         <div className="flex-1 overflow-y-auto">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="w-8 h-8 border-3 border-blue-500 border-t-transparent rounded-full animate-spin" />
+              <div className="w-8 h-8 border-3 border-#2563EB border-t-transparent rounded-full animate-spin" />
             </div>
           ) : activeTab === 'info' ? (
             <div className="p-4 space-y-5 pb-10">
@@ -868,7 +868,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
               {sections.length > 0 && (
                 <div>
                   <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                    <Layers size={16} className="text-blue-500" />
+                    <Layers size={16} className="text-#2563EB" />
                     {t('clubs.details.sections')}
                   </h3>
                   <div className="grid grid-cols-2 gap-2">
@@ -1122,7 +1122,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                               {plan.freezeDaysTotal > 0 && (
                                 <>
                                   <span className="text-xs text-gray-300">•</span>
-                                  <span className="text-xs text-blue-500 font-medium flex items-center gap-0.5">
+                                  <span className="text-xs text-#2563EB font-medium flex items-center gap-0.5">
                                     <Snowflake size={10} />
                                     {plan.freezeDaysTotal} {t('clubs.membership.days')}
                                   </span>
@@ -1209,7 +1209,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                             {plan.freezeDaysTotal > 0 && (
                               <>
                                 <span className="text-xs text-gray-300">•</span>
-                                <span className="text-xs text-blue-500 font-medium flex items-center gap-0.5">
+                                <span className="text-xs text-#2563EB font-medium flex items-center gap-0.5">
                                   <Snowflake size={10} />
                                   {plan.freezeDaysTotal} {t('clubs.membership.days')}
                                 </span>
@@ -1371,7 +1371,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                         key={plan.id} 
                         className={`p-4 relative overflow-hidden transition-all ${
                           isPopular 
-                            ? 'border-2 border-blue-500 shadow-lg shadow-blue-100' 
+                            ? 'border-2 border-#2563EB shadow-lg shadow-blue-100' 
                             : 'border border-gray-200'
                         }`}
                       >
@@ -1397,7 +1397,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                                     {plan.freezeDaysTotal > 0 && (
                                       <>
                                         <span className="text-xs text-gray-300">•</span>
-                                        <span className="text-xs text-blue-500 font-medium flex items-center gap-0.5">
+                                        <span className="text-xs text-#2563EB font-medium flex items-center gap-0.5">
                                           <Snowflake size={10} />
                                           {plan.freezeDaysTotal} {t('clubs.membership.days')}
                                         </span>

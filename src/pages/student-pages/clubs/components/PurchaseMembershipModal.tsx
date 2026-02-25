@@ -284,7 +284,7 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
             
             <button
               onClick={() => navigate('/student/profile')}
-              className="w-full px-4 py-3.5 bg-gradient-to-r from-[#1E3A8A] to-[#2563EB] text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all font-semibold shadow-lg shadow-blue-200"
+              className="w-full px-4 py-3.5 bg-gradient-to-r from-[#1E3A8A] to-[#2563EB] text-white rounded-xl hover:from-#1E3A8A hover:to-blue-700 transition-all font-semibold shadow-lg shadow-blue-200"
             >
               {t('clubs.payment.success.button')}
             </button>
@@ -359,7 +359,7 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
           <div className="absolute inset-0 bg-white/95 z-10 flex flex-col items-center justify-center">
             <div className="relative">
               <div className="w-16 h-16 border-4 border-blue-100 rounded-full" />
-              <div className="absolute inset-0 w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+              <div className="absolute inset-0 w-16 h-16 border-4 border-#2563EB border-t-transparent rounded-full animate-spin" />
             </div>
             <p className="text-gray-700 font-medium mt-4">{t('clubs.payment.processing')}</p>
             <p className="text-gray-400 text-sm mt-1">Не закрывайте это окно</p>
@@ -367,7 +367,7 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
         )}
 
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-500 to-indigo-600 px-5 py-4 flex items-center justify-between">
+        <div className="bg-gradient-to-r from-#2563EB to-indigo-600 px-5 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Lock size={18} className="text-blue-100" />
             <h2 className="text-lg font-semibold text-white">{t('clubs.payment.securePayment')}</h2>
@@ -389,7 +389,7 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
             
             <div className="flex items-start gap-3">
               <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center">
-                <CreditCard size={24} className="text-blue-500" />
+                <CreditCard size={24} className="text-#2563EB" />
               </div>
               <div className="flex-1">
                 <p className="font-semibold text-gray-900">{plan.name}</p>
@@ -433,7 +433,7 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
 
             {loadingCards ? (
               <div className="flex items-center justify-center py-8">
-                <Loader2 size={24} className="animate-spin text-blue-500" />
+                <Loader2 size={24} className="animate-spin text-#2563EB" />
               </div>
             ) : (
               <>
@@ -447,7 +447,7 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
                         disabled={paymentStatus === 'processing'}
                         className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${
                           selectedCardId === card.card_id
-                            ? 'border-blue-500 bg-blue-50'
+                            ? 'border-#2563EB bg-blue-50'
                             : 'border-gray-200 hover:border-gray-300'
                         }`}
                       >
@@ -482,7 +482,7 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
                   disabled={paymentStatus === 'processing'}
                   className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 border-dashed transition-all ${
                     selectedCardId === null && savedCards.length > 0
-                      ? 'border-blue-500 bg-blue-50'
+                      ? 'border-#2563EB bg-blue-50'
                       : 'border-gray-300 hover:border-blue-400 hover:bg-blue-50/50'
                   }`}
                 >
@@ -521,7 +521,7 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
             <button
               onClick={selectedCardId ? handleOneClickPayment : handleNewCardPayment}
               disabled={paymentStatus === 'processing' || loadingCards}
-              className="flex-1 px-4 py-3.5 bg-gradient-to-r from-[#1E3A8A] to-[#2563EB] text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-200 disabled:shadow-none flex items-center justify-center gap-2"
+              className="flex-1 px-4 py-3.5 bg-gradient-to-r from-[#1E3A8A] to-[#2563EB] text-white rounded-xl hover:from-#1E3A8A hover:to-blue-700 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-200 disabled:shadow-none flex items-center justify-center gap-2"
             >
               {paymentStatus === 'processing' ? (
                 <Loader2 size={18} className="animate-spin" />

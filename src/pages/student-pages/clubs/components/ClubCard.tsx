@@ -16,11 +16,11 @@ export const ClubCard: React.FC<ClubCardProps> = ({ club, isMember, onClick }) =
   const getGradientStyle = () => {
     const gradients = [
       'from-indigo-500 via-purple-500 to-pink-400',
-      'from-cyan-500 via-blue-500 to-indigo-500',
+      'from-cyan-500 via-#2563EB to-indigo-500',
       'from-emerald-500 via-teal-500 to-cyan-500',
       'from-orange-400 via-rose-500 to-pink-500',
       'from-violet-500 via-purple-500 to-fuchsia-500',
-      'from-blue-500 via-indigo-500 to-violet-500',
+      'from-#2563EB via-indigo-500 to-violet-500',
     ];
     const index = club.name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % gradients.length;
     return gradients[index];
@@ -102,7 +102,7 @@ export const ClubCard: React.FC<ClubCardProps> = ({ club, isMember, onClick }) =
         {/* Stats */}
         <div className="flex items-center gap-3 mb-3">
           <div className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 rounded-lg">
-            <Layers size={13} className="text-blue-500" />
+            <Layers size={13} className="text-#2563EB" />
             <span className="text-xs font-medium text-[#1E3A8A]">{club.sections_count}</span>
           </div>
           <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 rounded-lg">
@@ -137,7 +137,7 @@ export const ClubCard: React.FC<ClubCardProps> = ({ club, isMember, onClick }) =
             <span className="text-xs font-medium">{t('clubs.card.viewDetails')}</span>
           </div>
           <div className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors">
-            <ChevronRight size={16} className="text-blue-500 group-hover:translate-x-0.5 transition-transform" />
+            <ChevronRight size={16} className="text-#2563EB group-hover:translate-x-0.5 transition-transform" />
           </div>
         </div>
       </div>

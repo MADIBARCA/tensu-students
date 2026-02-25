@@ -65,7 +65,7 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
       'from-amber-400 to-orange-500',
       'from-rose-400 to-pink-500',
       'from-cyan-400 to-sky-500',
-      'from-indigo-400 to-blue-500',
+      'from-indigo-400 to-#2563EB',
     ];
     const i = name.split('').reduce((a, c) => a + c.charCodeAt(0), 0) % palette.length;
     return palette[i];
