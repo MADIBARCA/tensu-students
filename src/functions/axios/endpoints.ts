@@ -57,4 +57,9 @@ export const ENDPOINTS = {
     BASE: '/students/price-requests/',
     BY_ID: (requestId: number | string) => `/students/price-requests/${requestId}`,
   },
+
+  PAYMENT_REQUESTS: {
+    BASE: '/students/payment-requests/',
+    PENDING_COUNT: '/students/payment-requests/pending-count',
+  },
 } as const;

@@ -367,3 +367,43 @@ export interface NearestClubResponse {
   club: ClubLocationResponse | null;
   distance_meters: number | null;
 }
+
+// Payment Request responses
+export type PaymentRequestStatus = 'pending_approval' | 'approved' | 'denied';
+export type PaymentRequestMethod = 'cash' | 'transfer' | 'kaspi_qr';
+
+export interface PaymentRequestResponse {
+  id: number;
+  student_id: number;
+  student_name: string | null;
+  student_phone: string | null;
+  club_id: number;
+  club_name: string | null;
+  tariff_id: number | null;
+  tariff_name: string | null;
+  plan_price: number | null;
+  declared_amount: number;
+  declared_payment_date: string; // YYYY-MM-DD
+  comment: string | null;
+  payment_method: PaymentRequestMethod;
+  status: PaymentRequestStatus;
+  reviewed_at: string | null;
+  reviewed_by: number | null;
+  denial_reason: string | null;
+  membership_start_date: string | null;
+  enrollment_id: number | null;
+  created_at: string;
+  amount_mismatch: boolean;
+}
+
+export interface PaymentRequestListResponse {
+  requests: PaymentRequestResponse[];
+  total: number;
+  page: number;
+  size: number;
+  pages: number;
+}
+
+export interface PendingCountResponse {
+  pending_count: number;
+}

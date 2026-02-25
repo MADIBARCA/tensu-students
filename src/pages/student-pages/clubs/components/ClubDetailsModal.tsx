@@ -28,6 +28,8 @@ import { TelegramIcon, InstagramIcon, WhatsAppIcon } from '@/components/SocialIc
 
 import { FreezeMembershipModal } from '../../profile/components/FreezeMembershipModal';
 import { RequestPriceModal } from './RequestPriceModal';
+import { PaymentMethodModal } from './PaymentMethodModal';
+import { CashPaymentForm } from './CashPaymentForm';
 import { clubsApi, membershipsApi, priceRequestsApi } from '@/functions/axios/axiosFunctions';
 import type { ClubDetailResponse, ClubSectionResponse, ClubTariffResponse, ClubCoachResponse, MembershipResponse, IndividualPriceResponse, PriceRequestResponse } from '@/functions/axios/responses';
 import type { Club } from '../ClubsPage';
@@ -105,6 +107,8 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
 
   const [showFreezeModal, setShowFreezeModal] = useState(false);
   const [showRequestPriceModal, setShowRequestPriceModal] = useState(false);
+  const [showPaymentMethodModal, setShowPaymentMethodModal] = useState(false);
+  const [showCashPaymentForm, setShowCashPaymentForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'info' | 'memberships'>('info');
   // Current active membership in this club (if any) - primary one for display
@@ -264,11 +268,22 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
     }
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handlePurchase = (_plan: MembershipPlan) => {
-    // Payment via CNP removed - will be replaced with Kaspi/cash in future
+  const handlePurchase = (plan: MembershipPlan) => {
+    setSelectedPlan(plan);
+    setShowPaymentMethodModal(true);
+  };
+
+  const handleSelectCashPayment = () => {
+    setShowPaymentMethodModal(false);
+    setShowCashPaymentForm(true);
+  };
+
+  const handlePaymentRequestSuccess = () => {
+    setShowCashPaymentForm(false);
+    setSelectedPlan(null);
+    // Show a brief success haptic
     const tg = window.Telegram?.WebApp;
-    tg?.showAlert?.('Оплата временно недоступна. Свяжитесь с клубом для оплаты.');
+    tg?.HapticFeedback?.notificationOccurred?.('success');
   };
 
   const handleRequestPrice = (plan: MembershipPlan) => {
@@ -1539,6 +1554,34 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
             setSelectedPlan(null);
           }}
           onSuccess={handleRequestPriceSuccess}
+        />
+      )}
+
+      {/* Payment Method Modal */}
+      {selectedPlan && (
+        <PaymentMethodModal
+          isOpen={showPaymentMethodModal}
+          plan={selectedPlan}
+          clubId={club.id}
+          onClose={() => {
+            setShowPaymentMethodModal(false);
+            setSelectedPlan(null);
+          }}
+          onSelectCash={handleSelectCashPayment}
+        />
+      )}
+
+      {/* Cash Payment Form */}
+      {selectedPlan && (
+        <CashPaymentForm
+          isOpen={showCashPaymentForm}
+          plan={selectedPlan}
+          clubId={club.id}
+          onClose={() => {
+            setShowCashPaymentForm(false);
+            setShowPaymentMethodModal(true);
+          }}
+          onSuccess={handlePaymentRequestSuccess}
         />
       )}
 

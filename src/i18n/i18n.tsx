@@ -300,6 +300,34 @@ const RU: Dict = {
   'onboarding.features.training': 'Записывайтесь на тренировки',
   'onboarding.features.schedule': 'Следите за расписанием',
   'onboarding.features.progress': 'Отслеживайте прогресс',
+
+  // Payment Request flow
+  'payment.method.title': 'Способ оплаты',
+  'payment.method.kaspi_qr': 'Kaspi QR',
+  'payment.method.kaspi_qr.desc': 'Оплатите через Kaspi приложение',
+  'payment.method.kaspi_qr.soon': 'Скоро',
+  'payment.method.already_paid': 'Я уже оплатил',
+  'payment.method.already_paid.desc': 'Наличные или перевод',
+  'payment.method.coming_soon': 'Kaspi QR скоро будет доступен',
+  'payment.method.coming_soon.text': 'Мы работаем над интеграцией Kaspi QR. Пока вы можете оплатить наличными или переводом и подтвердить в приложении.',
+
+  'payment.request.title': 'Подтверждение оплаты',
+  'payment.request.amount': 'Сумма оплаты',
+  'payment.request.date': 'Дата оплаты',
+  'payment.request.method': 'Способ оплаты',
+  'payment.request.method.cash': 'Наличные',
+  'payment.request.method.transfer': 'Перевод',
+  'payment.request.comment': 'Комментарий (необязательно)',
+  'payment.request.comment.placeholder': 'Например: Оплатил на ресепшн',
+  'payment.request.submit': 'Отправить на подтверждение',
+  'payment.request.sending': 'Отправка...',
+  'payment.request.success': 'Запрос отправлен!',
+  'payment.request.success.text': 'Владелец клуба рассмотрит ваш запрос. Вы получите уведомление о результате.',
+  'payment.request.error': 'Не удалось отправить запрос',
+  'payment.request.error.duplicate': 'У вас уже есть запрос на рассмотрении для этого клуба',
+  'payment.request.pending_badge': '⏳ Ожидает подтверждения',
+  'payment.request.plan_for': 'Тариф',
+  'payment.request.currency': '₸',
 };
 
 const KK: Dict = {
@@ -598,6 +626,34 @@ const KK: Dict = {
   'onboarding.features.training': 'Жаттығуларға жазылыңыз',
   'onboarding.features.schedule': 'Кестені қадағалаңыз',
   'onboarding.features.progress': 'Прогресті бақылаңыз',
+
+  // Payment Request flow
+  'payment.method.title': 'Төлем тәсілі',
+  'payment.method.kaspi_qr': 'Kaspi QR',
+  'payment.method.kaspi_qr.desc': 'Kaspi арқылы төлеңіз',
+  'payment.method.kaspi_qr.soon': 'Жуырда',
+  'payment.method.already_paid': 'Мен төледім',
+  'payment.method.already_paid.desc': 'Қолма-қол немесе аударым',
+  'payment.method.coming_soon': 'Kaspi QR жуырда қолжетімді болады',
+  'payment.method.coming_soon.text': 'Біз Kaspi QR интеграциясын жасап жатырмыз. Әзірше қолма-қол ақшамен немесе аударыммен төлеп, қолданбада растай аласыз.',
+
+  'payment.request.title': 'Төлемді растау',
+  'payment.request.amount': 'Төлем сомасы',
+  'payment.request.date': 'Төлем күні',
+  'payment.request.method': 'Төлем тәсілі',
+  'payment.request.method.cash': 'Қолма-қол',
+  'payment.request.method.transfer': 'Аударым',
+  'payment.request.comment': 'Пікір (міндетті емес)',
+  'payment.request.comment.placeholder': 'Мысалы: Ресепшннен төледім',
+  'payment.request.submit': 'Растауға жіберу',
+  'payment.request.sending': 'Жіберілуде...',
+  'payment.request.success': 'Сұраныс жіберілді!',
+  'payment.request.success.text': 'Клуб иесі сұранысыңызды қарайды. Нәтиже туралы хабарлама аласыз.',
+  'payment.request.error': 'Сұранысты жіберу мүмкін болмады',
+  'payment.request.error.duplicate': 'Бұл клубқа сіздің сұранысыңыз бар',
+  'payment.request.pending_badge': '⏳ Растауды күтуде',
+  'payment.request.plan_for': 'Тариф',
+  'payment.request.currency': '₸',
 };
 
 const dictionaries: Record<Lang, Dict> = { ru: RU, kk: KK };

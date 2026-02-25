@@ -9,6 +9,7 @@ import type {
   InitiatePaymentRequest,
   ScheduleFiltersRequest,
   CreatePriceRequestRequest,
+  CreatePaymentRequestRequest,
 } from './requests';
 import type { 
   StudentResponse, 
@@ -36,6 +37,9 @@ import type {
   ClubDetailResponse,
   ClubListResponse,
   NearestClubResponse,
+  PaymentRequestResponse,
+  PaymentRequestListResponse,
+  PendingCountResponse,
 } from './responses';
 
 // Student Profile API
@@ -294,4 +298,39 @@ export const priceRequestsApi = {
 
   getById: (clubId: number | string, token: string | null) =>
     axiosRequest<ClubDetailResponse>(ENDPOINTS.CLUBS.BY_ID(clubId), 'GET', token),
+};
+
+// Payment Requests API (cash / transfer declarations)
+export const paymentRequestsApi = {
+  submit: (data: CreatePaymentRequestRequest, token: string | null) =>
+    axiosRequest<PaymentRequestResponse>(ENDPOINTS.PAYMENT_REQUESTS.BASE, 'POST', token, data),
+
+  getMyRequests: (
+    token: string | null,
+    page: number = 1,
+    size: number = 20,
+    status?: string
+  ) => {
+    const params = new URLSearchParams();
+    params.append('page', page.toString());
+    params.append('size', size.toString());
+    if (status) params.append('status', status);
+
+    return axiosRequest<PaymentRequestListResponse>(
+      `${ENDPOINTS.PAYMENT_REQUESTS.BASE}?${params.toString()}`,
+      'GET',
+      token
+    );
+  },
+
+  getPendingCount: (token: string | null, clubId?: number) => {
+    const params = new URLSearchParams();
+    if (clubId) params.append('club_id', clubId.toString());
+
+    return axiosRequest<PendingCountResponse>(
+      `${ENDPOINTS.PAYMENT_REQUESTS.PENDING_COUNT}?${params.toString()}`,
+      'GET',
+      token
+    );
+  },
 };
