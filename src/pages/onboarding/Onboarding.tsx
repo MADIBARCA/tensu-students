@@ -156,7 +156,7 @@ export default function OnboardingPage() {
   // Success state
   if (state === 'success') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-500 via-green-600 to-emerald-700">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#10B981] via-[#059669] to-[#047857]">
         <div className="text-center px-8">
           <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
             <CheckCircle className="w-12 h-12 text-white" />
@@ -278,8 +278,8 @@ export default function OnboardingPage() {
                 <span className="text-sm text-gray-700">{t('onboarding.features.schedule')}</span>
               </div>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
-                  <Dumbbell className="w-5 h-5 text-green-600" />
+                <div className="w-10 h-10 bg-[#D1FAE5] rounded-xl flex items-center justify-center">
+                  <Dumbbell className="w-5 h-5 text-[#10B981]" />
                 </div>
                 <span className="text-sm text-gray-700">{t('onboarding.features.training')}</span>
               </div>
@@ -294,13 +294,13 @@ export default function OnboardingPage() {
 
           {/* Phone display */}
           {phone && (
-            <div className="px-8 py-4 bg-green-50 border-y border-green-100">
+            <div className="px-8 py-4 bg-[#ECFDF5] border-y border-[#A7F3D0]">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
+                <div className="w-10 h-10 bg-[#D1FAE5] rounded-full flex items-center justify-center">
+                  <CheckCircle className="w-5 h-5 text-[#10B981]" />
                 </div>
                 <div>
-                  <p className="text-xs text-green-600 font-medium">Номер подтверждён</p>
+                  <p className="text-xs text-[#10B981] font-medium">Номер подтверждён</p>
                   <p className="text-sm font-semibold text-gray-900">{phone}</p>
                 </div>
               </div>
@@ -321,7 +321,7 @@ export default function OnboardingPage() {
             ) : (
               <button
                 onClick={() => navigate('/student/main', { replace: true })}
-                className="w-full py-4 px-6 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold rounded-2xl transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-3 group"
+                className="w-full py-4 px-6 bg-gradient-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] text-white font-semibold rounded-2xl transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-3 group"
               >
                 <span>{t('onboarding.continue')}</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />

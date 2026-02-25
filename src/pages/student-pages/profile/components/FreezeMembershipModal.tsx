@@ -311,9 +311,9 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
 
             {freezeDays > 0 && (
               <div className={`p-3 rounded-lg ${
-                isValid ? 'bg-green-50' : 'bg-red-50'
+                isValid ? 'bg-[#ECFDF5]' : 'bg-red-50'
               }`}>
-                <p className={`text-sm ${isValid ? 'text-green-800' : 'text-red-800'}`}>
+                <p className={`text-sm ${isValid ? 'text-[#065F46]' : 'text-red-800'}`}>
                   {isValid
                     ? `Выбрано дней: ${freezeDays}`
                     : !isStartDateValid

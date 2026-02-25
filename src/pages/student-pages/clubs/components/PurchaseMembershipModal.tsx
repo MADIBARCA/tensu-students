@@ -232,7 +232,7 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
             {showSuccessAnimation && (
               <>
                 <div className="absolute top-4 left-8 w-3 h-3 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
-                <div className="absolute top-8 right-12 w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
+                <div className="absolute top-8 right-12 w-2 h-2 bg-[#34D399] rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
                 <div className="absolute top-12 left-16 w-2 h-2 bg-amber-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
                 <div className="absolute top-6 right-8 w-3 h-3 bg-violet-400 rounded-full animate-bounce" style={{ animationDelay: '0.15s' }} />
                 <div className="absolute top-16 left-6 w-2 h-2 bg-rose-400 rounded-full animate-bounce" style={{ animationDelay: '0.25s' }} />
@@ -243,7 +243,7 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
           
           {/* Success icon with animation */}
           <div 
-            className="w-20 h-20 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-5 shadow-lg shadow-emerald-200"
+            className="w-20 h-20 bg-gradient-to-br from-[#34D399] to-[#059669] rounded-full flex items-center justify-center mx-auto mb-5 shadow-lg shadow-[#A7F3D0]"
             style={{ animation: 'scaleIn 0.5s ease-out' }}
           >
             <Check size={40} className="text-white" strokeWidth={3} />
@@ -278,7 +278,7 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
                   <p className="text-xs text-gray-500">{t('clubs.payment.membership')}</p>
                   <p className="font-medium text-gray-900">{plan.name}</p>
                 </div>
-                <p className="text-lg font-bold text-emerald-600">{formatPrice(displayPrice)}</p>
+                <p className="text-lg font-bold text-[#10B981]">{formatPrice(displayPrice)}</p>
               </div>
             </div>
             
@@ -409,13 +409,13 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
                     <div className="flex items-center gap-2 justify-end">
                       <span className="text-sm text-gray-400 line-through">{formatPrice(plan.price)}</span>
                       {discountPercent && (
-                        <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-semibold rounded-md flex items-center gap-0.5">
+                        <span className="px-1.5 py-0.5 bg-[#D1FAE5] text-[#065F46] text-[10px] font-semibold rounded-md flex items-center gap-0.5">
                           <Percent size={10} />
                           -{discountPercent}%
                         </span>
                       )}
                     </div>
-                    <span className="text-2xl font-bold text-emerald-600">{formatPrice(displayPrice)}</span>
+                    <span className="text-2xl font-bold text-[#10B981]">{formatPrice(displayPrice)}</span>
                   </>
                 ) : (
                   <span className="text-2xl font-bold text-[#1E3A8A]">{formatPrice(displayPrice)}</span>
@@ -502,7 +502,7 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
 
                 {/* Security badge */}
                 <div className="flex items-center justify-center gap-2 py-3">
-                  <ShieldCheck size={16} className="text-emerald-500" />
+                  <ShieldCheck size={16} className="text-[#10B981]" />
                   <span className="text-xs text-gray-500">Данные защищены шифрованием SSL</span>
                 </div>
               </>

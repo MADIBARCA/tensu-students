@@ -123,7 +123,7 @@ export const NextSessionsSection: React.FC = () => {
     if (!name) return 'from-gray-400 to-gray-500';
     const colors = [
       'from-blue-400 to-[#1E3A8A]',
-      'from-emerald-400 to-emerald-600',
+      'from-[#34D399] to-[#059669]',
       'from-violet-400 to-violet-600',
       'from-amber-400 to-amber-600',
       'from-rose-400 to-rose-600',
@@ -222,7 +222,7 @@ export const NextSessionsSection: React.FC = () => {
           // Determine card styling based on status
           const getCardStyles = () => {
             if (session.is_booked) {
-              return 'border-l-4 border-l-emerald-500 bg-emerald-50/30';
+              return 'border-l-4 border-l-[#10B981] bg-[#ECFDF5]/30';
             }
             if (isFull) {
               return 'border-l-4 border-l-gray-300 bg-gray-50/50';
@@ -244,7 +244,7 @@ export const NextSessionsSection: React.FC = () => {
                   </div>
                 )}
                 {session.is_booked && (
-                  <span className="flex items-center gap-1 px-2.5 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full font-semibold">
+                  <span className="flex items-center gap-1 px-2.5 py-1 bg-[#D1FAE5] text-[#065F46] text-xs rounded-full font-semibold">
                     <CheckCircle size={12} />
                     {t('home.sessions.status.booked')}
                   </span>
@@ -285,7 +285,7 @@ export const NextSessionsSection: React.FC = () => {
                   <span className="text-sm font-medium text-gray-700">{dateLabel}, {timeLabel}</span>
                 </div>
                 <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gray-50 rounded-lg">
-                  <Users size={13} className={isFull ? 'text-red-500' : 'text-emerald-500'} />
+                  <Users size={13} className={isFull ? 'text-red-500' : 'text-[#10B981]'} />
                   <span className={`text-sm font-medium ${isFull ? 'text-red-600' : 'text-gray-700'}`}>
                     {session.participants_count}/{session.max_participants ?? '∞'}
                   </span>
@@ -306,7 +306,7 @@ export const NextSessionsSection: React.FC = () => {
                   <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
                     <div 
                       className={`h-full rounded-full transition-all duration-300 ${
-                        isFull ? 'bg-red-400' : participantProgress > 70 ? 'bg-amber-400' : 'bg-emerald-400'
+                        isFull ? 'bg-red-400' : participantProgress > 70 ? 'bg-amber-400' : 'bg-[#34D399]'
                       }`}
                       style={{ width: `${participantProgress}%` }}
                     />
@@ -340,7 +340,7 @@ export const NextSessionsSection: React.FC = () => {
 
               {/* Booked state info */}
               {session.is_booked && (
-                <div className="flex items-center justify-center gap-2 py-2 text-emerald-600">
+                <div className="flex items-center justify-center gap-2 py-2 text-[#10B981]">
                   <CheckCircle size={16} />
                   <span className="text-sm font-medium">{t('home.sessions.youAreBooked')}</span>
                 </div>

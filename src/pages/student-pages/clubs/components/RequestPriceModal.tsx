@@ -122,7 +122,7 @@ export const RequestPriceModal: React.FC<RequestPriceModalProps> = ({
           className="bg-white w-full max-w-sm rounded-2xl p-6 text-center"
           style={{ animation: 'scaleIn 0.3s ease-out' }}
         >
-          <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-200">
+          <div className="w-16 h-16 bg-gradient-to-br from-[#34D399] to-[#059669] rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-[#A7F3D0]">
             <CheckCircle size={32} className="text-white" />
           </div>
           <h3 className="text-lg font-bold text-gray-900 mb-2">

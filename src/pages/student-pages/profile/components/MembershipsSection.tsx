@@ -87,7 +87,7 @@ export const MembershipsSection: React.FC<MembershipsSectionProps> = ({
 
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
-      active: 'bg-green-100 text-green-800',
+      active: 'bg-[#D1FAE5] text-[#065F46]',
       frozen: 'bg-blue-100 text-blue-800',
       expired: 'bg-gray-100 text-gray-800',
       cancelled: 'bg-red-100 text-red-800',

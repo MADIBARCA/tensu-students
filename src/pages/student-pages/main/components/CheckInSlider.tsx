@@ -137,7 +137,7 @@ export const CheckInSlider: React.FC<CheckInSliderProps> = ({ onCheckIn }) => {
         >
           <div
             className={`absolute top-1 left-1 h-12 w-12 rounded-full bg-white shadow-lg flex items-center justify-center transition-transform duration-200 ease-out ${
-              isCheckedIn ? 'bg-green-500' : ''
+              isCheckedIn ? 'bg-[#10B981]' : ''
             }`}
             style={{
               transform: `translateX(${sliderPosition}px)`,

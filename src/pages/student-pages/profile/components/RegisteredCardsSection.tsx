@@ -261,7 +261,7 @@ export const RegisteredCardsSection: React.FC = () => {
               </div>
               <div className="flex items-center gap-2">
                 {card.is_active && (
-                  <span className="flex items-center gap-1 text-xs text-green-600">
+                  <span className="flex items-center gap-1 text-xs text-[#10B981]">
                     <Check size={12} />
                     {t('profile.cards.active')}
                   </span>

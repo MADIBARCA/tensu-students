@@ -17,7 +17,7 @@ export const ClubCard: React.FC<ClubCardProps> = ({ club, isMember, onClick }) =
     const gradients = [
       'from-indigo-500 via-purple-500 to-pink-400',
       'from-cyan-500 via-[#2563EB] to-indigo-500',
-      'from-emerald-500 via-teal-500 to-cyan-500',
+      'from-[#10B981] via-[#14B8A6] to-cyan-500',
       'from-orange-400 via-rose-500 to-pink-500',
       'from-violet-500 via-purple-500 to-fuchsia-500',
       'from-[#2563EB] via-indigo-500 to-violet-500',
@@ -59,8 +59,8 @@ export const ClubCard: React.FC<ClubCardProps> = ({ club, isMember, onClick }) =
         {/* Member badge */}
         {isMember && (
           <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-1 bg-white/95 backdrop-blur-sm rounded-full shadow-sm z-10">
-            <CheckCircle size={14} className="text-emerald-500" />
-            <span className="text-xs font-semibold text-emerald-600">{t('clubs.card.member')}</span>
+            <CheckCircle size={14} className="text-[#10B981]" />
+            <span className="text-xs font-semibold text-[#10B981]">{t('clubs.card.member')}</span>
           </div>
         )}
         
@@ -105,9 +105,9 @@ export const ClubCard: React.FC<ClubCardProps> = ({ club, isMember, onClick }) =
             <Layers size={13} className="text-[#2563EB]" />
             <span className="text-xs font-medium text-[#1E3A8A]">{club.sections_count}</span>
           </div>
-          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 rounded-lg">
-            <Users size={13} className="text-emerald-500" />
-            <span className="text-xs font-medium text-emerald-700">{club.students_count}</span>
+          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-[#ECFDF5] rounded-lg">
+            <Users size={13} className="text-[#10B981]" />
+            <span className="text-xs font-medium text-[#065F46]">{club.students_count}</span>
           </div>
         </div>
 

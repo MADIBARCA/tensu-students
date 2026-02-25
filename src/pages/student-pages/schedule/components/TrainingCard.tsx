@@ -60,7 +60,7 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
     if (!name) return 'from-gray-400 to-gray-500';
     const palette = [
       'from-blue-400 to-indigo-500',
-      'from-emerald-400 to-teal-500',
+      'from-[#34D399] to-[#14B8A6]',
       'from-violet-400 to-purple-500',
       'from-amber-400 to-orange-500',
       'from-rose-400 to-pink-500',
@@ -107,7 +107,7 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
 
         {/* Status */}
         {training.is_booked && (
-          <span className="shrink-0 text-[12px] font-medium text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">
+          <span className="shrink-0 text-[12px] font-medium text-[#10B981] bg-[#ECFDF5] px-2.5 py-1 rounded-full">
             ✓ {t('schedule.booked')}
           </span>
         )}
@@ -157,7 +157,7 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
         <div className="h-[3px] bg-gray-100 rounded-full overflow-hidden mb-3 mt-1">
           <div
             className={`h-full rounded-full transition-all duration-500 ${
-              isFull ? 'bg-red-300' : fillPct > 75 ? 'bg-amber-300' : 'bg-emerald-300'
+              isFull ? 'bg-red-300' : fillPct > 75 ? 'bg-amber-300' : 'bg-[#6EE7B7]'
             }`}
             style={{ width: `${fillPct}%` }}
           />

@@ -12,7 +12,7 @@ interface ParticipantsModalProps {
 
 const avatarColor = (id: number): string => {
   const c = [
-    'bg-[#2563EB]', 'bg-emerald-500', 'bg-violet-500', 'bg-pink-500',
+    'bg-[#2563EB]', 'bg-[#10B981]', 'bg-violet-500', 'bg-pink-500',
     'bg-indigo-500', 'bg-cyan-500', 'bg-orange-500', 'bg-teal-500',
   ];
   return c[id % c.length];
@@ -30,7 +30,7 @@ const clubInitials = (name: string | null): string => {
 const clubGradient = (name: string | null): string => {
   if (!name) return 'from-gray-400 to-gray-500';
   const c = [
-    'from-blue-400 to-indigo-500', 'from-emerald-400 to-teal-500',
+    'from-blue-400 to-indigo-500', 'from-[#34D399] to-[#14B8A6]',
     'from-violet-400 to-purple-500', 'from-amber-400 to-orange-500',
     'from-rose-400 to-pink-500', 'from-cyan-400 to-sky-500',
   ];
@@ -131,7 +131,7 @@ export const ParticipantsModal: React.FC<ParticipantsModalProps> = ({ training, 
                 <div
                   key={p.id}
                   className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors ${
-                    p.is_current_user ? 'bg-emerald-50/60' : 'hover:bg-gray-50'
+                    p.is_current_user ? 'bg-[#ECFDF5]/60' : 'hover:bg-gray-50'
                   }`}
                 >
                   {/* Avatar */}
@@ -152,13 +152,13 @@ export const ParticipantsModal: React.FC<ParticipantsModalProps> = ({ training, 
 
                   {/* Name */}
                   <p className={`flex-1 text-[14px] truncate ${
-                    p.is_current_user ? 'font-medium text-emerald-700' : 'text-[#111]'
+                    p.is_current_user ? 'font-medium text-[#065F46]' : 'text-[#111]'
                   }`}>
                     {p.first_name}{p.last_name && ` ${p.last_name}`}
                   </p>
 
                   {p.is_current_user && (
-                    <span className="text-[11px] font-medium text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">
+                    <span className="text-[11px] font-medium text-[#10B981] bg-[#D1FAE5] px-2 py-0.5 rounded-full">
                       {t('schedule.participants.you')}
                     </span>
                   )}
