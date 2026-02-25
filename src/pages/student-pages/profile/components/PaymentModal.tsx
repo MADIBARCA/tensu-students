@@ -94,7 +94,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ membership, onClose 
               <p className="text-sm text-gray-600">Сумма к оплате</p>
               <p className="text-2xl font-bold text-gray-900">{formattedAmount}</p>
             </div>
-            <CreditCard size={32} className="text-blue-600" />
+            <CreditCard size={32} className="text-[#1E3A8A]" />
           </div>
         </div>
 

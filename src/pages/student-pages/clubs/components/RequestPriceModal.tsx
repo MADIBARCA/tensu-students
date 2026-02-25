@@ -189,7 +189,7 @@ export const RequestPriceModal: React.FC<RequestPriceModalProps> = ({
           {/* Info banner */}
           <div className="flex items-start gap-3 p-3 bg-blue-50 border border-blue-100 rounded-xl">
             <HelpCircle size={18} className="text-blue-500 mt-0.5 flex-shrink-0" />
-            <p className="text-sm text-blue-700">
+            <p className="text-sm text-[#1E3A8A]">
               {t('clubs.priceRequest.info')}
             </p>
           </div>

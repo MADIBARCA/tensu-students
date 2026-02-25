@@ -204,7 +204,7 @@ export const RegisteredCardsSection: React.FC = () => {
       >
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center">
-            <CreditCard className="text-blue-600" size={20} />
+            <CreditCard className="text-[#1E3A8A]" size={20} />
           </div>
           <div>
             <span className="font-semibold text-gray-900">
@@ -243,7 +243,7 @@ export const RegisteredCardsSection: React.FC = () => {
               <div className="flex items-center gap-3">
                 {/* Card type icon */}
                 <div className={`w-10 h-6 rounded flex items-center justify-center text-xs font-bold
-                  ${getCardType(card.pan_masked) === 'visa' ? 'bg-blue-600 text-white' : 
+                  ${getCardType(card.pan_masked) === 'visa' ? 'bg-[#1E3A8A] text-white' : 
                     getCardType(card.pan_masked) === 'mastercard' ? 'bg-orange-500 text-white' : 
                     'bg-gray-400 text-white'}`}
                 >
@@ -289,7 +289,7 @@ export const RegisteredCardsSection: React.FC = () => {
             onClick={handleRegisterCard}
             disabled={registering}
             className="w-full flex items-center justify-center gap-2 p-3 border-2 border-dashed border-gray-200 
-                       rounded-lg text-gray-500 hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50 
+                       rounded-lg text-gray-500 hover:border-[#1E3A8A] hover:text-[#1E3A8A] hover:bg-blue-50 
                        transition-colors disabled:opacity-50"
           >
             {registering ? (

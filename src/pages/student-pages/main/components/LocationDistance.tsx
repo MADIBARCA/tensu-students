@@ -104,7 +104,7 @@ export const LocationDistance: React.FC = () => {
   return (
     <div className="mb-6 p-4 bg-blue-50 rounded-lg">
       <div className="flex items-center gap-2 text-sm text-gray-700">
-        <MapPin size={16} className="text-blue-600" />
+        <MapPin size={16} className="text-[#1E3A8A]" />
         <span>
           {clubName 
             ? t('home.location.distance').replace('{distance}', formatDistance(distance))

@@ -420,7 +420,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
             key={`${item.type}-${item.id}`} 
             className={`inline-flex items-center gap-0.5 ${paddingClass} rounded ${textClass} font-medium ${
               item.type === 'section' 
-                ? 'bg-blue-50 text-blue-600' 
+                ? 'bg-blue-50 text-[#1E3A8A]' 
                 : 'bg-violet-50 text-violet-600'
             }`}
           >
@@ -714,7 +714,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
               onClick={() => setActiveTab('info')}
               className={`flex-1 py-3 text-sm font-medium transition-colors relative ${
                 activeTab === 'info' 
-                  ? 'text-blue-600' 
+                  ? 'text-[#1E3A8A]' 
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
@@ -727,7 +727,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
               onClick={() => setActiveTab('memberships')}
               className={`flex-1 py-3 text-sm font-medium transition-colors relative ${
                 activeTab === 'memberships' 
-                  ? 'text-blue-600' 
+                  ? 'text-[#1E3A8A]' 
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
@@ -911,7 +911,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                         {/* Status badge */}
                         <div className="absolute top-0 right-0">
                           <div className={`text-white text-[10px] font-semibold px-3 py-1 rounded-bl-lg flex items-center gap-1 ${
-                            membership.status === 'frozen' ? 'bg-blue-500' : 'bg-emerald-500'
+                            membership.status === 'frozen' ? 'bg-[#1E3A8A]' : 'bg-emerald-500'
                           }`}>
                             {membership.status === 'frozen' ? (
                               <>

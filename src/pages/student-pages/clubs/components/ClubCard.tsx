@@ -88,7 +88,7 @@ export const ClubCard: React.FC<ClubCardProps> = ({ club, isMember, onClick }) =
       <div className="pt-9 pb-4 px-4">
         {/* Club Name & Address */}
         <div className="mb-3">
-          <h3 className="font-semibold text-gray-900 text-base leading-tight mb-1 group-hover:text-blue-600 transition-colors">
+          <h3 className="font-semibold text-gray-900 text-base leading-tight mb-1 group-hover:text-[#1E3A8A] transition-colors">
             {club.name}
           </h3>
           {club.address && (
@@ -103,7 +103,7 @@ export const ClubCard: React.FC<ClubCardProps> = ({ club, isMember, onClick }) =
         <div className="flex items-center gap-3 mb-3">
           <div className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 rounded-lg">
             <Layers size={13} className="text-blue-500" />
-            <span className="text-xs font-medium text-blue-700">{club.sections_count}</span>
+            <span className="text-xs font-medium text-[#1E3A8A]">{club.sections_count}</span>
           </div>
           <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 rounded-lg">
             <Users size={13} className="text-emerald-500" />
@@ -132,7 +132,7 @@ export const ClubCard: React.FC<ClubCardProps> = ({ club, isMember, onClick }) =
 
         {/* Action Row */}
         <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-          <div className="flex items-center gap-1 text-blue-600">
+          <div className="flex items-center gap-1 text-[#1E3A8A]">
             <Sparkles size={14} />
             <span className="text-xs font-medium">{t('clubs.card.viewDetails')}</span>
           </div>

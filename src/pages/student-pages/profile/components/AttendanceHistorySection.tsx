@@ -113,7 +113,7 @@ export const AttendanceHistorySection: React.FC = () => {
           <div className="grid grid-cols-2 gap-3 mb-4 pb-4 border-b border-gray-200">
             <div className="bg-blue-50 rounded-lg p-3">
               <div className="flex items-center gap-2 mb-1">
-                <TrendingUp size={16} className="text-blue-600" />
+                <TrendingUp size={16} className="text-[#1E3A8A]" />
                 <span className="text-xs text-gray-600">Посещений за месяц</span>
               </div>
               <p className="text-lg font-semibold text-gray-900">{stats.visits_this_month}</p>

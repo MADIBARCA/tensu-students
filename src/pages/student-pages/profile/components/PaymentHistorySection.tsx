@@ -82,7 +82,7 @@ export const PaymentHistorySection: React.FC = () => {
       paid: 'text-green-600',
       pending: 'text-yellow-600',
       failed: 'text-red-600',
-      refunded: 'text-blue-600',
+      refunded: 'text-[#1E3A8A]',
       cancelled: 'text-gray-600',
     };
     return colors[status] || 'text-gray-600';
@@ -118,7 +118,7 @@ export const PaymentHistorySection: React.FC = () => {
         {hasMore && (
           <button
             onClick={() => setShowAll(!showAll)}
-            className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1"
+            className="text-sm text-[#1E3A8A] hover:text-[#1E3A8A] font-medium flex items-center gap-1"
           >
             {showAll ? t('payments.collapse') : t('payments.view.all')}
             {showAll ? <ChevronDown size={16} className="rotate-180" /> : <ChevronRight size={16} />}

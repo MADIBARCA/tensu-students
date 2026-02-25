@@ -78,7 +78,7 @@ export const UserInfoSection: React.FC<UserInfoSectionProps> = ({ student, onEdi
               <Edit2 size={16} />
             </button>
           </div>
-          <span onClick={() => makeCall(displayPhone)} className="text-sm text-gray-600 hover:text-blue-600 transition-colors cursor-pointer">{formatPhone(displayPhone)}</span>
+          <span onClick={() => makeCall(displayPhone)} className="text-sm text-gray-600 hover:text-[#1E3A8A] transition-colors cursor-pointer">{formatPhone(displayPhone)}</span>
         </div>
       </div>
     </div>

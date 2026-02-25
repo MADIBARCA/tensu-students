@@ -199,7 +199,7 @@ export const NextSessionsSection: React.FC = () => {
         <h2 className="text-lg font-semibold text-gray-900">{t('home.sessions.title')}</h2>
         <button 
           onClick={() => navigate('/student/schedule')}
-          className="flex items-center gap-1 text-sm text-blue-600 font-medium hover:text-blue-700 transition-colors"
+          className="flex items-center gap-1 text-sm text-[#1E3A8A] font-medium hover:text-[#1E3A8A] transition-colors"
         >
           {t('home.sessions.viewAll')}
           <ChevronRight size={16} />
@@ -239,8 +239,8 @@ export const NextSessionsSection: React.FC = () => {
               <div className="flex items-center justify-between mb-3">
                 {session.club_name && (
                   <div className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 rounded-lg">
-                    <Building2 size={12} className="text-blue-600" />
-                    <span className="text-xs font-medium text-blue-700">{session.club_name}</span>
+                    <Building2 size={12} className="text-[#1E3A8A]" />
+                    <span className="text-xs font-medium text-[#1E3A8A]">{session.club_name}</span>
                   </div>
                 )}
                 {session.is_booked && (

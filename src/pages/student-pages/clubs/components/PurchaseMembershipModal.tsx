@@ -266,7 +266,7 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
             <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 mb-6 text-left">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
-                  <Building2 size={18} className="text-blue-600" />
+                  <Building2 size={18} className="text-[#1E3A8A]" />
                 </div>
                 <div>
                   <p className="text-xs text-gray-500">{t('clubs.payment.club')}</p>
@@ -418,7 +418,7 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
                     <span className="text-2xl font-bold text-emerald-600">{formatPrice(displayPrice)}</span>
                   </>
                 ) : (
-                  <span className="text-2xl font-bold text-blue-600">{formatPrice(displayPrice)}</span>
+                  <span className="text-2xl font-bold text-[#1E3A8A]">{formatPrice(displayPrice)}</span>
                 )}
               </div>
             </div>
@@ -453,7 +453,7 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
                       >
                         {/* Card type icon */}
                         <div className={`w-10 h-6 rounded flex items-center justify-center text-xs font-bold
-                          ${getCardType(card.pan_masked) === 'visa' ? 'bg-blue-600 text-white' : 
+                          ${getCardType(card.pan_masked) === 'visa' ? 'bg-[#1E3A8A] text-white' : 
                             getCardType(card.pan_masked) === 'mastercard' ? 'bg-orange-500 text-white' : 
                             'bg-gray-400 text-white'}`}
                         >

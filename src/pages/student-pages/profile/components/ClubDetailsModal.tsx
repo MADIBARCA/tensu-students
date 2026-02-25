@@ -91,7 +91,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ onClose }) =
               <Phone size={20} className="text-gray-400" />
               <div>
                 <p className="text-sm font-medium text-gray-900">Телефон</p>
-                <a href={`tel:${clubData.phone}`} className="text-sm text-blue-600">
+                <a href={`tel:${clubData.phone}`} className="text-sm text-[#1E3A8A]">
                   {clubData.phone}
                 </a>
               </div>
@@ -158,7 +158,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ onClose }) =
               <Card key={index} className="p-3">
                 <div className="flex items-center justify-between">
                   <p className="font-medium text-gray-900">{item.name}</p>
-                  <p className="font-semibold text-blue-600">
+                  <p className="font-semibold text-[#1E3A8A]">
                     {new Intl.NumberFormat('ru-RU', {
                       style: 'currency',
                       currency: 'KZT',

@@ -336,7 +336,7 @@ export const PaymentCallback: React.FC = () => {
                     </svg>
                   </div>
                   <div className="text-left">
-                    <p className="text-xs text-blue-600 font-medium">Карта сохранена для быстрых платежей</p>
+                    <p className="text-xs text-[#1E3A8A] font-medium">Карта сохранена для быстрых платежей</p>
                     <p className="font-mono text-gray-900">{paymentDetails.saved_card.pan_masked}</p>
                   </div>
                 </div>

@@ -23,7 +23,7 @@ export const NoMembershipBanner: React.FC = () => {
           </p>
           <button
             onClick={() => navigate('/student/clubs')}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-white text-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium text-sm"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white text-[#1E3A8A] rounded-lg hover:bg-blue-50 transition-colors font-medium text-sm"
           >
             {t('home.noMembership.findClub')}
             <ArrowRight size={16} />

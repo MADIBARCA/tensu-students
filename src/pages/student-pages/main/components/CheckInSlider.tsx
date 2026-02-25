@@ -146,7 +146,7 @@ export const CheckInSlider: React.FC<CheckInSliderProps> = ({ onCheckIn }) => {
             {isCheckedIn ? (
               <Check size={24} className="text-white" />
             ) : (
-              <ArrowRight size={20} className="text-blue-600" />
+              <ArrowRight size={20} className="text-[#1E3A8A]" />
             )}
           </div>
         </div>

@@ -225,11 +225,11 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
               <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                    <Snowflake size={20} className="text-blue-600" />
+                    <Snowflake size={20} className="text-[#1E3A8A]" />
                   </div>
                   <div>
                     <p className="font-medium text-blue-800">{t('freeze.currentlyFrozen')}</p>
-                    <p className="text-xs text-blue-600">{t('freeze.canUnfreezeAnytime')}</p>
+                    <p className="text-xs text-[#1E3A8A]">{t('freeze.canUnfreezeAnytime')}</p>
                   </div>
                 </div>
                 
@@ -245,7 +245,7 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
                   </div>
                   <div className="border-t border-blue-100 pt-2 mt-2 flex justify-between text-sm">
                     <span className="text-gray-600">{t('freeze.daysElapsed')}</span>
-                    <span className="font-semibold text-blue-700">{daysToDeduct} {t('freeze.days')}</span>
+                    <span className="font-semibold text-[#1E3A8A]">{daysToDeduct} {t('freeze.days')}</span>
                   </div>
                 </div>
               </div>
@@ -274,7 +274,7 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
                 <Calendar size={16} className="text-gray-600" />
                 <p className="text-sm font-medium text-gray-900">Доступно дней для заморозки</p>
               </div>
-              <p className="text-2xl font-bold text-blue-600">{freezeDaysAvailable}</p>
+              <p className="text-2xl font-bold text-[#1E3A8A]">{freezeDaysAvailable}</p>
               <p className="text-xs text-gray-500 mt-1">
                 Максимальный срок заморозки: 30 дней
               </p>
@@ -327,7 +327,7 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
               </div>
             )}
 
-            <div className="flex items-start gap-2 p-3 bg-blue-50 text-blue-700 rounded-lg text-sm">
+            <div className="flex items-start gap-2 p-3 bg-blue-50 text-[#1E3A8A] rounded-lg text-sm">
               <div className="mt-0.5">ℹ️</div>
               <p>Ваш тренер получит уведомление о заморозке абонемента.</p>
             </div>
