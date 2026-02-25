@@ -175,7 +175,7 @@ export interface AttendanceStatsResponse {
 
 // Payment types
 export type PaymentStatus = 'pending' | 'processing' | 'awaiting_confirmation' | 'paid' | 'failed' | 'refunded' | 'cancelled';
-export type PaymentMethod = 'card' | 'kaspi' | 'cash' | 'transfer' | 'cnp_oneclick';
+export type PaymentMethod = 'card' | 'kaspi' | 'cash' | 'transfer';
 
 export interface PaymentResponse {
   id: number;
@@ -222,51 +222,7 @@ export interface PaymentStatsResponse {
   amount_this_month: number;
 }
 
-// CNP Gateway types
-export interface SavedCardInfo {
-  cnp_user_id: number;
-  cnp_card_id: number;
-  pan_masked: string | null;
-  card_holder: string | null;
-  cnp_status: string | null;  // Status from CNP (e.g., "ACTIVE", "BLOCKED")
-  is_active: boolean;
-  is_primary: boolean;
-}
 
-export interface GatewayPaymentResponse {
-  payment_id: number;
-  amount: number;
-  currency: string;
-  status: PaymentStatus;
-  redirect_url: string | null;
-  requires_redirect: boolean;
-  external_reference: string | null;
-  saved_card: SavedCardInfo | null;  // Card saved after E-COM payment
-  
-  // Polling support fields
-  retry_after_seconds: number | null;  // How long to wait before retrying status check
-  message: string | null;  // User-friendly message about payment status
-  cnp_raw_status: string | null;  // Raw status from CNP for debugging
-}
-
-export interface CardRegistrationResponse {
-  success: boolean;
-  redirect_url: string | null;
-  cnp_user_id: number | null;
-  error_message: string | null;
-}
-
-export interface RegisteredCard {
-  card_id: number;
-  pan_masked: string | null;
-  card_holder: string | null;
-  status: string;
-  is_active: boolean;
-}
-
-export interface RegisteredCardsResponse {
-  cards: RegisteredCard[];
-}
 
 // Schedule/Session types
 export type SessionStatus = 'scheduled' | 'booked' | 'full' | 'cancelled';

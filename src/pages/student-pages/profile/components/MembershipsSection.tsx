@@ -3,7 +3,7 @@ import { SectionHeader } from '@/components/Layout';
 import { useI18n } from '@/i18n/i18n';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui';
-import { Calendar, MapPin, Users, CreditCard, Snowflake, ChevronRight, AlertTriangle } from 'lucide-react';
+import { Calendar, MapPin, Users, Snowflake, ChevronRight, AlertTriangle } from 'lucide-react';
 import { membershipsApi } from '@/functions/axios/axiosFunctions';
 import type { MembershipResponse, MembershipStatus } from '@/functions/axios/responses';
 
@@ -23,13 +23,11 @@ interface Membership {
 }
 
 interface MembershipsSectionProps {
-  onPayment: (membership: Membership) => void;
   onFreeze: (membership: Membership) => void;
   onClubClick: (clubId: number) => void;
 }
 
 export const MembershipsSection: React.FC<MembershipsSectionProps> = ({
-  onPayment,
   onFreeze,
   onClubClick,
 }) => {
@@ -181,17 +179,6 @@ export const MembershipsSection: React.FC<MembershipsSectionProps> = ({
             <div className="flex gap-2">
               {(membership.status === 'active' || membership.status === 'new') && !membership.is_tariff_deleted && (
                 <>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onPayment(membership);
-                    }}
-                    className="btn-primary flex-1 px-3 py-2 text-white text-sm rounded-lg hover:opacity-90 transition-colors flex items-center justify-center gap-1"
-                  
-                  >
-                    <CreditCard size={16} />
-                    {t('membership.pay')}
-                  </button>
                   {membership.freeze_days_available && membership.freeze_days_available > 0 ? (
                     <button
                       onClick={(e) => {

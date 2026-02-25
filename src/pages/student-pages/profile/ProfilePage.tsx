@@ -9,10 +9,10 @@ import { MembershipsSection } from './components/MembershipsSection';
 import { MembershipHistorySection } from './components/MembershipHistorySection';
 import { AttendanceHistorySection } from './components/AttendanceHistorySection';
 import { PaymentHistorySection } from './components/PaymentHistorySection';
-import { RegisteredCardsSection } from './components/RegisteredCardsSection';
+
 import { SettingsSection } from './components/SettingsSection';
 import { EditProfileModal } from './components/EditProfileModal';
-import { PaymentModal } from './components/PaymentModal';
+
 import { FreezeMembershipModal } from './components/FreezeMembershipModal';
 import type { StudentResponse, MembershipStatus } from '@/functions/axios/responses';
 
@@ -33,7 +33,7 @@ export default function ProfilePage() {
   const [studentData, setStudentData] = useState<StudentResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
+
   const [showFreezeModal, setShowFreezeModal] = useState(false);
   const [selectedMembership, setSelectedMembership] = useState<SelectedMembership | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -101,10 +101,7 @@ export default function ProfilePage() {
     tg?.showAlert(t('profile.saved'));
   };
 
-  const handlePayment = (membership: SelectedMembership) => {
-    setSelectedMembership(membership);
-    setShowPaymentModal(true);
-  };
+
 
   const handleFreeze = (membership: SelectedMembership) => {
     setSelectedMembership(membership);
@@ -146,7 +143,6 @@ export default function ProfilePage() {
         {/* My Memberships Section */}
         <MembershipsSection
           key={`memberships-${refreshKey}`}
-          onPayment={handlePayment}
           onFreeze={handleFreeze}
           onClubClick={handleClubClick}
         />
@@ -160,8 +156,6 @@ export default function ProfilePage() {
         {/* Payment History Section */}
         <PaymentHistorySection />
 
-        {/* Registered Cards Section */}
-        <RegisteredCardsSection />
 
         {/* Settings Section */}
         <SettingsSection />
@@ -175,15 +169,6 @@ export default function ProfilePage() {
           />
         )}
 
-        {showPaymentModal && selectedMembership && (
-          <PaymentModal
-            membership={selectedMembership}
-            onClose={() => {
-              setShowPaymentModal(false);
-              setSelectedMembership(null);
-            }}
-          />
-        )}
 
         {showFreezeModal && selectedMembership && (
           <FreezeMembershipModal

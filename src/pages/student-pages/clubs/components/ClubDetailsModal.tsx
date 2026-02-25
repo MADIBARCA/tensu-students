@@ -25,7 +25,7 @@ import {
   Percent
 } from 'lucide-react';
 import { TelegramIcon, InstagramIcon, WhatsAppIcon } from '@/components/SocialIcons';
-import { PurchaseMembershipModal } from './PurchaseMembershipModal';
+
 import { FreezeMembershipModal } from '../../profile/components/FreezeMembershipModal';
 import { RequestPriceModal } from './RequestPriceModal';
 import { clubsApi, membershipsApi, priceRequestsApi } from '@/functions/axios/axiosFunctions';
@@ -102,7 +102,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
   const [membershipPlans, setMembershipPlans] = useState<MembershipPlan[]>([]);
   const [coaches, setCoaches] = useState<Coach[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<MembershipPlan | null>(null);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
+
   const [showFreezeModal, setShowFreezeModal] = useState(false);
   const [showRequestPriceModal, setShowRequestPriceModal] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -114,7 +114,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
   // Scheduled memberships (purchased but starting later)
   const [scheduledMemberships, setScheduledMemberships] = useState<ActiveMembershipInfo[]>([]);
   // Track purchased plans during this session (fallback for immediate UI update)
-  const [purchasedPlanIds, setPurchasedPlanIds] = useState<Set<number>>(new Set());
+  const [purchasedPlanIds] = useState<Set<number>>(new Set());
   // Individual prices for this student
   const [individualPrices, setIndividualPrices] = useState<Map<number, IndividualPriceResponse>>(new Map());
   // Pending price requests
@@ -264,9 +264,11 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
     }
   };
 
-  const handlePurchase = (plan: MembershipPlan) => {
-    setSelectedPlan(plan);
-    setShowPaymentModal(true);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handlePurchase = (_plan: MembershipPlan) => {
+    // Payment via CNP removed - will be replaced with Kaspi/cash in future
+    const tg = window.Telegram?.WebApp;
+    tg?.showAlert?.('Оплата временно недоступна. Свяжитесь с клубом для оплаты.');
   };
 
   const handleRequestPrice = (plan: MembershipPlan) => {
@@ -296,16 +298,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
     }
   };
 
-  const handlePurchaseSuccess = () => {
-    if (selectedPlan) {
-      // Track this plan as purchased
-      setPurchasedPlanIds(prev => new Set([...prev, selectedPlan.id]));
-    }
-    setShowPaymentModal(false);
-    setSelectedPlan(null);
-    // Reload membership data
-    handleFreezeSuccess();
-  };
+
 
   // Get effective price for a plan (considering individual price)
   const getEffectivePrice = (plan: MembershipPlan): { price: number; isDiscounted: boolean; discount: number } => {
@@ -1518,23 +1511,6 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
         </div>
       </div>
 
-      {/* Payment Modal */}
-      {showPaymentModal && selectedPlan && (() => {
-        const priceInfo = getEffectivePrice(selectedPlan);
-        return (
-          <PurchaseMembershipModal
-            club={club}
-            plan={selectedPlan}
-            effectivePrice={priceInfo.isDiscounted ? priceInfo.price : undefined}
-            discountPercent={priceInfo.isDiscounted ? priceInfo.discount : undefined}
-            onClose={() => {
-              setShowPaymentModal(false);
-              setSelectedPlan(null);
-            }}
-            onSuccess={handlePurchaseSuccess}
-          />
-        );
-      })()}
 
       {/* Freeze Modal */}
       {showFreezeModal && activeMembershipForClub && (

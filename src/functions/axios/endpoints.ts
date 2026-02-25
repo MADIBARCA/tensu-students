@@ -33,18 +33,7 @@ export const ENDPOINTS = {
     INITIATE: '/students/payments/initiate',
     COMPLETE: '/students/payments/complete',
     STATS: '/students/payments/stats',
-    // CNP Gateway endpoints
-    GATEWAY_INITIATE: '/students/payments/gateway/initiate',
-    GATEWAY_ONECLICK: '/students/payments/gateway/oneclick',
-    GATEWAY_STATUS: (paymentId: number) => `/students/payments/gateway/status/${paymentId}`,
-    GATEWAY_VERIFY: '/students/payments/gateway/verify',
-    GATEWAY_COMPLETE: '/students/payments/gateway/complete',
-    GATEWAY_CALLBACK: '/students/payments/gateway/callback',
-    // Card registration
-    CARDS: '/students/payments/cards',
-    CARDS_REGISTER: '/students/payments/cards/register',
-    CARDS_SYNC: '/students/payments/cards/sync',
-    CARDS_DELETE: (cardId: number) => `/students/payments/cards/${cardId}`,
+
   },
 
   SCHEDULE: {

@@ -15,7 +15,7 @@ import StudentMainPage from "./pages/student-pages/main/StudentMainPage";
 import SchedulePage from "./pages/student-pages/schedule/SchedulePage";
 import ProfilePage from "./pages/student-pages/profile/ProfilePage";
 import ClubsPage from "./pages/student-pages/clubs/ClubsPage";
-import PaymentCallback from "./pages/student-pages/payment/PaymentCallback";
+
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 /**
@@ -37,13 +37,11 @@ const PAGE_ROUTES: Record<string, string> = {
  * This runs before React renders to ensure we navigate to the correct page.
  * 
  * Supported formats:
- * - payment_123 → /payment/callback?payment_id=123
  * - profile → /student/profile
  * - clubs → /student/clubs
  * - etc.
  */
 function getTelegramStartParam(): 
-  | { type: 'payment'; paymentId: string } 
   | { type: 'page'; path: string }
   | null 
 {
@@ -52,14 +50,6 @@ function getTelegramStartParam():
 
   if (startParam) {
     console.log('Telegram startapp param:', startParam);
-    
-    // Handle payment callback: payment_ID or payment_ID_userId_cardId
-    if (startParam.startsWith('payment_')) {
-      const paymentId = startParam.replace('payment_', '').split('_')[0];
-      // Store payment ID for callback handling
-      sessionStorage.setItem('pending_payment_id', paymentId);
-      return { type: 'payment', paymentId };
-    }
     
     // Handle page navigation: check if startParam matches a known page
     const path = PAGE_ROUTES[startParam];
@@ -81,25 +71,10 @@ function TelegramStartAppHandler() {
     if (handled) return;
 
     const tg = window.Telegram?.WebApp;
-    // startParam is a direct property of WebApp, not in initDataUnsafe
     const startParam = tg?.startParam;
 
     if (startParam) {
       console.log('TelegramStartAppHandler: startapp param:', startParam);
-      
-      // Handle payment callback: payment_ID or payment_ID_userId_cardId
-      if (startParam.startsWith('payment_')) {
-        const paymentId = startParam.replace('payment_', '').split('_')[0];
-        
-        // Only navigate if we're not already on the payment callback page
-        if (!location.pathname.includes('/payment/callback')) {
-          console.log('Navigating to payment callback for payment:', paymentId);
-          sessionStorage.setItem('pending_payment_id', paymentId);
-          navigate(`/payment/callback?payment_id=${paymentId}`, { replace: true });
-        }
-        setHandled(true);
-        return;
-      }
       
       // Handle page navigation
       const path = PAGE_ROUTES[startParam];
@@ -119,11 +94,6 @@ function DefaultRoute() {
   // Check if we have a Telegram startapp parameter that should override the default route
   const startParam = getTelegramStartParam();
   
-  if (startParam?.type === 'payment') {
-    // Redirect to payment callback instead of onboarding
-    return <Navigate to={`/payment/callback?payment_id=${startParam.paymentId}`} replace />;
-  }
-  
   if (startParam?.type === 'page') {
     // Redirect to the specified page
     return <Navigate to={startParam.path} replace />;
@@ -137,10 +107,9 @@ function AppRoutes() {
   const location = useLocation();
   const isOnboarding = location.pathname === "/onboarding";
   const isPrivacy = location.pathname === "/privacy";
-  const isPaymentCallback = location.pathname === "/payment/callback";
 
   return (
-    <div className={isOnboarding || isPrivacy || isPaymentCallback ? "" : "pt-20"}>
+    <div className={isOnboarding || isPrivacy ? "" : "pt-20"}>
       <Routes>
         <Route path="/onboarding" element={<OnboardingPage />} />
         <Route path="/student/main" element={<StudentMainPage />} />
@@ -148,7 +117,7 @@ function AppRoutes() {
         <Route path="/student/groups" element={<ClubsPage />} />
         <Route path="/student/profile" element={<ProfilePage />} />
         <Route path="/student/clubs" element={<ClubsPage />} />
-        <Route path="/payment/callback" element={<PaymentCallback />} />
+
         <Route path="/privacy" element={<PrivacyPolicy />} />
         {/* Default route - checks for Telegram startapp before going to onboarding */}
         <Route path="*" element={<DefaultRoute />} />
