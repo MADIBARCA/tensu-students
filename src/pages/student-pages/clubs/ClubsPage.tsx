@@ -145,7 +145,7 @@ export default function ClubsPage() {
             </button>
 
             {showFilterDropdown && (
-              <div className="absolute right-0 top-full mt-1 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+              <div className="absolute right-0 top-full mt-1 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-30">
                 <button
                   onClick={() => {
                     setFilterType('all');
