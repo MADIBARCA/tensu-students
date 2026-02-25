@@ -172,7 +172,7 @@ export const NextSessionsSection: React.FC = () => {
       <div className="mb-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-3">{t('home.sessions.title')}</h2>
         <div className="flex items-center justify-center py-8">
-          <div className="w-6 h-6 border-2 border-#2563EB border-t-transparent rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-[#2563EB] border-t-transparent rounded-full animate-spin" />
         </div>
       </div>
     );
@@ -281,7 +281,7 @@ export const NextSessionsSection: React.FC = () => {
               {/* Info: Date/Time and Participants */}
               <div className="flex items-center gap-2 mb-3">
                 <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gray-50 rounded-lg">
-                  <Clock size={13} className="text-#2563EB" />
+                  <Clock size={13} className="text-[#2563EB]" />
                   <span className="text-sm font-medium text-gray-700">{dateLabel}, {timeLabel}</span>
                 </div>
                 <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gray-50 rounded-lg">
@@ -322,7 +322,7 @@ export const NextSessionsSection: React.FC = () => {
               {/* Notes */}
               {session.notes && (
                 <div className="flex items-start gap-2 p-3 bg-blue-50/50 border border-blue-100 rounded-lg mb-3">
-                  <FileText size={14} className="text-#2563EB mt-0.5 shrink-0" />
+                  <FileText size={14} className="text-[#2563EB] mt-0.5 shrink-0" />
                   <p className="text-sm text-blue-800">{session.notes}</p>
                 </div>
               )}

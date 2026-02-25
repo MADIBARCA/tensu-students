@@ -246,7 +246,7 @@ export const PaymentCallback: React.FC = () => {
         <div className="bg-white w-full max-w-md rounded-2xl p-8 text-center shadow-lg">
           <div className="relative mx-auto mb-6 w-20 h-20">
             <div className="w-20 h-20 border-4 border-blue-100 rounded-full" />
-            <div className="absolute inset-0 w-20 h-20 border-4 border-#2563EB border-t-transparent rounded-full animate-spin" />
+            <div className="absolute inset-0 w-20 h-20 border-4 border-[#2563EB] border-t-transparent rounded-full animate-spin" />
           </div>
           <h2 className="text-xl font-bold text-gray-900 mb-2">
             {t('clubs.payment.processing') || 'Processing payment...'}
