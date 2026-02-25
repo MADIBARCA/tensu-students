@@ -440,7 +440,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
   // Generate a consistent color based on name
   const getAvatarColor = (coach: Coach) => {
     const colors = [
-      'bg-linear-to-br from-blue-400 to-#1E3A8A',
+      'bg-linear-to-br from-blue-400 to-[#1E3A8A]',
       'bg-linear-to-br from-emerald-400 to-emerald-600',
       'bg-linear-to-br from-violet-400 to-violet-600',
       'bg-linear-to-br from-amber-400 to-amber-600',
@@ -639,7 +639,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-[#2563EB] via-#1E3A8A to-indigo-700">
+              <div className="w-full h-full bg-gradient-to-br from-[#2563EB] via-[#1E3A8A] to-indigo-700">
                 {/* Decorative pattern overlay */}
                 <div className="absolute inset-0 opacity-20">
                   <div className="absolute top-4 right-8 w-20 h-20 border border-white/40 rounded-full" />

@@ -284,7 +284,7 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
             
             <button
               onClick={() => navigate('/student/profile')}
-              className="w-full px-4 py-3.5 bg-gradient-to-r from-[#1E3A8A] to-[#2563EB] text-white rounded-xl hover:from-#1E3A8A hover:to-blue-700 transition-all font-semibold shadow-lg shadow-blue-200"
+              className="w-full px-4 py-3.5 bg-gradient-to-r from-[#1E3A8A] to-[#2563EB] text-white rounded-xl hover:from-[#1E3A8A] hover:to-blue-700 transition-all font-semibold shadow-lg shadow-blue-200"
             >
               {t('clubs.payment.success.button')}
             </button>
@@ -521,7 +521,7 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
             <button
               onClick={selectedCardId ? handleOneClickPayment : handleNewCardPayment}
               disabled={paymentStatus === 'processing' || loadingCards}
-              className="flex-1 px-4 py-3.5 bg-gradient-to-r from-[#1E3A8A] to-[#2563EB] text-white rounded-xl hover:from-#1E3A8A hover:to-blue-700 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-200 disabled:shadow-none flex items-center justify-center gap-2"
+              className="flex-1 px-4 py-3.5 bg-gradient-to-r from-[#1E3A8A] to-[#2563EB] text-white rounded-xl hover:from-[#1E3A8A] hover:to-blue-700 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-200 disabled:shadow-none flex items-center justify-center gap-2"
             >
               {paymentStatus === 'processing' ? (
                 <Loader2 size={18} className="animate-spin" />

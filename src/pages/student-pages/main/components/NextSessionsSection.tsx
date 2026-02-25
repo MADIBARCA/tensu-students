@@ -122,7 +122,7 @@ export const NextSessionsSection: React.FC = () => {
   const getCoachColor = (name: string | null): string => {
     if (!name) return 'from-gray-400 to-gray-500';
     const colors = [
-      'from-blue-400 to-#1E3A8A',
+      'from-blue-400 to-[#1E3A8A]',
       'from-emerald-400 to-emerald-600',
       'from-violet-400 to-violet-600',
       'from-amber-400 to-amber-600',

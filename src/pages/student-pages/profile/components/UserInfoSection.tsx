@@ -48,7 +48,7 @@ export const UserInfoSection: React.FC<UserInfoSectionProps> = ({ student, onEdi
               {photoUrl ? (
                 <img src={photoUrl} alt={displayName} className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-blue-400 to-#1E3A8A flex items-center justify-center text-white text-2xl font-semibold">
+                <div className="w-full h-full bg-gradient-to-br from-blue-400 to-[#1E3A8A] flex items-center justify-center text-white text-2xl font-semibold">
                   {displayName.charAt(0).toUpperCase()}
                 </div>
               )}

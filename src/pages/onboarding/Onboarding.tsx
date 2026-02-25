@@ -142,7 +142,7 @@ export default function OnboardingPage() {
   // Loading/Checking state
   if (state === 'checking' || user === null) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-#1E3A8A via-blue-700 to-indigo-800">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1E3A8A] via-blue-700 to-indigo-800">
         <div className="text-center">
           <Loader2 className="w-12 h-12 text-white animate-spin mx-auto mb-4" />
           <p className="text-white/90 text-lg font-medium animate-pulse">
@@ -193,7 +193,7 @@ export default function OnboardingPage() {
               setPhone(null);
               setState('welcome');
             }}
-            className="w-full py-3 px-6 bg-gradient-to-r from-[#1E3A8A] to-[#2563EB] text-white font-semibold rounded-xl hover:from-#1E3A8A hover:to-blue-700 transition-all shadow-lg hover:shadow-xl"
+            className="w-full py-3 px-6 bg-gradient-to-r from-[#1E3A8A] to-[#2563EB] text-white font-semibold rounded-xl hover:from-[#1E3A8A] hover:to-blue-700 transition-all shadow-lg hover:shadow-xl"
           >
             {t('onboarding.error.retry')}
           </button>
@@ -205,7 +205,7 @@ export default function OnboardingPage() {
   // Creating state
   if (state === 'creating' || state === 'requesting') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-#1E3A8A via-blue-700 to-indigo-800">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1E3A8A] via-blue-700 to-indigo-800">
         <div className="text-center px-8">
           <div className="relative">
             <div className="w-20 h-20 border-4 border-white/30 rounded-full mx-auto" />
@@ -223,7 +223,7 @@ export default function OnboardingPage() {
   return (
     <div className="min-h-screen relative flex flex-col items-center justify-center overflow-hidden">
       {/* Animated gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-#1E3A8A via-blue-700 to-indigo-800">
+      <div className="absolute inset-0 bg-gradient-to-br from-[#1E3A8A] via-blue-700 to-indigo-800">
         {/* Decorative circles */}
         <div className="absolute top-[-20%] right-[-10%] w-[60vw] h-[60vw] bg-[#2563EB]/30 rounded-full blur-3xl" />
         <div className="absolute bottom-[-20%] left-[-10%] w-[50vw] h-[50vw] bg-indigo-500/30 rounded-full blur-3xl" />
@@ -312,7 +312,7 @@ export default function OnboardingPage() {
             {!phone ? (
               <button
                 onClick={requestPhoneContact}
-                className="w-full py-4 px-6 bg-gradient-to-r from-[#1E3A8A] to-[#2563EB] hover:from-#1E3A8A hover:to-blue-700 text-white font-semibold rounded-2xl transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-3 group"
+                className="w-full py-4 px-6 bg-gradient-to-r from-[#1E3A8A] to-[#2563EB] hover:from-[#1E3A8A] hover:to-blue-700 text-white font-semibold rounded-2xl transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-3 group"
               >
                 <Phone className="w-5 h-5" />
                 <span>{t('onboarding.sharePhone')}</span>
