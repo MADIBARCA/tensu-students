@@ -278,7 +278,7 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
                   <p className="text-xs text-gray-500">{t('clubs.payment.membership')}</p>
                   <p className="font-medium text-gray-900">{plan.name}</p>
                 </div>
-                <p className="text-lg font-bold text-[#10B981]">{formatPrice(displayPrice)}</p>
+                <p className="text-lg font-bold text-[#059669]">{formatPrice(displayPrice)}</p>
               </div>
             </div>
             
@@ -415,7 +415,7 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
                         </span>
                       )}
                     </div>
-                    <span className="text-2xl font-bold text-[#10B981]">{formatPrice(displayPrice)}</span>
+                    <span className="text-2xl font-bold text-[#059669]">{formatPrice(displayPrice)}</span>
                   </>
                 ) : (
                   <span className="text-2xl font-bold text-[#1E3A8A]">{formatPrice(displayPrice)}</span>
@@ -502,7 +502,7 @@ export const PurchaseMembershipModal: React.FC<PurchaseMembershipModalProps> = (
 
                 {/* Security badge */}
                 <div className="flex items-center justify-center gap-2 py-3">
-                  <ShieldCheck size={16} className="text-[#10B981]" />
+                  <ShieldCheck size={16} className="text-[#059669]" />
                   <span className="text-xs text-gray-500">Данные защищены шифрованием SSL</span>
                 </div>
               </>

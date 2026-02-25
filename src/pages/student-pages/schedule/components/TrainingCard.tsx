@@ -107,7 +107,7 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
 
         {/* Status */}
         {training.is_booked && (
-          <span className="shrink-0 text-[12px] font-medium text-[#10B981] bg-[#ECFDF5] px-2.5 py-1 rounded-full">
+          <span className="shrink-0 text-[12px] font-medium text-[#059669] bg-[#ECFDF5] px-2.5 py-1 rounded-full">
             ✓ {t('schedule.booked')}
           </span>
         )}

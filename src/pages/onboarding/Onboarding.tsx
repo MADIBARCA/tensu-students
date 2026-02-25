@@ -279,7 +279,7 @@ export default function OnboardingPage() {
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-[#D1FAE5] rounded-xl flex items-center justify-center">
-                  <Dumbbell className="w-5 h-5 text-[#10B981]" />
+                  <Dumbbell className="w-5 h-5 text-[#059669]" />
                 </div>
                 <span className="text-sm text-gray-700">{t('onboarding.features.training')}</span>
               </div>
@@ -297,10 +297,10 @@ export default function OnboardingPage() {
             <div className="px-8 py-4 bg-[#ECFDF5] border-y border-[#A7F3D0]">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-[#D1FAE5] rounded-full flex items-center justify-center">
-                  <CheckCircle className="w-5 h-5 text-[#10B981]" />
+                  <CheckCircle className="w-5 h-5 text-[#059669]" />
                 </div>
                 <div>
-                  <p className="text-xs text-[#10B981] font-medium">Номер подтверждён</p>
+                  <p className="text-xs text-[#059669] font-medium">Номер подтверждён</p>
                   <p className="text-sm font-semibold text-gray-900">{phone}</p>
                 </div>
               </div>

@@ -79,7 +79,7 @@ export const PaymentHistorySection: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
-      paid: 'text-[#10B981]',
+      paid: 'text-[#059669]',
       pending: 'text-yellow-600',
       failed: 'text-red-600',
       refunded: 'text-[#1E3A8A]',

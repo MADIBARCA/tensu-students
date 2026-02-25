@@ -285,7 +285,7 @@ export const NextSessionsSection: React.FC = () => {
                   <span className="text-sm font-medium text-gray-700">{dateLabel}, {timeLabel}</span>
                 </div>
                 <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gray-50 rounded-lg">
-                  <Users size={13} className={isFull ? 'text-red-500' : 'text-[#10B981]'} />
+                  <Users size={13} className={isFull ? 'text-red-500' : 'text-[#059669]'} />
                   <span className={`text-sm font-medium ${isFull ? 'text-red-600' : 'text-gray-700'}`}>
                     {session.participants_count}/{session.max_participants ?? '∞'}
                   </span>
@@ -340,7 +340,7 @@ export const NextSessionsSection: React.FC = () => {
 
               {/* Booked state info */}
               {session.is_booked && (
-                <div className="flex items-center justify-center gap-2 py-2 text-[#10B981]">
+                <div className="flex items-center justify-center gap-2 py-2 text-[#059669]">
                   <CheckCircle size={16} />
                   <span className="text-sm font-medium">{t('home.sessions.youAreBooked')}</span>
                 </div>

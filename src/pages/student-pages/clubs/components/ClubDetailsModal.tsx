@@ -695,7 +695,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
               <span className="text-xs font-medium text-[#1E3A8A]">{sections.length || club.sections_count} {t('clubs.card.sections')}</span>
             </div>
             <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#ECFDF5] rounded-full">
-              <Users size={14} className="text-[#10B981]" />
+              <Users size={14} className="text-[#059669]" />
               <span className="text-xs font-medium text-[#065F46]">{t('clubs.details.studentsCount', { count: club.students_count })}</span>
             </div>
             {coaches.length > 0 && (
@@ -774,7 +774,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                     className="w-full flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors text-left"
                   >
                     <div className="w-10 h-10 bg-[#D1FAE5] rounded-xl flex items-center justify-center">
-                      <Phone size={18} className="text-[#10B981]" />
+                      <Phone size={18} className="text-[#059669]" />
                     </div>
                     <div className="flex-1">
                       <p className="text-xs text-gray-500">{t('clubs.details.phone')}</p>
@@ -893,7 +893,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
               {allActiveMembershipsForClub.length > 0 && (
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <BadgeCheck size={18} className="text-[#10B981]" />
+                    <BadgeCheck size={18} className="text-[#059669]" />
                     <h3 className="font-semibold text-gray-900">
                       {allActiveMembershipsForClub.length === 1 
                         ? t('clubs.membership.yourActive')
@@ -934,7 +934,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                             <div className="flex items-center gap-2 mt-0.5">
                               <span className="text-xs text-gray-500">{getPlanDuration(plan)}</span>
                               <span className="text-xs text-gray-300">•</span>
-                              <span className="text-xs text-[#10B981] font-medium">{getPackageTypeLabel(membership.packageType)}</span>
+                              <span className="text-xs text-[#059669] font-medium">{getPackageTypeLabel(membership.packageType)}</span>
                             </div>
                           </div>
                         </div>
@@ -943,14 +943,14 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                         <div className="bg-white/60 rounded-xl p-3 mb-4 border border-[#A7F3D0]">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                              <Calendar size={16} className="text-[#10B981]" />
+                              <Calendar size={16} className="text-[#059669]" />
                               <span className="text-sm text-gray-600">{t('clubs.membership.expiresOn')}</span>
                             </div>
                             <span className="font-semibold text-gray-900">{formatDate(membership.endDate)}</span>
                           </div>
                           <div className="mt-2 flex items-center justify-between">
                             <span className="text-xs text-gray-500">{t('clubs.membership.daysRemaining')}</span>
-                            <span className={`text-sm font-semibold ${getDaysRemaining(membership.endDate) <= 7 ? 'text-amber-600' : 'text-[#10B981]'}`}>
+                            <span className={`text-sm font-semibold ${getDaysRemaining(membership.endDate) <= 7 ? 'text-amber-600' : 'text-[#059669]'}`}>
                               {getDaysRemaining(membership.endDate)} {t('clubs.membership.days')}
                             </span>
                           </div>
@@ -990,7 +990,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                             <div className="space-y-1.5">
                               {membership.features.slice(0, 3).map((feature, idx) => (
                                 <div key={idx} className="flex items-center gap-2">
-                                  <CheckCircle2 size={14} className="text-[#10B981] shrink-0" />
+                                  <CheckCircle2 size={14} className="text-[#059669] shrink-0" />
                                   <span className="text-sm text-gray-700">{feature}</span>
                                 </div>
                               ))}
@@ -1138,7 +1138,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                               return ep.isDiscounted ? (
                                 <>
                                   <span className="text-sm text-gray-400 line-through">{formatPrice(plan.price)}</span>
-                                  <p className="text-xl font-bold text-[#10B981]">{formatPrice(ep.price)}</p>
+                                  <p className="text-xl font-bold text-[#059669]">{formatPrice(ep.price)}</p>
                                 </>
                               ) : (
                                 <p className="text-xl font-bold text-violet-600">{formatPrice(plan.price)}</p>
@@ -1224,7 +1224,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                           return ep.isDiscounted ? (
                             <>
                               <span className="text-sm text-gray-400 line-through">{formatPrice(plan.price)}</span>
-                              <p className="text-lg font-bold text-[#10B981]">{formatPrice(ep.price)}</p>
+                              <p className="text-lg font-bold text-[#059669]">{formatPrice(ep.price)}</p>
                             </>
                           ) : (
                             <p className="text-lg font-bold text-gray-700">{formatPrice(plan.price)}</p>
@@ -1417,8 +1417,8 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                                           -{effectivePrice.discount}%
                                         </span>
                                       </div>
-                                      <p className="text-2xl font-bold text-[#10B981]">{formatPrice(effectivePrice.price)}</p>
-                                      <p className="text-[10px] text-[#10B981] font-medium">{t('clubs.priceRequest.yourPrice')}</p>
+                                      <p className="text-2xl font-bold text-[#059669]">{formatPrice(effectivePrice.price)}</p>
+                                      <p className="text-[10px] text-[#059669] font-medium">{t('clubs.priceRequest.yourPrice')}</p>
                                     </>
                                   ) : (
                                     <>
@@ -1454,7 +1454,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                                   <div className="space-y-2">
                                     {plan.features.slice(0, 4).map((feature, idx) => (
                                       <div key={idx} className="flex items-center gap-2">
-                                        <CheckCircle2 size={14} className="text-[#10B981] shrink-0" />
+                                        <CheckCircle2 size={14} className="text-[#059669] shrink-0" />
                                         <span className="text-sm text-gray-700">{feature}</span>
                                       </div>
                                     ))}

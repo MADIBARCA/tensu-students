@@ -158,7 +158,7 @@ export const ParticipantsModal: React.FC<ParticipantsModalProps> = ({ training, 
                   </p>
 
                   {p.is_current_user && (
-                    <span className="text-[11px] font-medium text-[#10B981] bg-[#D1FAE5] px-2 py-0.5 rounded-full">
+                    <span className="text-[11px] font-medium text-[#059669] bg-[#D1FAE5] px-2 py-0.5 rounded-full">
                       {t('schedule.participants.you')}
                     </span>
                   )}

@@ -59,8 +59,8 @@ export const ClubCard: React.FC<ClubCardProps> = ({ club, isMember, onClick }) =
         {/* Member badge */}
         {isMember && (
           <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-1 bg-white/95 backdrop-blur-sm rounded-full shadow-sm z-10">
-            <CheckCircle size={14} className="text-[#10B981]" />
-            <span className="text-xs font-semibold text-[#10B981]">{t('clubs.card.member')}</span>
+            <CheckCircle size={14} className="text-[#059669]" />
+            <span className="text-xs font-semibold text-[#059669]">{t('clubs.card.member')}</span>
           </div>
         )}
         
@@ -106,7 +106,7 @@ export const ClubCard: React.FC<ClubCardProps> = ({ club, isMember, onClick }) =
             <span className="text-xs font-medium text-[#1E3A8A]">{club.sections_count}</span>
           </div>
           <div className="flex items-center gap-1.5 px-2.5 py-1 bg-[#ECFDF5] rounded-lg">
-            <Users size={13} className="text-[#10B981]" />
+            <Users size={13} className="text-[#059669]" />
             <span className="text-xs font-medium text-[#065F46]">{club.students_count}</span>
           </div>
         </div>

@@ -318,7 +318,7 @@ export const PaymentCallback: React.FC = () => {
                     <p className="font-medium text-gray-900">#{paymentDetails.payment_id}</p>
                   </div>
                   {paymentDetails.amount && (
-                    <p className="text-lg font-bold text-[#10B981]">
+                    <p className="text-lg font-bold text-[#059669]">
                       {formatPrice(paymentDetails.amount, paymentDetails.currency)}
                     </p>
                   )}
