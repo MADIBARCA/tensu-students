@@ -90,7 +90,7 @@ export const MembershipsSection: React.FC<MembershipsSectionProps> = ({
       active: 'bg-[#D1FAE5] text-[#065F46]',
       frozen: 'bg-blue-100 text-blue-800',
       expired: 'bg-gray-100 text-gray-800',
-      cancelled: 'bg-red-100 text-red-800',
+      cancelled: 'bg-[#FEE2E2] text-red-800',
       new: 'bg-yellow-100 text-yellow-800',
     };
     return colors[status] || 'bg-gray-100 text-gray-800';

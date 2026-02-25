@@ -160,7 +160,7 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm">
+          <div className="mb-4 p-3 bg-red-50 text-[#7F1D1D] rounded-lg text-sm">
             {error}
           </div>
         )}

@@ -120,7 +120,7 @@ export const AttendanceHistorySection: React.FC = () => {
             </div>
             <div className="bg-red-50 rounded-lg p-3">
               <div className="flex items-center gap-2 mb-1">
-                <BarChart3 size={16} className="text-red-600" />
+                <BarChart3 size={16} className="text-[#DC2626]" />
                 <span className="text-xs text-gray-600">Пропусков за месяц</span>
               </div>
               <p className="text-lg font-semibold text-gray-900">{stats.missed_this_month}</p>

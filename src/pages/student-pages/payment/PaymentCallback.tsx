@@ -388,7 +388,7 @@ export const PaymentCallback: React.FC = () => {
             <div className="w-20 h-20 bg-gradient-to-br from-amber-100 to-amber-200 rounded-full flex items-center justify-center">
               <CreditCard size={36} className="text-amber-600" />
             </div>
-            <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-red-500 rounded-full flex items-center justify-center shadow-lg">
+            <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-[#EF4444] rounded-full flex items-center justify-center shadow-lg">
               <XCircle size={18} className="text-white" />
             </div>
           </div>

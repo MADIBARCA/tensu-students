@@ -55,7 +55,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                 setError('');
               }}
               className={`w-full border rounded-lg p-2 ${
-                error ? 'border-red-500' : 'border-gray-200'
+                error ? 'border-[#EF4444]' : 'border-gray-200'
               }`}
               placeholder="Введите имя"
             />

@@ -297,7 +297,7 @@ export const RequestPriceModal: React.FC<RequestPriceModalProps> = ({
           {error && (
             <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-xl">
               <AlertCircle size={16} className="text-red-500" />
-              <p className="text-sm text-red-700">{error}</p>
+              <p className="text-sm text-[#7F1D1D]">{error}</p>
             </div>
           )}
         </div>

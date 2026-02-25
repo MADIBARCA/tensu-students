@@ -177,7 +177,7 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
           <>
             <button
               onClick={onCancelBooking}
-              className="text-[13px] font-medium text-red-500 hover:text-red-600 active:text-red-700 transition-colors"
+              className="text-[13px] font-medium text-red-500 hover:text-[#DC2626] active:text-[#7F1D1D] transition-colors"
             >
               {t('schedule.cancelBooking')}
             </button>

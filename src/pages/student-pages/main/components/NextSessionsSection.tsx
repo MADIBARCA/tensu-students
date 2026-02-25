@@ -286,7 +286,7 @@ export const NextSessionsSection: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gray-50 rounded-lg">
                   <Users size={13} className={isFull ? 'text-red-500' : 'text-[#059669]'} />
-                  <span className={`text-sm font-medium ${isFull ? 'text-red-600' : 'text-gray-700'}`}>
+                  <span className={`text-sm font-medium ${isFull ? 'text-[#DC2626]' : 'text-gray-700'}`}>
                     {session.participants_count}/{session.max_participants ?? '∞'}
                   </span>
                 </div>

@@ -228,7 +228,7 @@ export const RegisteredCardsSection: React.FC = () => {
         <div className="mt-4 space-y-3">
           {/* Error message */}
           {error && (
-            <div className="flex items-center gap-2 p-3 bg-red-50 text-red-600 rounded-lg text-sm">
+            <div className="flex items-center gap-2 p-3 bg-red-50 text-[#DC2626] rounded-lg text-sm">
               <AlertCircle size={16} />
               {error}
             </div>
