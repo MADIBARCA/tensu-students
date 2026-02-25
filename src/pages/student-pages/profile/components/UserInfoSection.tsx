@@ -53,7 +53,7 @@ export const UserInfoSection: React.FC<UserInfoSectionProps> = ({ student, onEdi
                 </div>
               )}
             </div>
-            <div className="absolute bottom-0 right-0 bg-[#1D4ED8] rounded-full p-1.5 border-2 border-white">
+            <div className="absolute bottom-0 right-0 bg-[#1E3A8A] rounded-full p-1.5 border-2 border-white">
               <Camera size={14} className="text-white" />
             </div>
           </label>

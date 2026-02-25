@@ -83,7 +83,7 @@ export const FiltersModal: React.FC<FiltersModalProps> = ({
                     : 'border-gray-200 hover:bg-gray-50'
                 }`}
               >
-                <span className={!filters.clubId ? 'text-[#1D4ED8] font-medium' : 'text-gray-700'}>
+                <span className={!filters.clubId ? 'text-[#1E3A8A] font-medium' : 'text-gray-700'}>
                   {t('schedule.filters.allClubs')}
                 </span>
                 {!filters.clubId && <Check size={18} className="text-blue-500" />}
@@ -98,7 +98,7 @@ export const FiltersModal: React.FC<FiltersModalProps> = ({
                       : 'border-gray-200 hover:bg-gray-50'
                   }`}
                 >
-                  <span className={filters.clubId === club.id ? 'text-[#1D4ED8] font-medium' : 'text-gray-700'}>
+                  <span className={filters.clubId === club.id ? 'text-[#1E3A8A] font-medium' : 'text-gray-700'}>
                     {club.name}
                   </span>
                   {filters.clubId === club.id && <Check size={18} className="text-blue-500" />}
@@ -117,7 +117,7 @@ export const FiltersModal: React.FC<FiltersModalProps> = ({
                 onClick={() => handleSectionsTypeChange('all')}
                 className={`flex-1 px-4 py-3 rounded-lg border transition-colors ${
                   filters.sectionsType === 'all'
-                    ? 'border-blue-500 bg-blue-50 text-[#1D4ED8] font-medium'
+                    ? 'border-blue-500 bg-blue-50 text-[#1E3A8A] font-medium'
                     : 'border-gray-200 text-gray-700 hover:bg-gray-50'
                 }`}
               >
@@ -127,7 +127,7 @@ export const FiltersModal: React.FC<FiltersModalProps> = ({
                 onClick={() => handleSectionsTypeChange('my')}
                 className={`flex-1 px-4 py-3 rounded-lg border transition-colors ${
                   filters.sectionsType === 'my'
-                    ? 'border-blue-500 bg-blue-50 text-[#1D4ED8] font-medium'
+                    ? 'border-blue-500 bg-blue-50 text-[#1E3A8A] font-medium'
                     : 'border-gray-200 text-gray-700 hover:bg-gray-50'
                 }`}
               >
@@ -150,7 +150,7 @@ export const FiltersModal: React.FC<FiltersModalProps> = ({
                     : 'border-gray-200 hover:bg-gray-50'
                 }`}
               >
-                <span className={!filters.trainerId ? 'text-[#1D4ED8] font-medium' : 'text-gray-700'}>
+                <span className={!filters.trainerId ? 'text-[#1E3A8A] font-medium' : 'text-gray-700'}>
                   {t('schedule.filters.allTrainers')}
                 </span>
                 {!filters.trainerId && <Check size={18} className="text-blue-500" />}
@@ -165,7 +165,7 @@ export const FiltersModal: React.FC<FiltersModalProps> = ({
                       : 'border-gray-200 hover:bg-gray-50'
                   }`}
                 >
-                  <span className={filters.trainerId === trainer.id ? 'text-[#1D4ED8] font-medium' : 'text-gray-700'}>
+                  <span className={filters.trainerId === trainer.id ? 'text-[#1E3A8A] font-medium' : 'text-gray-700'}>
                     {trainer.name}
                   </span>
                   {filters.trainerId === trainer.id && <Check size={18} className="text-blue-500" />}

@@ -163,9 +163,9 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                 onClick={() => onSelectDate(isSelected(day) ? null : day)}
                 className={`w-full h-full flex flex-col items-center justify-center rounded-lg text-sm transition-colors relative ${
                   isSelected(day)
-                    ? 'bg-[#1D4ED8] text-white'
+                    ? 'bg-[#1E3A8A] text-white'
                     : isToday(day)
-                    ? 'bg-blue-100 text-[#1D4ED8]'
+                    ? 'bg-blue-100 text-[#1E3A8A]'
                     : hasTrainings(day)
                     ? 'bg-gray-100 hover:bg-gray-200'
                     : 'hover:bg-gray-50'
@@ -175,7 +175,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                   {day.getDate()}
                 </span>
                 {hasTrainings(day) && !isSelected(day) && (
-                  <span className="absolute bottom-1 w-1.5 h-1.5 bg-[#1D4ED8] rounded-full"></span>
+                  <span className="absolute bottom-1 w-1.5 h-1.5 bg-[#1E3A8A] rounded-full"></span>
                 )}
               </button>
             ) : (
