@@ -106,7 +106,7 @@ export const SettingsSection: React.FC = () => {
           {/* Terms of Service */}
           <button
             onClick={() => {
-              openTgLink('https://tensu.kz/terms'); // Replace with actual terms URL
+              window.open('https://tensu.kz/terms', '_blank');
             }}
             className="w-full flex items-center justify-between py-3 hover:bg-gray-50 transition-colors"
           >
