@@ -60,11 +60,5 @@ export function makeCall(raw: string | undefined | null): void {
   if (!raw) return;
   const href = phoneHref(raw);
   if (!href) return;
-  const a = document.createElement('a');
-  a.href = href;
-  a.style.display = 'none';
-  document.body.appendChild(a);
-  a.click();
-  // Clean up after a short delay
-  setTimeout(() => document.body.removeChild(a), 100);
+  window.open(href, '_blank');
 }

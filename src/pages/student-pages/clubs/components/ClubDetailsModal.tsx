@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useI18n } from '@/i18n/i18n';
 import { Card } from '@/components/ui';
+import { useTelegram } from '@/hooks/useTelegram';
 import { 
   X, 
   MapPin, 
@@ -255,10 +256,12 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
     loadClubDetails();
   }, [club.id]);
 
+  const { openTgLink } = useTelegram();
+
   const handleContactClick = (type: 'telegram' | 'instagram' | 'whatsapp' | 'phone') => {
     const tg = window.Telegram?.WebApp;
     if (type === 'telegram' && club.telegram_url) {
-      tg?.openLink?.(club.telegram_url);
+      openTgLink(club.telegram_url);
     } else if (type === 'instagram' && club.instagram_url) {
       tg?.openLink?.(club.instagram_url);
     } else if (type === 'whatsapp' && club.whatsapp_url) {

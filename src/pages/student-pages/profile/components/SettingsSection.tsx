@@ -4,9 +4,11 @@ import { Card } from '@/components/ui';
 import { useI18n } from '@/i18n/i18n';
 import { MapPin, Globe, HelpCircle, FileText, Shield, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTelegram } from '@/hooks/useTelegram';
 
 export const SettingsSection: React.FC = () => {
   const { t, lang, setLang } = useI18n();
+  const { openTgLink } = useTelegram();
   const navigate = useNavigate();
   const [locationAccess, setLocationAccess] = useState(false);
   const [showLangModal, setShowLangModal] = useState(false);
@@ -78,11 +80,7 @@ export const SettingsSection: React.FC = () => {
           {/* Support */}
           <button
             onClick={() => {
-              // TODO: Open WhatsApp or Telegram support
-              const tg = window.Telegram?.WebApp;
-              if (tg?.openLink) {
-                tg.openLink('https://wa.me/77771234567'); // Replace with actual support number
-              }
+              openTgLink('https://t.me/tensuadmin'); // Replace with actual support
             }}
             className="w-full flex items-center justify-between py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors"
           >
@@ -108,11 +106,7 @@ export const SettingsSection: React.FC = () => {
           {/* Terms of Service */}
           <button
             onClick={() => {
-              // TODO: Navigate to terms page
-              const tg = window.Telegram?.WebApp;
-              if (tg?.openLink) {
-                tg.openLink('https://tensu.kz/terms'); // Replace with actual terms URL
-              }
+              openTgLink('https://tensu.kz/terms'); // Replace with actual terms URL
             }}
             className="w-full flex items-center justify-between py-3 hover:bg-gray-50 transition-colors"
           >

@@ -3,6 +3,8 @@ import { X, MapPin, Phone, Users, DollarSign } from 'lucide-react';
 import { TelegramIcon, InstagramIcon } from '@/components/SocialIcons';
 import { Card } from '@/components/ui';
 
+import { useTelegram } from '@/hooks/useTelegram';
+
 interface ClubDetailsModalProps {
   clubId?: number;
   onClose: () => void;
@@ -11,6 +13,7 @@ interface ClubDetailsModalProps {
 export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ onClose }) => {
   const [clubData, setClubData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const { openTgLink } = useTelegram();
 
   useEffect(() => {
     const loadClubData = async () => {
@@ -112,7 +115,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ onClose }) =
 
           {clubData.telegram_url && (
             <button
-              onClick={() => tg?.openLink?.(clubData.telegram_url)}
+              onClick={() => openTgLink(clubData.telegram_url)}
               className="flex items-center gap-3 w-full p-3 bg-[#229ED9]/10 rounded-xl hover:bg-[#229ED9]/20 transition-colors text-left"
             >
               <div className="w-10 h-10 bg-[#229ED9]/15 rounded-xl flex items-center justify-center">

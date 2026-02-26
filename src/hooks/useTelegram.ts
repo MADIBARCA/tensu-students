@@ -42,6 +42,7 @@ declare global {
         sendData: (data: string) => void;
         showAlert: (message: string) => void;
         openLink?: (url: string, options?: { try_instant_view?: boolean }) => void;
+        openTelegramLink?: (url: string) => void;
         requestContact: (callback: (granted: boolean, result: TelegramContactResult) => void) => void;
       };
     };
@@ -81,5 +82,16 @@ export function useTelegram() {
     tg.requestContact(callback);
   }, []);
 
-  return { user, sendData, requestContact };
+  const openTgLink = useCallback((url: string) => {
+    const tg = window.Telegram?.WebApp;
+    if (tg?.openTelegramLink) {
+      tg.openTelegramLink(url);
+    } else if (tg?.openLink) {
+      tg.openLink(url, { try_instant_view: false });
+    } else {
+      window.open(url, '_blank');
+    }
+  }, []);
+
+  return { user, sendData, requestContact, openTgLink };
 }
