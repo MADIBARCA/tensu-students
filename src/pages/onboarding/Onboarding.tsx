@@ -102,13 +102,15 @@ export default function OnboardingPage() {
           throw new Error('No authentication token');
         }
 
-        const userLang = (tg?.initDataUnsafe?.user as { language_code?: string })?.language_code || 'ru';
+        // Use the app's current language (user may have switched it), map kk→kz for backend
+        const appLang = localStorage.getItem('appLang') || (tg?.initDataUnsafe?.user as { language_code?: string })?.language_code || 'ru';
+        const backendLang = appLang === 'kk' ? 'kz' : (appLang === 'kz' || appLang === 'en' ? appLang : 'ru');
         
         await studentsApi.create(
           { 
             contact_init_data: contactData.response,
             preferences: {
-              language: userLang,
+              language: backendLang,
               notifications: true,
               dark_mode: false,
             }

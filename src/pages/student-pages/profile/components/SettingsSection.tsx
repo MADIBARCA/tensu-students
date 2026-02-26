@@ -29,10 +29,21 @@ export const SettingsSection: React.FC = () => {
     // await studentsApi.updatePreferences({ location_access: enabled }, token);
   };
 
-  const handleLanguageChange = (newLang: 'ru' | 'kk') => {
+  const handleLanguageChange = async (newLang: 'ru' | 'kk') => {
     setLang(newLang);
     setShowLangModal(false);
-    // Language is saved automatically in i18n provider
+    // Sync language to backend so notifications arrive in the correct language
+    try {
+      const tg = window.Telegram?.WebApp;
+      if (tg?.initData) {
+        const { studentsApi } = await import('@/functions/axios/axiosFunctions');
+        // Map frontend lang codes to backend codes (kk → kz)
+        const backendLang = newLang === 'kk' ? 'kz' : newLang;
+        await studentsApi.updatePrefs({ language: backendLang }, tg.initData);
+      }
+    } catch (e) {
+      console.error('Failed to sync language preference:', e);
+    }
   };
 
   return (

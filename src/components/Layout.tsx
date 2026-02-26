@@ -65,7 +65,7 @@ export const Layout: React.FC<LayoutProps> = ({
         <header className={clsx(
           "sticky top-0 z-20 bg-white/95 backdrop-blur-sm border-b border-gray-100 overflow-hidden",
           "transition-[padding-top] duration-300 ease-out will-change-[padding-top]",
-          isScrolled ? "pt-20" : "pt-0"
+          (showBackButton || isScrolled) ? "pt-20" : "pt-0"
         )}>
           <div className="px-4 py-4">
             <div className="flex items-center justify-between">
