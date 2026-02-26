@@ -30,7 +30,7 @@ export const PaymentMethodModal: React.FC<PaymentMethodModalProps> = ({
   return (
     <div className="fixed inset-0 z-[120] flex flex-col bg-white">
       {/* Header */}
-      <div className="flex items-center px-4 py-3 border-b border-gray-100" style={{ paddingTop: 'max(env(safe-area-inset-top, 12px), 12px)' }}>
+      <div className="flex items-center px-4 pb-3 border-b border-gray-100 pt-23">
         <button
           onClick={onClose}
           className="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-50 active:bg-gray-100 transition-colors mr-3"
