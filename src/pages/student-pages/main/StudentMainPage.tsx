@@ -11,6 +11,16 @@ export default function StudentMainPage() {
   const [hasActiveMembership, setHasActiveMembership] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const tgUser = window.Telegram?.WebApp.initDataUnsafe?.user;
+  const userName = tgUser?.first_name || '';
+
+  const getGreetingKey = () => {
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 12) return 'home.greeting.morning';
+    if (hour >= 12 && hour < 18) return 'home.greeting.day';
+    return 'home.greeting.evening';
+  };
+
   useEffect(() => {
     const checkMembership = async () => {
       try {
@@ -46,6 +56,11 @@ export default function StudentMainPage() {
   return (
     <Layout title={t('nav.home')}>
       <PageContainer>
+        <div className="mb-6 mt-[-8px]">
+          <h1 className="text-[28px] font-extrabold text-gray-900 tracking-tight leading-tight">
+            {t(getGreetingKey(), { name: userName }).replace('  ', ' ')}
+          </h1>
+        </div>
         {!hasActiveMembership ? (
           <NoMembershipBanner />
         ) : (

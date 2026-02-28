@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui';
 import { useI18n } from '@/i18n/i18n';
 import { 
-  Calendar, 
   MapPin, 
   Users, 
   User, 
@@ -12,7 +11,9 @@ import {
   CheckCircle, 
   Building2,
   ChevronRight,
-  Bell
+  Bell,
+  Flame,
+  Dumbbell
 } from 'lucide-react';
 import { scheduleApi } from '@/functions/axios/axiosFunctions';
 import type { SessionResponse, SessionStatus } from '@/functions/axios/responses';
@@ -108,6 +109,28 @@ export const NextSessionsSection: React.FC = () => {
     return { dateLabel, timeLabel };
   };
 
+  const getCountdown = (date: string, time: string) => {
+    try {
+      const [year, month, day] = date.split('-').map(Number);
+      const [hours, minutes] = time.split(':').map(Number);
+      const sessionTime = new Date(year, month - 1, day, hours, minutes).getTime();
+      const now = new Date().getTime();
+      const diff = sessionTime - now;
+
+      if (diff <= 0) return null;
+
+      const daysLeft = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hoursLeft = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minsLeft = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+      if (daysLeft > 0) return t('home.sessions.countdown', { days: daysLeft, hours: hoursLeft });
+      if (hoursLeft > 0) return t('home.sessions.countdown.hours', { hours: hoursLeft, minutes: minsLeft });
+      return t('home.sessions.countdown.minutes', { minutes: minsLeft });
+    } catch {
+      return null;
+    }
+  };
+
   // Generate coach initials
   const getCoachInitials = (name: string | null): string => {
     if (!name) return '?';
@@ -170,9 +193,9 @@ export const NextSessionsSection: React.FC = () => {
   if (loading) {
     return (
       <div className="mb-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">{t('home.sessions.title')}</h2>
-        <div className="flex items-center justify-center py-8">
-          <div className="w-6 h-6 border-2 border-[#2563EB] border-t-transparent rounded-full animate-spin" />
+        <h2 className="text-lg font-bold text-gray-900 mb-3 tracking-tight">{t('home.sessions.title')}</h2>
+        <div className="flex items-center justify-center py-10 bg-white rounded-[24px] border border-gray-100 shadow-sm">
+          <div className="w-8 h-8 border-3 border-[#2563EB]/20 border-t-[#2563EB] rounded-full animate-spin" />
         </div>
       </div>
     );
@@ -181,33 +204,40 @@ export const NextSessionsSection: React.FC = () => {
   if (sessions.length === 0) {
     return (
       <div className="mb-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">{t('home.sessions.title')}</h2>
-        <Card className="text-center py-10">
-          <div className="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Calendar size={24} className="text-gray-400" />
+        <h2 className="text-lg font-bold text-gray-900 mb-3 tracking-tight">{t('home.sessions.title')}</h2>
+        <Card className="text-center py-10 rounded-[24px] relative overflow-hidden border-dashed border-2 border-gray-200 bg-gray-50/50">
+          <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm border border-gray-100 rotate-3">
+            <Dumbbell size={28} className="text-[#2563EB]" />
           </div>
-          <p className="text-gray-600 font-medium">{t('home.sessions.empty')}</p>
-          <p className="text-sm text-gray-400 mt-1">{t('home.sessions.emptyHint')}</p>
+          <p className="text-[15px] text-gray-600 font-medium px-4 mb-5 leading-relaxed tracking-tight">
+            {t('home.sessions.emptyNew')}
+          </p>
+          <button 
+            onClick={() => navigate('/student/schedule')}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-[#1E3A8A] text-white rounded-[16px] hover:opacity-90 active:scale-[0.98] transition-all font-semibold text-sm shadow-md shadow-blue-900/10"
+          >
+            {t('home.noMembership.findClub')} <ChevronRight size={16} />
+          </button>
         </Card>
       </div>
     );
   }
 
   return (
-    <div className="mb-6">
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-lg font-semibold text-gray-900">{t('home.sessions.title')}</h2>
+    <div className="mb-8">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-bold text-gray-900 tracking-tight">{t('home.sessions.title')}</h2>
         <button 
           onClick={() => navigate('/student/schedule')}
-          className="flex items-center gap-1 text-sm text-[#1E3A8A] font-medium hover:text-[#1E3A8A] transition-colors"
+          className="flex items-center gap-1 text-[13px] text-[#2563EB] font-bold hover:text-[#1E3A8A] transition-colors tracking-wide uppercase"
         >
           {t('home.sessions.viewAll')}
           <ChevronRight size={16} />
         </button>
       </div>
 
-      <div className="space-y-3">
-        {sessions.map((session) => {
+      <div className="space-y-4">
+        {sessions.map((session, index) => {
           const { dateLabel, timeLabel } = formatDateTime(session.date, session.time);
           const isFull = session.status === 'full' || 
             (session.max_participants && session.participants_count >= session.max_participants);
@@ -219,38 +249,64 @@ export const NextSessionsSection: React.FC = () => {
             ? Math.min((session.participants_count / session.max_participants) * 100, 100)
             : 0;
 
+          const isHero = index === 0;
+          const countdownText = isHero ? getCountdown(session.date, session.time) : null;
+
           // Determine card styling based on status
           const getCardStyles = () => {
+            if (isHero) {
+              return 'border-2 border-[#2563EB]/20 bg-linear-to-br from-white to-blue-50/40 shadow-xl shadow-blue-900/5';
+            }
             if (session.is_booked) {
-              return 'border-l-4 border-l-[#10B981] bg-[#ECFDF5]/30';
+              return 'border-l-4 border-l-[#10B981] bg-[#ECFDF5]/30 border-y border-r border-gray-100 shadow-sm';
             }
             if (isFull) {
-              return 'border-l-4 border-l-gray-300 bg-gray-50/50';
+              return 'border-l-4 border-l-gray-300 bg-gray-50/50 border-y border-r border-gray-100';
             }
-            return 'border border-gray-100 hover:shadow-md';
+            return 'border border-gray-100 bg-white hover:shadow-md shadow-sm';
           };
 
           return (
             <div 
               key={session.id} 
-              className={`bg-white rounded-xl p-4 transition-all duration-200 ${getCardStyles()}`}
+              className={`rounded-[24px] p-5 transition-all duration-300 relative overflow-hidden ${getCardStyles()}`}
             >
+              {isHero && (
+                <div className="absolute top-0 right-0 w-40 h-40 bg-blue-100 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 opacity-50 mix-blend-multiply pointer-events-none"></div>
+              )}
+
+              {/* Hero Badge & Countdown */}
+              {isHero && (
+                <div className="mb-5 relative z-10 flex flex-col gap-2.5">
+                  <div className="self-start inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#1E3A8A] text-white rounded-xl shadow-sm">
+                    <Flame size={14} className="text-amber-300" />
+                    <span className="text-[11px] font-bold tracking-wider uppercase">{t('home.sessions.heroText')}</span>
+                  </div>
+                  {countdownText && (
+                    <div className="text-[13px] font-bold text-[#2563EB] flex items-center gap-1.5 opacity-90 ml-1 tracking-tight">
+                      <Clock size={14} />
+                      {countdownText}
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Header: Club + Status */}
-              <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center justify-between mb-3 relative z-10">
                 {session.club_name && (
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 rounded-lg">
-                    <Building2 size={12} className="text-[#1E3A8A]" />
-                    <span className="text-xs font-medium text-[#1E3A8A]">{session.club_name}</span>
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-gray-50 rounded-lg border border-gray-100">
+                    <Building2 size={12} className="text-gray-500" />
+                    <span className="text-xs font-semibold text-gray-700">{session.club_name}</span>
                   </div>
                 )}
                 {session.is_booked && (
-                  <span className="flex items-center gap-1 px-2.5 py-1 bg-[#D1FAE5] text-[#065F46] text-xs rounded-full font-semibold">
+                  <span className="flex items-center gap-1 px-2.5 py-1 bg-[#D1FAE5] text-[#065F46] text-xs rounded-full font-bold tracking-tight">
                     <CheckCircle size={12} />
                     {t('home.sessions.status.booked')}
                   </span>
                 )}
                 {isFull && !session.is_booked && (
-                  <span className="flex items-center gap-1 px-2.5 py-1 bg-gray-100 text-gray-600 text-xs rounded-full font-medium">
+                  <span className="flex items-center gap-1 px-2.5 py-1 bg-gray-100 text-gray-600 text-xs rounded-full font-bold tracking-tight">
                     <Users size={12} />
                     {t('home.sessions.status.full')}
                   </span>
@@ -258,20 +314,20 @@ export const NextSessionsSection: React.FC = () => {
               </div>
 
               {/* Title */}
-              <h3 className="font-semibold text-gray-900 text-base mb-1">
+              <h3 className="font-extrabold text-[#111827] text-[17px] mb-1 leading-tight tracking-tight relative z-10">
                 {session.section_name}
                 {session.group_name && (
-                  <span className="text-gray-400 font-normal"> · {session.group_name}</span>
+                  <span className="text-gray-400 font-semibold tracking-normal"> · {session.group_name}</span>
                 )}
               </h3>
 
               {/* Coach with avatar */}
               {session.coach_name && (
-                <div className="flex items-center gap-2 mb-3">
-                  <div className={`w-6 h-6 rounded-full bg-linear-to-br ${getCoachColor(session.coach_name)} flex items-center justify-center`}>
-                    <span className="text-white text-[10px] font-medium">{getCoachInitials(session.coach_name)}</span>
+                <div className="flex items-center gap-2 mb-4 relative z-10">
+                  <div className={`w-6 h-6 rounded-full bg-linear-to-br ${getCoachColor(session.coach_name)} flex items-center justify-center shadow-inner`}>
+                    <span className="text-white text-[10px] font-bold">{getCoachInitials(session.coach_name)}</span>
                   </div>
-                  <div className="flex items-center gap-1 text-sm text-gray-600">
+                  <div className="flex items-center gap-1 text-[13px] font-medium text-gray-600">
                     <User size={12} className="text-gray-400" />
                     <span>{session.coach_name}</span>
                   </div>
@@ -279,14 +335,14 @@ export const NextSessionsSection: React.FC = () => {
               )}
 
               {/* Info: Date/Time and Participants */}
-              <div className="flex items-center gap-2 mb-3">
-                <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gray-50 rounded-lg">
+              <div className="flex flex-wrap items-center gap-2 mb-4 relative z-10">
+                <div className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border ${isHero ? 'bg-white border-blue-50 shadow-sm' : 'bg-gray-50 border-gray-100'}`}>
                   <Clock size={13} className="text-[#2563EB]" />
-                  <span className="text-sm font-medium text-gray-700">{dateLabel}, {timeLabel}</span>
+                  <span className="text-[13px] font-bold text-gray-700">{dateLabel}, {timeLabel}</span>
                 </div>
-                <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gray-50 rounded-lg">
-                  <Users size={13} className={isFull ? 'text-red-500' : 'text-[#059669]'} />
-                  <span className={`text-sm font-medium ${isFull ? 'text-[#DC2626]' : 'text-gray-700'}`}>
+                <div className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border ${isHero ? 'bg-white border-blue-50 shadow-sm' : 'bg-gray-50 border-gray-100'}`}>
+                  <Users size={13} className={isFull ? 'text-[#EF4444]' : 'text-[#10B981]'} />
+                  <span className={`text-[13px] font-bold ${isFull ? 'text-[#EF4444]' : 'text-gray-700'}`}>
                     {session.participants_count}/{session.max_participants ?? '∞'}
                   </span>
                 </div>
@@ -294,25 +350,25 @@ export const NextSessionsSection: React.FC = () => {
 
               {/* Location */}
               {session.club_address && (
-                <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
-                  <MapPin size={13} className="text-gray-400 shrink-0" />
+                <div className="flex items-center gap-2 text-[13px] text-gray-500 mb-4 font-medium relative z-10">
+                  <MapPin size={14} className="text-gray-400 shrink-0" />
                   <span className="truncate">{session.club_address}</span>
                 </div>
               )}
 
               {/* Progress bar for participants */}
               {session.max_participants && (
-                <div className="mb-3">
-                  <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                <div className="mb-4 relative z-10">
+                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden shadow-inner">
                     <div 
-                      className={`h-full rounded-full transition-all duration-300 ${
-                        isFull ? 'bg-red-400' : participantProgress > 70 ? 'bg-amber-400' : 'bg-[#34D399]'
+                      className={`h-full rounded-full transition-all duration-700 ease-out ${
+                        isFull ? 'bg-[#EF4444]' : participantProgress >= 90 ? 'bg-[#F59E0B]' : 'bg-[#10B981]'
                       }`}
                       style={{ width: `${participantProgress}%` }}
                     />
                   </div>
-                  {!isFull && spotsLeft !== null && spotsLeft <= 3 && (
-                    <p className="text-xs text-amber-600 mt-1 font-medium">
+                  {!isFull && spotsLeft !== null && spotsLeft <= 5 && (
+                    <p className={`text-[12px] mt-1.5 font-bold tracking-tight animate-pulse ${spotsLeft <= 2 ? 'text-[#EF4444]' : 'text-[#F59E0B]'}`}>
                       {spotsLeft} {t('schedule.spotsLeft')}
                     </p>
                   )}
@@ -321,9 +377,9 @@ export const NextSessionsSection: React.FC = () => {
 
               {/* Notes */}
               {session.notes && (
-                <div className="flex items-start gap-2 p-3 bg-blue-50/50 border border-blue-100 rounded-lg mb-3">
+                <div className="flex items-start gap-2 p-3 bg-blue-50/50 border border-blue-100/50 rounded-xl mb-4 relative z-10">
                   <FileText size={14} className="text-[#2563EB] mt-0.5 shrink-0" />
-                  <p className="text-sm text-blue-800">{session.notes}</p>
+                  <p className="text-[13px] text-blue-900 font-medium leading-relaxed">{session.notes}</p>
                 </div>
               )}
 
@@ -331,25 +387,35 @@ export const NextSessionsSection: React.FC = () => {
               {canBook && (
                 <button
                   onClick={() => handleBookSession(session.id)}
-                  className="btn-primary w-full px-4 py-2.5 text-white rounded-xl hover:opacity-90 transition-colors text-sm font-semibold shadow-sm shadow-[rgb(11,60,111)]/20"
-                
+                  className={`w-full px-4 py-3.5 text-white rounded-[16px] transition-all text-[15px] font-bold flex items-center justify-center gap-2 relative z-10 ${
+                    spotsLeft && spotsLeft <= 5 
+                      ? 'bg-linear-to-r from-[#2563EB] to-[#1E3A8A] hover:opacity-90 shadow-lg shadow-blue-600/20 animate-pulse' 
+                      : 'bg-[#1E3A8A] hover:bg-[#1e3a8a]/90 shadow-lg shadow-[#1E3A8A]/20 active:scale-[0.98]'
+                  }`}
                 >
-                  {t('home.sessions.book')}
+                  {spotsLeft && spotsLeft <= 5 ? (
+                    <>
+                      <Flame size={16} className="text-amber-300" />
+                      {spotsLeft} {t('schedule.spotsLeft')} – {t('home.sessions.book')}
+                    </>
+                  ) : (
+                    t('home.sessions.book')
+                  )}
                 </button>
               )}
 
               {/* Booked state info */}
               {session.is_booked && (
-                <div className="flex items-center justify-center gap-2 py-2 text-[#059669]">
-                  <CheckCircle size={16} />
-                  <span className="text-sm font-medium">{t('home.sessions.youAreBooked')}</span>
+                <div className="flex items-center justify-center gap-2 py-2.5 text-[#10B981] bg-[#ECFDF5] rounded-[16px] relative z-10">
+                  <CheckCircle size={18} />
+                  <span className="text-[14px] font-bold">{t('home.sessions.youAreBooked')}</span>
                 </div>
               )}
 
               {/* Full state - waitlist button placeholder */}
               {isFull && !session.is_booked && (
                 <button
-                  className="w-full px-4 py-2.5 bg-amber-50 border border-amber-300 text-amber-700 rounded-xl text-sm font-medium flex items-center justify-center gap-1.5 hover:bg-amber-100 transition-colors"
+                  className="w-full px-4 py-3.5 bg-amber-50 border border-amber-200 text-amber-700 rounded-[16px] text-[14px] font-bold flex items-center justify-center gap-1.5 hover:bg-amber-100 active:scale-[0.98] transition-all relative z-10"
                 >
                   <Bell size={16} />
                   {t('schedule.notifyMe')}
@@ -362,3 +428,4 @@ export const NextSessionsSection: React.FC = () => {
     </div>
   );
 };
+
