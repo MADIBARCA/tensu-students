@@ -28,14 +28,7 @@ interface RequestPriceModalProps {
   onSuccess: () => void;
 }
 
-const DISCOUNT_REASONS = [
-  { key: 'female_discount', labelKey: 'clubs.priceRequest.reasons.female', reasonKey: 'female' },
-  { key: 'family_member', labelKey: 'clubs.priceRequest.reasons.family', reasonKey: 'family' },
-  { key: 'student_discount', labelKey: 'clubs.priceRequest.reasons.student', reasonKey: 'student' },
-  { key: 'referral', labelKey: 'clubs.priceRequest.reasons.referral', reasonKey: 'referral' },
-  { key: 'loyal_customer', labelKey: 'clubs.priceRequest.reasons.loyal', reasonKey: 'loyal' },
-  { key: 'other', labelKey: 'clubs.priceRequest.reasons.other', reasonKey: 'other' },
-];
+
 
 export const RequestPriceModal: React.FC<RequestPriceModalProps> = ({
   clubId,
@@ -46,7 +39,6 @@ export const RequestPriceModal: React.FC<RequestPriceModalProps> = ({
 }) => {
   const { t } = useI18n();
   
-  const [selectedReason, setSelectedReason] = useState<string | null>(null);
   const [customReason, setCustomReason] = useState('');
   const [suggestPrice, setSuggestPrice] = useState(false);
   const [requestedPrice, setRequestedPrice] = useState<string>('');
@@ -70,8 +62,7 @@ export const RequestPriceModal: React.FC<RequestPriceModalProps> = ({
   };
 
   const isValid = () => {
-    if (!selectedReason) return false;
-    if (selectedReason === 'other' && !customReason.trim()) return false;
+    if (!customReason.trim()) return false;
     if (suggestPrice && (!requestedPrice || parseInt(requestedPrice) >= plan.price)) return false;
     return true;
   };
@@ -86,10 +77,7 @@ export const RequestPriceModal: React.FC<RequestPriceModalProps> = ({
       const tg = window.Telegram?.WebApp;
       const token = tg?.initData || null;
 
-      const selectedReasonObj = DISCOUNT_REASONS.find(r => r.key === selectedReason);
-      const reasonText = selectedReason === 'other' 
-        ? customReason.trim() 
-        : t(`clubs.priceRequest.reasons.${selectedReasonObj?.reasonKey || 'other'}`);
+      const reasonText = customReason.trim();
 
       await priceRequestsApi.create({
         club_id: clubId,
@@ -194,38 +182,19 @@ export const RequestPriceModal: React.FC<RequestPriceModalProps> = ({
             </p>
           </div>
 
-          {/* Reason selection */}
+          {/* Reason input */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               {t('clubs.priceRequest.selectReason')} <span className="text-red-500">*</span>
             </label>
-            <div className="grid grid-cols-2 gap-2">
-              {DISCOUNT_REASONS.map((reason) => (
-                <button
-                  key={reason.key}
-                  onClick={() => setSelectedReason(reason.key)}
-                  className={`p-3 rounded-xl border-2 text-sm font-medium transition-all text-left ${
-                    selectedReason === reason.key
-                      ? 'border-violet-500 bg-violet-50 text-violet-700'
-                      : 'border-gray-200 text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  {t(reason.labelKey)}
-                </button>
-              ))}
-            </div>
-            
-            {/* Custom reason input */}
-            {selectedReason === 'other' && (
-              <input
-                type="text"
-                value={customReason}
-                onChange={(e) => setCustomReason(e.target.value)}
-                placeholder={t('clubs.priceRequest.customReasonPlaceholder')}
-                maxLength={100}
-                className="w-full mt-3 border-2 border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:border-violet-500"
-              />
-            )}
+            <input
+              type="text"
+              value={customReason}
+              onChange={(e) => setCustomReason(e.target.value)}
+              placeholder={t('clubs.priceRequest.customReasonPlaceholder')}
+              maxLength={100}
+              className="w-full border-2 border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:border-violet-500"
+            />
           </div>
 
           {/* Suggest price toggle */}
