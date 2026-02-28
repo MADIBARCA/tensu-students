@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { SectionHeader } from '@/components/Layout';
 import { Card } from '@/components/ui';
 import { useI18n } from '@/i18n/i18n';
@@ -21,6 +22,7 @@ interface AttendanceStats {
 
 export const AttendanceHistorySection: React.FC = () => {
   const { t } = useI18n();
+  const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
   const [stats, setStats] = useState<AttendanceStats | null>(null);
@@ -101,7 +103,10 @@ export const AttendanceHistorySection: React.FC = () => {
             <p className="text-sm text-gray-500 mb-6 max-w-[240px] mx-auto leading-relaxed">
               У вас пока нет посещений. Запишитесь на первую тренировку и отслеживайте свой прогресс здесь.
             </p>
-            <button className="bg-[#1E3A8A] text-white px-6 py-2.5 rounded-xl font-medium shadow-sm hover:bg-[#1E3A8A]/90 transition-colors">
+            <button 
+              onClick={() => navigate('/student/schedule')}
+              className="bg-[#1E3A8A] text-white px-6 py-2.5 rounded-xl font-medium shadow-sm hover:bg-[#1E3A8A]/90 transition-colors"
+            >
               Записаться на тренировку
             </button>
           </div>
