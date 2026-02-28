@@ -44,7 +44,7 @@ export default function StudentMainPage() {
   if (loading) {
     return (
       <Layout title="">
-        <PageContainer className="bg-white min-h-dvh">
+        <PageContainer className="bg-gray-50 min-h-dvh">
           <div className="flex items-center justify-center py-8">
             <div className="w-6 h-6 border-2 border-[#8E8E93] border-t-transparent rounded-full animate-spin" />
           </div>
@@ -59,13 +59,13 @@ export default function StudentMainPage() {
 
   return (
     <Layout title="">
-      <PageContainer className="bg-white min-h-dvh">
-        {/* iOS-style Large Title Header */}
-        <div className="px-4 pt-4 pb-4">
-          <p className="text-[13px] font-semibold text-[#8E8E93] uppercase tracking-wider mb-1">
+      <PageContainer className="bg-gray-50 min-h-dvh">
+        {/* Tech Vibe Header */}
+        <div className="px-4 pt-6 pb-6">
+          <p className="text-[12px] font-bold text-gray-500 uppercase tracking-widest mb-1">
             {todayDateStr}
           </p>
-          <h1 className="text-[34px] font-bold text-[#000000] tracking-tight leading-none mb-4">
+          <h1 className="text-[28px] font-extrabold text-gray-900 tracking-tight leading-tight">
             {t(getGreetingKey(), { name: userName }).replace('  ', ' ')}
           </h1>
         </div>
