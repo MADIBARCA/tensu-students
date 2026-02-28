@@ -104,7 +104,7 @@ export const CashPaymentForm: React.FC<CashPaymentFormProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 z-[130] flex flex-col bg-white">
+    <div className="fixed inset-0 z-[130] flex flex-col bg-white pt-23">
       {/* Header */}
       <div className="flex items-center px-4 py-3 border-b border-gray-100" style={{ paddingTop: 'max(env(safe-area-inset-top, 12px), 12px)' }}>
         <button
