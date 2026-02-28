@@ -49,69 +49,83 @@ export const SettingsSection: React.FC = () => {
   return (
     <div className="mb-4">
       <SectionHeader title={t('profile.settings')} />
-      <Card>
-        <div className="space-y-0">
+      <Card className="p-2 border border-gray-100 shadow-sm overflow-hidden">
+        <div className="space-y-1">
           {/* Geolocation */}
-          <div className="flex items-center justify-between py-3 border-b border-gray-100">
-            <div className="flex items-center gap-3">
-              <MapPin size={20} className="text-gray-400" />
-              <div>
-                <p className="font-medium text-gray-900">{t('settings.location')}</p>
+          <div className="flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 transition-colors">
+            <div className="flex items-center gap-3.5">
+              <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
+                <MapPin size={16} className="text-[#1E3A8A]" />
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-gray-900 text-sm leading-tight mb-0.5">{t('settings.location')}</p>
                 <p className="text-xs text-gray-500">{t('settings.location.desc')}</p>
               </div>
             </div>
-            <label className="relative inline-flex items-center cursor-pointer">
+            <label className="relative inline-flex items-center cursor-pointer ml-4">
               <input
                 type="checkbox"
                 checked={locationAccess}
                 onChange={(e) => handleLocationToggle(e.target.checked)}
                 className="sr-only peer"
               />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#1E3A8A]"></div>
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#1E3A8A] shadow-inner"></div>
             </label>
           </div>
+
+          <div className="h-px bg-gray-100 mx-4" />
 
           {/* Language */}
           <button
             onClick={() => setShowLangModal(true)}
-            className="w-full flex items-center justify-between py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+            className="w-full flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 transition-colors text-left"
           >
-            <div className="flex items-center gap-3">
-              <Globe size={20} className="text-gray-400" />
-              <div className="text-left">
-                <p className="font-medium text-gray-900">{t('settings.language')}</p>
+            <div className="flex items-center gap-3.5">
+              <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
+                <Globe size={16} className="text-[#1E3A8A]" />
+              </div>
+              <div>
+                <p className="font-semibold text-gray-900 text-sm leading-tight mb-0.5">{t('settings.language')}</p>
                 <p className="text-xs text-gray-500">
                   {lang === 'ru' ? t('language.russian') : t('language.kazakh')}
                 </p>
               </div>
             </div>
-            <ChevronRight size={20} className="text-gray-400" />
+            <ChevronRight size={18} className="text-gray-400" />
           </button>
+
+          <div className="h-px bg-gray-100 mx-4" />
 
           {/* Support */}
           <button
             onClick={() => {
               openTgLink('https://t.me/tensuadmin'); // Replace with actual support
             }}
-            className="w-full flex items-center justify-between py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+            className="w-full flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 transition-colors text-left"
           >
-            <div className="flex items-center gap-3">
-              <HelpCircle size={20} className="text-gray-400" />
-              <p className="font-medium text-gray-900">{t('settings.support')}</p>
+            <div className="flex items-center gap-3.5">
+              <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
+                <HelpCircle size={16} className="text-[#1E3A8A]" />
+              </div>
+              <p className="font-semibold text-gray-900 text-sm">{t('settings.support')}</p>
             </div>
-            <ChevronRight size={20} className="text-gray-400" />
+            <ChevronRight size={18} className="text-gray-400" />
           </button>
+
+          <div className="h-px bg-gray-100 mx-4" />
 
           {/* Privacy Policy */}
           <button
             onClick={() => navigate('/privacy')}
-            className="w-full flex items-center justify-between py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+            className="w-full flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 transition-colors text-left"
           >
-            <div className="flex items-center gap-3">
-              <Shield size={20} className="text-gray-400" />
-              <p className="font-medium text-gray-900">{t('settings.privacy')}</p>
+            <div className="flex items-center gap-3.5">
+              <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+                <Shield size={16} className="text-gray-500" />
+              </div>
+              <p className="font-semibold text-gray-900 text-sm">{t('settings.privacy')}</p>
             </div>
-            <ChevronRight size={20} className="text-gray-400" />
+            <ChevronRight size={18} className="text-gray-400" />
           </button>
 
           {/* Terms of Service */}
@@ -119,13 +133,15 @@ export const SettingsSection: React.FC = () => {
             onClick={() => {
               window.open('https://tensu.kz/terms', '_blank');
             }}
-            className="w-full flex items-center justify-between py-3 hover:bg-gray-50 transition-colors"
+            className="w-full flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 transition-colors text-left"
           >
-            <div className="flex items-center gap-3">
-              <FileText size={20} className="text-gray-400" />
-              <p className="font-medium text-gray-900">{t('settings.terms')}</p>
+            <div className="flex items-center gap-3.5">
+              <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+                <FileText size={16} className="text-gray-500" />
+              </div>
+              <p className="font-semibold text-gray-900 text-sm">{t('settings.terms')}</p>
             </div>
-            <ChevronRight size={20} className="text-gray-400" />
+            <ChevronRight size={18} className="text-gray-400" />
           </button>
         </div>
       </Card>

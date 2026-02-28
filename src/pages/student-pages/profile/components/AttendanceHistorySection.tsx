@@ -87,9 +87,24 @@ export const AttendanceHistorySection: React.FC = () => {
   if (attendance.length === 0) {
     return (
       <div className="mb-4">
-        <SectionHeader title="История посещаемости" />
-        <Card className="text-center py-8">
-          <p className="text-gray-600">{t('attendance.no.visits')}</p>
+        <SectionHeader title={t('profile.attendance')} />
+        <Card className="text-center py-10 px-6 bg-gradient-to-br from-blue-50/50 to-white border border-gray-100 shadow-sm relative overflow-hidden">
+          <div className="absolute -right-4 -top-8 text-[#1E3A8A]/5">
+            <TrendingUp size={120} />
+          </div>
+          
+          <div className="relative z-10 flex flex-col items-center">
+            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+              <Calendar size={28} className="text-[#1E3A8A]" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Начните свой путь</h3>
+            <p className="text-sm text-gray-500 mb-6 max-w-[240px] mx-auto leading-relaxed">
+              У вас пока нет посещений. Запишитесь на первую тренировку и отслеживайте свой прогресс здесь.
+            </p>
+            <button className="bg-[#1E3A8A] text-white px-6 py-2.5 rounded-xl font-medium shadow-sm hover:bg-[#1E3A8A]/90 transition-colors">
+              Записаться на тренировку
+            </button>
+          </div>
         </Card>
       </div>
     );
@@ -137,19 +152,25 @@ export const AttendanceHistorySection: React.FC = () => {
 
         {/* Recent Visits */}
         {!isExpanded && (
-          <div className="space-y-2">
+          <div className="space-y-3">
             {recentVisits.map((record) => (
-              <div key={record.id} className="flex items-center gap-3 text-sm">
-                <Calendar size={16} className="text-gray-400" />
-                <div className="flex-1">
-                  <p className="text-gray-900">{record.club_name || 'Клуб'}</p>
-                  {record.section_name && (
-                    <p className="text-gray-500 text-xs">{record.section_name}</p>
-                  )}
+              <div key={record.id} className="flex flex-col gap-1 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+                      <Calendar size={14} className="text-[#1E3A8A]" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900 text-sm">{record.club_name || 'Клуб'}</p>
+                      {record.section_name && (
+                        <p className="text-gray-500 text-xs mt-0.5">{record.section_name}</p>
+                      )}
+                    </div>
+                  </div>
+                  <span className="text-[#1E3A8A] font-medium text-xs bg-white px-2 py-1 rounded-md shadow-sm border border-black/5 whitespace-nowrap">
+                    {formatDate(record.checkin_date).split(',')[0]} {/* Example split depending on format */}
+                  </span>
                 </div>
-                <span className="text-gray-500 text-xs">
-                  {formatDate(record.checkin_date)}
-                </span>
               </div>
             ))}
           </div>

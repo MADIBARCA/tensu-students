@@ -134,36 +134,51 @@ export const MembershipsSection: React.FC<MembershipsSectionProps> = ({
           <Card
             key={membership.id}
             onClick={() => onClubClick(membership.id)}
-            className="cursor-pointer"
+            className="cursor-pointer group relative overflow-hidden transition-all hover:shadow-md border border-gray-100 p-4"
           >
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex-1">
-                <h3 className="font-semibold text-gray-900 mb-1">{membership.club_name}</h3>
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex-1 pr-4">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <h3 className="font-bold text-gray-900 text-lg">{membership.club_name}</h3>
+                  <ChevronRight size={18} className="text-gray-400 group-hover:text-[#1E3A8A] transition-colors" />
+                </div>
                 {membership.section_name && (
-                  <div className="flex items-center gap-1 text-sm text-gray-600 mb-1">
-                    <MapPin size={14} />
-                    <span>{membership.section_name}</span>
-                    {membership.group_name && <span> • {membership.group_name}</span>}
+                  <div className="flex items-center gap-1.5 text-sm text-gray-600 mb-1">
+                    <MapPin size={14} className="text-gray-400" />
+                    <span className="font-medium">{membership.section_name}</span>
+                    {membership.group_name && <span className="text-gray-400">• <span className="text-gray-600">{membership.group_name}</span></span>}
                   </div>
                 )}
-                <div className="flex items-center gap-2 text-sm text-gray-500">
-                  <Users size={14} />
+                <div className="flex items-center gap-1.5 text-sm text-gray-500">
+                  <Users size={14} className="text-gray-400" />
                   <span>{membership.training_type}</span>
-                  {membership.level && <span> • {membership.level}</span>}
+                  {membership.level && <span>• {membership.level}</span>}
                 </div>
               </div>
-              <ChevronRight size={20} className="text-gray-400" />
-            </div>
-
-            <div className="flex items-center justify-between mb-3">
-              <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(membership.status)}`}>
-                {getStatusLabel(membership.status)}
-              </span>
-              <div className="flex items-center gap-1 text-sm text-gray-600">
-                <Calendar size={14} />
-                <span>до {formatDate(membership.end_date)}</span>
+              
+              <div className="shrink-0 flex flex-col items-end">
+                <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold shadow-sm border border-black/5 ${getStatusColor(membership.status)}`}>
+                  {getStatusLabel(membership.status)}
+                </span>
               </div>
             </div>
+
+            {/* Dynamic element (Progress bar for active members) */}
+            {(membership.status === 'active' || membership.status === 'frozen') && (
+              <div className="mb-4 bg-gray-50 rounded-xl p-3 border border-gray-100">
+                <div className="flex items-center justify-between text-xs mb-1.5">
+                  <span className="font-medium text-gray-500 flex items-center gap-1.5">
+                    <Calendar size={12} />
+                    Started {formatDate(membership.start_date)}
+                  </span>
+                  <span className="font-bold text-[#1E3A8A]">Ends {formatDate(membership.end_date)}</span>
+                </div>
+                {/* Fallback simple bar */}
+                <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                  <div className="h-full bg-[#1E3A8A] rounded-full w-[60%] opacity-80" />
+                </div>
+              </div>
+            )}
 
             {/* Warning banner for discontinued tariffs */}
             {membership.is_tariff_deleted && (
@@ -185,7 +200,7 @@ export const MembershipsSection: React.FC<MembershipsSectionProps> = ({
                         e.stopPropagation();
                         onFreeze(membership);
                       }}
-                      className="flex-1 px-3 py-2 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-1"
+                      className="flex-1 px-3 py-2.5 bg-gray-50 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-100 transition-colors flex items-center justify-center gap-1.5 border border-gray-100 shadow-sm"
                     >
                       <Snowflake size={16} />
                       {t('membership.freeze')}
@@ -199,8 +214,7 @@ export const MembershipsSection: React.FC<MembershipsSectionProps> = ({
                     e.stopPropagation();
                     onFreeze(membership);
                   }}
-                  className="btn-primary w-full px-3 py-2 text-white text-sm rounded-lg hover:opacity-90 transition-colors flex items-center justify-center gap-1"
-                
+                  className="flex-1 px-3 py-2.5 bg-[#1E3A8A] text-white text-sm font-medium rounded-xl hover:bg-[#1E3A8A]/90 transition-colors flex items-center justify-center gap-1.5 shadow-md"
                 >
                   <Snowflake size={16} />
                   {t('membership.unfreeze')}

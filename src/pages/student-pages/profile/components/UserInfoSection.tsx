@@ -39,22 +39,25 @@ export const UserInfoSection: React.FC<UserInfoSectionProps> = ({ student, onEdi
   const photoUrl = student?.photo_url || (user?.photo_url && typeof user.photo_url === 'string' ? user.photo_url : '') || '';
 
   return (
-    <div className="bg-white rounded-lg p-4 border border-gray-200 mb-4">
-      <div className="flex items-center gap-4">
+    <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 mb-5 relative overflow-hidden">
+      {/* Subtle decorative background gradient */}
+      <div className="absolute top-0 right-0 -mr-10 -mt-10 w-40 h-40 bg-gradient-to-br from-blue-50 to-transparent rounded-full opacity-60 pointer-events-none" />
+
+      <div className="flex items-center gap-5 relative z-10">
         {/* Photo */}
         <div className="relative">
-          <label htmlFor="photo-upload" className="cursor-pointer">
-            <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+          <label htmlFor="photo-upload" className="cursor-pointer block group">
+            <div className="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden shadow-sm border border-gray-100 transition-transform group-hover:scale-[1.02]">
               {photoUrl ? (
                 <img src={photoUrl} alt={displayName} className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-blue-400 to-[#1E3A8A] flex items-center justify-center text-white text-2xl font-semibold">
+                <div className="w-full h-full bg-gradient-to-br from-[#2563EB] to-[#1E3A8A] flex items-center justify-center text-white text-3xl font-semibold">
                   {displayName.charAt(0).toUpperCase()}
                 </div>
               )}
             </div>
-            <div className="absolute bottom-0 right-0 bg-[#1E3A8A] rounded-full p-1.5 border-2 border-white">
-              <Camera size={14} className="text-white" />
+            <div className="absolute bottom-0 right-0 bg-white rounded-full p-2 border border-gray-100 shadow-sm text-gray-500 group-hover:text-[#1E3A8A] transition-colors">
+              <Camera size={16} />
             </div>
           </label>
           <input
@@ -69,16 +72,23 @@ export const UserInfoSection: React.FC<UserInfoSectionProps> = ({ student, onEdi
 
         {/* Info */}
         <div className="flex-1">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-green-50 text-green-700 rounded-full text-[11px] font-semibold mb-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+            Active member
+          </div>
+          
           <div className="flex items-center gap-2 mb-1">
-            <h2 className="text-lg font-semibold text-gray-900">{displayName}</h2>
+            <h2 className="text-xl font-bold text-gray-900">{displayName}</h2>
             <button
               onClick={onEdit}
-              className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+              className="p-1.5 text-gray-400 hover:text-[#1E3A8A] hover:bg-blue-50 rounded-full transition-colors"
             >
               <Edit2 size={16} />
             </button>
           </div>
-          <span onClick={() => makeCall(displayPhone)} className="text-sm text-gray-600 hover:text-[#1E3A8A] transition-colors cursor-pointer">{formatPhone(displayPhone)}</span>
+          <p onClick={() => makeCall(displayPhone)} className="text-sm font-medium text-gray-500 hover:text-[#1E3A8A] transition-colors cursor-pointer inline-block">
+            {formatPhone(displayPhone)}
+          </p>
         </div>
       </div>
     </div>

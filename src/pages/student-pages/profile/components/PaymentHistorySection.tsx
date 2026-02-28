@@ -79,13 +79,13 @@ export const PaymentHistorySection: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
-      paid: 'text-[#059669]',
-      pending: 'text-yellow-600',
-      failed: 'text-[#DC2626]',
-      refunded: 'text-[#1E3A8A]',
-      cancelled: 'text-gray-600',
+      paid: 'text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md',
+      pending: 'text-amber-600 bg-amber-50 px-2.5 py-1 rounded-md',
+      failed: 'text-red-600 bg-red-50 px-2.5 py-1 rounded-md',
+      refunded: 'text-[#1E3A8A] bg-blue-50 px-2.5 py-1 rounded-md',
+      cancelled: 'text-gray-600 bg-gray-50 px-2.5 py-1 rounded-md',
     };
-    return colors[status] || 'text-gray-600';
+    return colors[status] || 'text-gray-600 bg-gray-50 px-2.5 py-1 rounded-md';
   };
 
   if (loading) {
@@ -128,7 +128,7 @@ export const PaymentHistorySection: React.FC = () => {
 
       <div className="space-y-2">
         {displayedPayments.map((payment) => (
-          <Card key={payment.id}>
+          <Card key={payment.id} className="p-4 border border-gray-100 shadow-sm transition-all hover:shadow-md">
             <div className="flex items-center justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
@@ -143,10 +143,12 @@ export const PaymentHistorySection: React.FC = () => {
                 )}
               </div>
               <div className="text-right">
-                <p className="font-semibold text-gray-900">{formatAmount(payment.amount)}</p>
-                <p className={`text-xs ${getStatusColor(payment.status)}`}>
-                  {getStatusLabel(payment.status)}
-                </p>
+                <p className="font-semibold text-gray-900 mb-1">{formatAmount(payment.amount)}</p>
+                <div className="inline-block mt-0.5">
+                  <span className={`text-[11px] font-medium ${getStatusColor(payment.status)}`}>
+                    {getStatusLabel(payment.status)}
+                  </span>
+                </div>
               </div>
             </div>
           </Card>
