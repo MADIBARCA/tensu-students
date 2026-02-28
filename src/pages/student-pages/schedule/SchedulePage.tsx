@@ -186,19 +186,19 @@ export default function SchedulePage() {
     return result;
   }, [trainings, filters]);
 
-  // Get upcoming trainings for list view — current week only (Mon–Sun)
+  // Get upcoming trainings for list view — next 7 days
   const upcomingTrainings = useMemo(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const todayStr = formatDate(today);
-    // Get end of week (Sunday)
-    const dayOfWeek = today.getDay(); // 0=Sun, 1=Mon...
-    const daysUntilSunday = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
-    const endOfWeek = new Date(today);
-    endOfWeek.setDate(today.getDate() + daysUntilSunday);
-    const endOfWeekStr = formatDate(endOfWeek);
+    
+    // next 7 days (today + 6 days = 7 days total)
+    const next7Days = new Date(today);
+    next7Days.setDate(today.getDate() + 6);
+    const next7DaysStr = formatDate(next7Days);
+    
     return filteredTrainings
-      .filter(t => t.date >= todayStr && t.date <= endOfWeekStr);
+      .filter(t => t.date >= todayStr && t.date <= next7DaysStr);
   }, [filteredTrainings]);
 
   // Get trainings for selected date in calendar
