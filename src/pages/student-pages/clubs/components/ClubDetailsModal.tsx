@@ -272,7 +272,17 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
   };
 
   const handlePurchase = (plan: MembershipPlan) => {
-    setSelectedPlan(plan);
+    // Check if renewal is blocked due to large discount
+    const renewalCheck = isRenewalBlocked(plan);
+    if (renewalCheck.blocked) {
+      const tg = window.Telegram?.WebApp;
+      tg?.showAlert?.(t('clubs.membership.renewalBlocked', { days: renewalCheck.daysUntilAllowed }));
+      return;
+    }
+    // Apply individual price if available
+    const effective = getEffectivePrice(plan);
+    const planWithEffectivePrice = { ...plan, price: effective.price };
+    setSelectedPlan(planWithEffectivePrice);
     setShowPaymentMethodModal(true);
   };
 
@@ -338,6 +348,22 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
   // Check if a plan has a pending price request
   const hasPendingRequest = (planId: number): boolean => {
     return pendingRequests.has(planId);
+  };
+
+  // Check if renewal is blocked for discounted students (≥30% discount → only within 7 days of expiry)
+  const isRenewalBlocked = (plan: MembershipPlan): { blocked: boolean; daysUntilAllowed: number } => {
+    const effective = getEffectivePrice(plan);
+    if (!effective.isDiscounted || effective.discount < 30) {
+      return { blocked: false, daysUntilAllowed: 0 };
+    }
+    // Check if student has an active membership that expires in more than 7 days
+    if (activeMembershipForClub && activeMembershipForClub.status !== 'frozen') {
+      const daysRemaining = getDaysRemaining(activeMembershipForClub.endDate);
+      if (daysRemaining > 7) {
+        return { blocked: true, daysUntilAllowed: daysRemaining - 7 };
+      }
+    }
+    return { blocked: false, daysUntilAllowed: 0 };
   };
 
   const formatPrice = (price: number) => {
