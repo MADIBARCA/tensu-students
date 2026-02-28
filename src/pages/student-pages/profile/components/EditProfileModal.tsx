@@ -5,7 +5,7 @@ import type { StudentResponse } from '@/functions/axios/responses';
 interface EditProfileModalProps {
   student: StudentResponse;
   onClose: () => void;
-  onSave: (data: { first_name: string; last_name?: string }) => void;
+  onSave: (data: { first_name: string; last_name: string }) => void;
 }
 
 export const EditProfileModal: React.FC<EditProfileModalProps> = ({
@@ -25,7 +25,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
 
     onSave({
       first_name: firstName.trim(),
-      last_name: lastName.trim() || undefined,
+      last_name: lastName.trim(),
     });
   };
 

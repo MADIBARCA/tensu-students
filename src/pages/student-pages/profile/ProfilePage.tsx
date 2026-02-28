@@ -79,7 +79,7 @@ export default function ProfilePage() {
     setShowEditModal(true);
   };
 
-  const handleSaveProfile = async (updatedData: { first_name: string; last_name?: string }) => {
+  const handleSaveProfile = async (updatedData: { first_name: string; last_name: string }) => {
     const tg = window.Telegram?.WebApp;
     const token = tg?.initData || null;
     if (!token) return;
