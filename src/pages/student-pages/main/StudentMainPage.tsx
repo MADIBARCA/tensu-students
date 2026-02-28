@@ -44,7 +44,7 @@ export default function StudentMainPage() {
   if (loading) {
     return (
       <Layout title="">
-        <PageContainer className="bg-[#F2F2F7] min-h-screen">
+        <PageContainer className="bg-white min-h-dvh">
           <div className="flex items-center justify-center py-8">
             <div className="w-6 h-6 border-2 border-[#8E8E93] border-t-transparent rounded-full animate-spin" />
           </div>
@@ -59,9 +59,9 @@ export default function StudentMainPage() {
 
   return (
     <Layout title="">
-      <PageContainer className="bg-[#F2F2F7] min-h-dvh">
+      <PageContainer className="bg-white min-h-dvh">
         {/* iOS-style Large Title Header */}
-        <div className="px-4 pt-4 pb-2">
+        <div className="px-4 pt-4 pb-4">
           <p className="text-[13px] font-semibold text-[#8E8E93] uppercase tracking-wider mb-1">
             {todayDateStr}
           </p>

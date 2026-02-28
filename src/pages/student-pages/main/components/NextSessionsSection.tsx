@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useI18n } from '@/i18n/i18n';
-import { ChevronRight, CheckCircle } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
 import { scheduleApi } from '@/functions/axios/axiosFunctions';
 import type { SessionResponse, SessionStatus } from '@/functions/axios/responses';
 
@@ -153,12 +153,12 @@ export const NextSessionsSection: React.FC = () => {
           className="flex items-center text-[17px] text-[#007AFF] active:opacity-70 transition-opacity"
         >
           {t('home.sessions.viewAll')}
-          <ChevronRight size={20} className="text-[#007AFF] opacity-70 ml-0.5" />
+          <span className="ml-1 font-normal">→</span>
         </button>
       </div>
 
       {/* iOS List Container */}
-      <div className="bg-white border-y border-[#E5E5EA]">
+      <div className="mt-2">
         {sessions.map((session, index) => {
           const { dateLabel, timeLabel } = formatDateTime(session.date, session.time);
           const isFull = session.status === 'full' || 
@@ -168,70 +168,55 @@ export const NextSessionsSection: React.FC = () => {
             ? session.max_participants - session.participants_count 
             : null;
           
-          const isHero = index === 0;
-
           return (
             <div key={session.id} className="pl-4 relative">
-              <div className={`py-3 pr-4 ${index !== sessions.length - 1 ? 'border-b border-[#E5E5EA]' : ''}`}>
+              <div className={`py-4 pr-4 ${index !== sessions.length - 1 ? 'border-b border-[#E5E5EA]' : ''}`}>
                 
-                {/* Hero / Big Status formatting */}
-                {isHero && (
-                  <p className="text-[13px] font-semibold text-[#8E8E93] uppercase tracking-wider mb-1">
-                    {dateLabel.toUpperCase()} В {timeLabel}
+                {/* Date & Time (Caption) */}
+                <p className="text-[13px] font-semibold text-[#8E8E93] uppercase tracking-wider mb-2">
+                  {dateLabel.toUpperCase()} · {timeLabel}
+                </p>
+                
+                {/* Title (Large Semibold) */}
+                <h3 className="text-[22px] font-semibold text-[#000000] leading-tight mb-1 tracking-tight">
+                  {session.section_name}
+                </h3>
+
+                {/* Subtitle (Light/Regular) */}
+                {session.group_name && (
+                  <p className="text-[17px] font-normal text-[#000000] mb-1">
+                    {session.group_name}
                   </p>
                 )}
+
+                {/* Coach & Info (Light Gray) */}
+                <p className="text-[15px] font-normal text-[#8E8E93] mb-3">
+                  Тренер: {session.coach_name || 'Не указан'}
+                </p>
                 
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    {/* Title */}
-                    <h3 className={`${isHero ? 'text-[22px] font-bold leading-tight mb-1 tracking-tight' : 'text-[17px] font-semibold text-[#000000]'}`}>
-                      {session.section_name}
-                      {!isHero && session.group_name && (
-                        <span className="font-normal text-[#8E8E93]"> · {session.group_name}</span>
-                      )}
-                    </h3>
+                {/* Status Text (if full or low spots) */}
+                {spotsLeft !== null && spotsLeft <= 5 && !session.is_booked && (
+                  <p className={`text-[15px] mb-3 font-medium ${spotsLeft === 0 ? 'text-[#FF3B30]' : 'text-[#FF9500]'}`}>
+                    {spotsLeft === 0 ? t('home.sessions.status.full') : `Осталось ${spotsLeft} места`}
+                  </p>
+                )}
 
-                    {/* Subtitle / Details */}
-                    {isHero && session.group_name && (
-                      <p className="text-[17px] text-[#8E8E93] mb-1">{session.group_name}</p>
-                    )}
-
-                    {!isHero && (
-                      <p className="text-[15px] text-[#8E8E93] mt-0.5 line-clamp-1">
-                        {dateLabel}, {timeLabel} · {session.coach_name || 'Тренер не указан'}
-                      </p>
-                    )}
-
-                    {isHero && (
-                      <p className="text-[13px] text-[#8E8E93] mt-1">
-                        Тренер: {session.coach_name || 'Не указан'} · {session.participants_count} {t('schedule.participants')}
-                      </p>
-                    )}
-                    
-                    {/* Status Text (if full or low spots) */}
-                    {spotsLeft !== null && spotsLeft <= 5 && !session.is_booked && (
-                      <p className={`text-[13px] mt-1 font-medium ${spotsLeft === 0 ? 'text-[#FF3B30]' : 'text-[#FF9500]'}`}>
-                        {spotsLeft === 0 ? t('home.sessions.status.full') : `Осталось ${spotsLeft} места`}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Actions (Pill button or Checkmark) */}
-                  <div className="shrink-0 flex items-center justify-end min-w-[80px]">
-                    {session.is_booked ? (
-                      <div className="flex items-center gap-1.5 text-[#8E8E93]">
-                        <span className="text-[15px]">Вы записаны</span>
-                        <CheckCircle size={20} className="text-[#34C759] fill-[#34C759]/20" />
-                      </div>
-                    ) : canBook ? (
-                      <button
-                        onClick={() => handleBookSession(session.id)}
-                        className="bg-[#DEE8F5] text-[#007AFF] px-4 py-1.5 rounded-full text-[15px] font-semibold active:bg-[#c8dcf5] transition-colors"
-                      >
-                        {t('home.sessions.book')}
-                      </button>
-                    ) : null}
-                  </div>
+                {/* Action CTA as text link */}
+                <div className="flex items-center">
+                  {session.is_booked ? (
+                    <div className="flex items-center gap-1.5 text-[#8E8E93]">
+                      <span className="text-[17px] font-medium">Вы записаны</span>
+                      <CheckCircle size={20} className="text-[#34C759] fill-[#34C759]/20" />
+                    </div>
+                  ) : canBook ? (
+                    <button
+                      onClick={() => handleBookSession(session.id)}
+                      className="text-[17px] text-[#007AFF] font-medium active:opacity-60 transition-opacity flex items-center gap-1"
+                    >
+                      {t('home.sessions.book')}
+                      <span className="font-normal">→</span>
+                    </button>
+                  ) : null}
                 </div>
               </div>
             </div>
