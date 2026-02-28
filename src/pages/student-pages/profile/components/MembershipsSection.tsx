@@ -73,14 +73,7 @@ export const MembershipsSection: React.FC<MembershipsSectionProps> = ({
   }, []);
 
   const getStatusLabel = (status: string) => {
-    const labels: Record<string, string> = {
-      active: 'Активен',
-      frozen: 'Заморожен',
-      expired: 'Истёк',
-      cancelled: 'Отменён',
-      new: 'Новый',
-    };
-    return labels[status] || status;
+    return t(`membership.status.${status.toLowerCase()}`) || status;
   };
 
   const getStatusColor = (status: string) => {
@@ -97,6 +90,17 @@ export const MembershipsSection: React.FC<MembershipsSectionProps> = ({
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  };
+
+  const calculateProgress = (start: string, end: string) => {
+    const startDate = new Date(start).getTime();
+    const endDate = new Date(end).getTime();
+    const now = new Date().getTime();
+    
+    if (now <= startDate) return 0;
+    if (now >= endDate) return 100;
+    
+    return ((now - startDate) / (endDate - startDate)) * 100;
   };
 
   if (loading) {
@@ -146,12 +150,12 @@ export const MembershipsSection: React.FC<MembershipsSectionProps> = ({
                   <div className="flex items-center gap-1.5 text-sm text-gray-600 mb-1">
                     <MapPin size={14} className="text-gray-400" />
                     <span className="font-medium">{membership.section_name}</span>
-                    {membership.group_name && <span className="text-gray-400">• <span className="text-gray-600">{membership.group_name}</span></span>}
+                    {membership.group_name && <span className="text-gray-400">• <span className="text-gray-600">{membership.group_name === 'all' ? t('membership.group.all') : membership.group_name}</span></span>}
                   </div>
                 )}
                 <div className="flex items-center gap-1.5 text-sm text-gray-500">
                   <Users size={14} className="text-gray-400" />
-                  <span>{membership.training_type}</span>
+                  <span>{membership.training_type === 'Group' ? t('membership.type.group') : membership.training_type === 'Personal' ? t('membership.type.personal') : membership.training_type}</span>
                   {membership.level && <span>• {membership.level}</span>}
                 </div>
               </div>
@@ -169,13 +173,16 @@ export const MembershipsSection: React.FC<MembershipsSectionProps> = ({
                 <div className="flex items-center justify-between text-xs mb-1.5">
                   <span className="font-medium text-gray-500 flex items-center gap-1.5">
                     <Calendar size={12} />
-                    Started {formatDate(membership.start_date)}
+                    {t('membership.started')} {formatDate(membership.start_date)}
                   </span>
-                  <span className="font-bold text-[#1E3A8A]">Ends {formatDate(membership.end_date)}</span>
+                  <span className="font-bold text-[#1E3A8A]">{t('membership.ends')} {formatDate(membership.end_date)}</span>
                 </div>
                 {/* Fallback simple bar */}
                 <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                  <div className="h-full bg-[#1E3A8A] rounded-full w-[60%] opacity-80" />
+                  <div 
+                    className="h-full bg-[#1E3A8A] rounded-full opacity-80 transition-all duration-300" 
+                    style={{ width: `${calculateProgress(membership.start_date, membership.end_date)}%` }} 
+                  />
                 </div>
               </div>
             )}

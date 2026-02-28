@@ -71,8 +71,8 @@ export const PaymentHistorySection: React.FC = () => {
       paid: t('payments.status.paid'),
       pending: t('payments.status.pending'),
       failed: t('payments.status.failed'),
-      refunded: 'Возвращён',
-      cancelled: 'Отменён',
+      refunded: t('payments.status.refunded'),
+      cancelled: t('payments.status.cancelled'),
     };
     return labels[status] || status;
   };
@@ -133,7 +133,7 @@ export const PaymentHistorySection: React.FC = () => {
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
                   <CreditCard size={16} className="text-gray-400" />
-                  <h4 className="font-medium text-gray-900">{payment.club_name || 'Клуб'}</h4>
+                  <h4 className="font-medium text-gray-900">{payment.club_name || t('payments.club.default')}</h4>
                 </div>
                 {payment.payment_date && (
                   <div className="flex items-center gap-2 text-sm text-gray-600">

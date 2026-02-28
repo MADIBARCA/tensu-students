@@ -59,7 +59,7 @@ export const MembershipHistorySection: React.FC = () => {
   };
 
   const getReasonLabel = (reason: string) => {
-    return reason === 'expired' ? 'Истёк' : 'Отменён';
+    return reason === 'expired' ? t('membership.status.expired') : t('membership.status.canceled');
   };
 
   if (loading) {
@@ -98,15 +98,15 @@ export const MembershipHistorySection: React.FC = () => {
                   <div className="flex items-center gap-1 text-sm text-gray-600 mb-1">
                     <MapPin size={14} />
                     <span>{item.section_name}</span>
-                    {item.group_name && <span> • {item.group_name}</span>}
+                    {item.group_name && <span> • {item.group_name === 'all' ? t('membership.group.all') : item.group_name}</span>}
                   </div>
                 )}
                 <div className="flex items-center gap-2 text-sm text-gray-500">
                   <Users size={14} />
-                  <span>{item.training_type}</span>
+                  <span>{item.training_type === 'Group' ? t('membership.type.group') : item.training_type === 'Personal' ? t('membership.type.personal') : item.training_type}</span>
                   <span className="mx-1">•</span>
                   <Calendar size={14} />
-                  <span>Деактивирован: {formatDate(item.deactivation_date)}</span>
+                  <span>{t('membership.deactivated')}: {formatDate(item.deactivation_date)}</span>
                 </div>
               </div>
             ))}
