@@ -103,24 +103,18 @@ export const Layout: React.FC<LayoutProps> = ({
                 key={item.path}
                 onClick={() => navigate(item.path)}
                 className={`
-                  relative flex flex-col items-center py-2 px-3 rounded-xl
-                  transition-all duration-300 ease-out
+                  flex flex-col items-center py-2 px-3 rounded-xl
+                  transition-all duration-200
                   ${
                     isActive
-                      ? "text-[#1E3A8A] scale-105"
-                      : "text-[#9CA3AF] hover:text-[#6B7280] hover:scale-105"
+                      ? "text-[#1E3A8A]"
+                      : "text-[#9CA3AF] hover:text-[#6B7280]"
                   }
                 `}
               >
-                <div className={`transition-transform duration-300 ${isActive ? 'translate-y-[-2px]' : ''}`}>
-                  <Icon size={22} strokeWidth={isActive ? 2.5 : 1.8} className={isActive ? 'drop-shadow-sm' : ''} />
-                </div>
+                <Icon size={22} strokeWidth={isActive ? 2.5 : 1.8} />
                 <span
-                  className={`text-[11px] mt-1 transition-all duration-300 ${
-                    isActive 
-                      ? "font-bold text-[#1E3A8A]" 
-                      : "font-medium"
-                  }`}
+                  className={`text-[11px] mt-1 ${isActive ? "font-semibold" : "font-medium"}`}
                 >
                   {item.label}
                 </span>

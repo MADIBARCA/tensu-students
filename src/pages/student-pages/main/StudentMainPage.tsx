@@ -4,7 +4,6 @@ import { useI18n } from '@/i18n/i18n';
 import { NextSessionsSection } from './components/NextSessionsSection';
 import { LocationDistance } from './components/LocationDistance';
 import { NoMembershipBanner } from './components/NoMembershipBanner';
-import { PersonalStatsDashboard } from './components/PersonalStatsDashboard';
 import { membershipsApi } from '@/functions/axios/axiosFunctions';
 
 export default function StudentMainPage() {
@@ -68,7 +67,6 @@ export default function StudentMainPage() {
           <>
             <LocationDistance />
             <NextSessionsSection />
-            <PersonalStatsDashboard />
           </>
         )}
       </PageContainer>
