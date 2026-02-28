@@ -701,18 +701,18 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
           
           {/* Stats pills */}
           <div className="flex gap-2 mt-3 flex-wrap">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 rounded-full">
-              <Layers size={14} className="text-[#1E3A8A]" />
-              <span className="text-xs font-medium text-[#1E3A8A]">{sections.length || club.sections_count} {t('clubs.card.sections')}</span>
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 rounded-full">
+              <Layers size={14} className="text-gray-500" />
+              <span className="text-xs font-medium text-gray-600">{sections.length || club.sections_count} {t('clubs.card.sections')}</span>
             </div>
-            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#ECFDF5] rounded-full">
-              <Users size={14} className="text-[#059669]" />
-              <span className="text-xs font-medium text-[#065F46]">{t('clubs.details.studentsCount', { count: club.students_count })}</span>
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 rounded-full">
+              <Users size={14} className="text-gray-500" />
+              <span className="text-xs font-medium text-gray-600">{t('clubs.details.studentsCount', { count: club.students_count })}</span>
             </div>
             {coaches.length > 0 && (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-violet-50 rounded-full">
-                <Award size={14} className="text-violet-600" />
-                <span className="text-xs font-medium text-violet-700">{t('clubs.details.trainersCount', { count: coaches.length })}</span>
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 rounded-full">
+                <Award size={14} className="text-gray-500" />
+                <span className="text-xs font-medium text-gray-600">{t('clubs.details.trainersCount', { count: coaches.length })}</span>
               </div>
             )}
           </div>
@@ -726,26 +726,30 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
               className={`flex-1 py-3 text-sm font-medium transition-colors relative ${
                 activeTab === 'info' 
                   ? 'text-[#1E3A8A]' 
-                  : 'text-gray-500 hover:text-gray-700'
+                  : 'text-gray-400 hover:text-gray-600'
               }`}
             >
               {t('clubs.details.info')}
-              {activeTab === 'info' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#1E3A8A] rounded-full" />
-              )}
+              <div 
+                className={`absolute bottom-0 left-0 right-0 h-[3px] bg-[#1E3A8A] rounded-t-full transition-all duration-300 ${
+                  activeTab === 'info' ? 'opacity-100' : 'opacity-0 scale-x-50'
+                }`} 
+              />
             </button>
             <button
               onClick={() => setActiveTab('memberships')}
               className={`flex-1 py-3 text-sm font-medium transition-colors relative ${
                 activeTab === 'memberships' 
                   ? 'text-[#1E3A8A]' 
-                  : 'text-gray-500 hover:text-gray-700'
+                  : 'text-gray-400 hover:text-gray-600'
               }`}
             >
               {t('clubs.details.memberships')}
-              {activeTab === 'memberships' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#1E3A8A] rounded-full" />
-              )}
+              <div 
+                className={`absolute bottom-0 left-0 right-0 h-[3px] bg-[#1E3A8A] rounded-t-full transition-all duration-300 ${
+                  activeTab === 'memberships' ? 'opacity-100' : 'opacity-0 scale-x-50'
+                }`} 
+              />
             </button>
           </div>
         </div>
@@ -798,11 +802,11 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
 
               {/* Contact Buttons */}
               {(club.telegram_url || club.instagram_url || club.whatsapp_url) && (
-                <div className="flex gap-1">
+                <div className="flex gap-2">
                   {club.telegram_url && (
                     <button
                       onClick={() => handleContactClick('telegram')}
-                      className="flex-1 px-3 py-3 bg-[#229ED9]/10 text-[#229ED9] rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-[#229ED9]/20 transition-colors"
+                      className="flex-1 px-3 py-3 bg-gray-50 text-gray-700 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-gray-100 transition-colors"
                     >
                       <TelegramIcon size={18} />
                       Telegram
@@ -811,7 +815,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                   {club.instagram_url && (
                     <button
                       onClick={() => handleContactClick('instagram')}
-                      className="flex-1 px-3 py-3 bg-pink-50 text-pink-500 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-pink-100 transition-colors"
+                      className="flex-1 px-3 py-3 bg-gray-50 text-gray-700 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-gray-100 transition-colors"
                     >
                       <InstagramIcon size={18} />
                       Instagram
@@ -820,7 +824,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                   {club.whatsapp_url && (
                     <button
                       onClick={() => handleContactClick('whatsapp')}
-                      className="flex-1 px-3 py-3 bg-[#25D366]/10 text-[#25D366] rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-[#25D366]/20 transition-colors"
+                      className="flex-1 px-3 py-3 bg-gray-50 text-gray-700 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-gray-100 transition-colors"
                     >
                       <WhatsAppIcon size={18} />
                       WhatsApp
@@ -1380,15 +1384,15 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                     return (
                       <Card 
                         key={plan.id} 
-                        className={`p-4 relative overflow-hidden transition-all ${
+                        className={`p-4 relative transition-all ${
                           isPopular 
-                            ? 'border-2 border-[#2563EB] shadow-lg shadow-blue-100' 
-                            : 'border border-gray-200'
+                            ? 'border-transparent shadow-md ring-1 ring-[#2563EB]/10' 
+                            : 'border-transparent shadow-sm ring-1 ring-gray-100 bg-white'
                         }`}
                       >
                         {isPopular && (
-                          <div className="absolute top-0 right-0">
-                            <div className="bg-[#1E3A8A] text-white text-[10px] font-semibold px-3 py-1 rounded-bl-lg">
+                          <div className="absolute top-3 right-3">
+                            <div className="bg-[#1E3A8A] text-white text-[10px] font-medium px-2.5 py-1 rounded-lg shadow-sm">
                               {t('clubs.membership.popular')}
                             </div>
                           </div>
@@ -1402,8 +1406,9 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                             <>
                               <div className="flex items-start justify-between mb-3">
                                 <div>
-                                  <h4 className="font-bold text-gray-900 text-lg">{plan.name}</h4>
-                                  <div className="flex items-center gap-2 mt-0.5">
+                                  <div className={isPopular ? "pr-20" : ""}>
+                                    <h4 className="font-bold text-gray-900 text-lg">{plan.name}</h4>
+                                    <div className="flex items-center gap-2 mt-0.5">
                                     <span className="text-xs text-gray-500">{getPlanDuration(plan)}</span>
                                     {plan.freezeDaysTotal > 0 && (
                                       <>
@@ -1416,9 +1421,9 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                                     )}
                                     <span className="text-xs text-gray-300">•</span>
                                     <span className="text-xs text-[#1E3A8A] font-medium">{getPackageTypeLabel(plan.packageType)}</span>
+                                    </div>
                                   </div>
-                                </div>
-                                <div className="text-right">
+                                  <div className="text-right">
                                   {effectivePrice.isDiscounted ? (
                                     <>
                                       <div className="flex items-center gap-2 justify-end">
@@ -1494,11 +1499,9 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                                   {t('clubs.details.purchase')}
                                 </button>
                                 
-                                {/* Request individual price button - only show if no individual price and no pending request */}
-                                {!effectivePrice.isDiscounted && !hasPending && (
                                   <button
                                     onClick={() => handleRequestPrice(plan)}
-                                    className="w-full px-4 py-2.5 border-2 border-violet-200 text-violet-700 bg-violet-50 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-violet-100 hover:border-violet-300 transition-colors"
+                                    className="w-full px-4 py-2 text-violet-600 bg-transparent rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-violet-50/50 transition-colors"
                                   >
                                     <Tag size={16} />
                                     {t('clubs.priceRequest.requestButton')}
