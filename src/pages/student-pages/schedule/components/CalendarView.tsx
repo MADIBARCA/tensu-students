@@ -157,17 +157,17 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
       {/* Calendar Grid */}
       <div className="grid grid-cols-7 gap-1">
         {days.map((day, index) => (
-          <div key={index} className="aspect-square">
+          <div key={index} className="aspect-square p-0.5">
             {day ? (
               <button
                 onClick={() => onSelectDate(isSelected(day) ? null : day)}
-                className={`w-full h-full flex flex-col items-center justify-center rounded-lg text-sm transition-colors relative ${
+                className={`w-full h-full flex flex-col items-center justify-center rounded-xl text-sm transition-all duration-200 relative active:scale-95 ${
                   isSelected(day)
-                    ? 'bg-[#1E3A8A] text-white'
+                    ? 'bg-[#1E3A8A] text-white shadow-md scale-105 z-10'
                     : isToday(day)
-                    ? 'bg-blue-100 text-[#1E3A8A]'
+                    ? 'bg-blue-50 text-[#1E3A8A] font-semibold border border-blue-100'
                     : hasTrainings(day)
-                    ? 'bg-gray-100 hover:bg-gray-200'
+                    ? 'bg-gray-50 hover:bg-gray-100'
                     : 'hover:bg-gray-50'
                 }`}
               >
@@ -175,7 +175,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                   {day.getDate()}
                 </span>
                 {hasTrainings(day) && !isSelected(day) && (
-                  <span className="absolute bottom-1 w-1.5 h-1.5 bg-[#1E3A8A] rounded-full"></span>
+                  <span className="absolute bottom-1 w-1 h-1 bg-[#2563EB] rounded-full opacity-80"></span>
                 )}
               </button>
             ) : (
@@ -210,10 +210,11 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
             </p>
           ) : (
             <div className="space-y-3">
-              {selectedDateTrainings.map((training) => (
+              {selectedDateTrainings.map((training, index) => (
                 <TrainingCard
                   key={training.id}
                   training={training}
+                  variant={index === 0 ? 'primary' : 'secondary'}
                   onBook={() => onBook(training.id)}
                   onCancelBooking={() => onCancelBooking(training.id)}
                   onWaitlist={() => onWaitlist(training.id)}

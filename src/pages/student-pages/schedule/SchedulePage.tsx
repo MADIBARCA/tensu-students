@@ -483,10 +483,11 @@ export default function SchedulePage() {
                 <p className="text-[#9CA3AF] text-[14px]">{t('schedule.noTrainings')}</p>
               </div>
             ) : (
-              upcomingTrainings.map((training) => (
+              upcomingTrainings.map((training, index) => (
                 <TrainingCard
                   key={training.id}
                   training={training}
+                  variant={index === 0 ? 'primary' : 'secondary'}
                   onBook={() => handleBook(training.id)}
                   onCancelBooking={() => handleCancelBooking(training.id)}
                   onWaitlist={() => handleWaitlist(training.id)}

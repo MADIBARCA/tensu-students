@@ -5,6 +5,7 @@ import type { Training } from '../SchedulePage';
 
 interface TrainingCardProps {
   training: Training;
+  variant?: 'primary' | 'secondary';
   onBook: () => void;
   onCancelBooking: () => void;
   onWaitlist: () => void;
@@ -13,6 +14,7 @@ interface TrainingCardProps {
 
 export const TrainingCard: React.FC<TrainingCardProps> = ({
   training,
+  variant = 'secondary',
   onBook,
   onCancelBooking,
   onWaitlist,
@@ -78,8 +80,10 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
 
   // ── Render ───────────────────────────────────────────────
 
+  const spotsLeft = training.max_participants ? training.max_participants - training.current_participants : null;
+
   return (
-    <div className="bg-white rounded-[14px] px-5 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.06)] transition-shadow duration-200 hover:shadow-[0_2px_8px_rgba(0,0,0,0.08)]">
+    <div className="bg-white rounded-[14px] px-5 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.06)] active:scale-[0.98] transition-all duration-200 hover:shadow-[0_2px_8px_rgba(0,0,0,0.08)]">
 
       {/* ── Row 1 · Club + Status ─────────────────────── */}
       <div className="flex items-center gap-3 mb-3">
@@ -154,13 +158,20 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
 
       {/* ── Fill bar (subtle) ─────────────────────────── */}
       {training.max_participants !== null && (
-        <div className="h-[3px] bg-gray-100 rounded-full overflow-hidden mb-3 mt-1">
-          <div
-            className={`h-full rounded-full transition-all duration-500 ${
-              isFull ? 'bg-red-300' : fillPct > 75 ? 'bg-amber-300' : 'bg-[#6EE7B7]'
-            }`}
-            style={{ width: `${fillPct}%` }}
-          />
+        <div className="mb-3 mt-1">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className={`text-[12px] font-medium ${isFull ? 'text-red-500' : fillPct > 75 ? 'text-amber-600' : 'text-gray-500'}`}>
+              {isFull ? t('schedule.full') : spotsLeft && spotsLeft <= 5 ? `Осталось ${spotsLeft} места` : `${fillPct.toFixed(0)}% заполнено`}
+            </span>
+          </div>
+          <div className="h-[4px] bg-gray-100 rounded-full overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all duration-1000 ease-out ${
+                isFull ? 'bg-red-400' : fillPct > 75 ? 'bg-amber-400' : 'bg-[#10B981]'
+              }`}
+              style={{ width: `${fillPct}%` }}
+            />
+          </div>
         </div>
       )}
 
@@ -206,12 +217,23 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
             </span>
           </button>
         ) : (
-          <button
-            onClick={onBook}
-            className="btn-primary w-full py-3 text-[13px]"
-          >
-            {t('schedule.book')}
-          </button>
+          variant === 'primary' ? (
+            <button
+              onClick={onBook}
+              className="w-full py-3.5 bg-[#1E3A8A] text-white rounded-[16px] font-semibold text-[15px] hover:bg-blue-900 active:scale-[0.98] transition-all shadow-sm shadow-blue-900/20"
+            >
+              {t('schedule.book')}
+            </button>
+          ) : (
+            <div className="w-full flex justify-end">
+              <button
+                onClick={onBook}
+                className="text-[15px] font-bold text-[#2563EB] active:opacity-60 transition-opacity flex items-center"
+              >
+                Записаться <span className="font-normal ml-0.5">→</span>
+              </button>
+            </div>
+          )
         )}
       </div>
     </div>
