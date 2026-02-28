@@ -210,11 +210,10 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
             </p>
           ) : (
             <div className="space-y-3">
-              {selectedDateTrainings.map((training, index) => (
+              {selectedDateTrainings.map((training) => (
                 <TrainingCard
                   key={training.id}
                   training={training}
-                  variant={index === 0 ? 'primary' : 'secondary'}
                   onBook={() => onBook(training.id)}
                   onCancelBooking={() => onCancelBooking(training.id)}
                   onWaitlist={() => onWaitlist(training.id)}

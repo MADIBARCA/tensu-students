@@ -5,7 +5,6 @@ import type { Training } from '../SchedulePage';
 
 interface TrainingCardProps {
   training: Training;
-  variant?: 'primary' | 'secondary';
   onBook: () => void;
   onCancelBooking: () => void;
   onWaitlist: () => void;
@@ -14,7 +13,6 @@ interface TrainingCardProps {
 
 export const TrainingCard: React.FC<TrainingCardProps> = ({
   training,
-  variant = 'secondary',
   onBook,
   onCancelBooking,
   onWaitlist,
@@ -217,23 +215,12 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
             </span>
           </button>
         ) : (
-          variant === 'primary' ? (
-            <button
-              onClick={onBook}
-              className="w-full py-3.5 bg-[#1E3A8A] text-white rounded-[16px] font-semibold text-[15px] hover:bg-blue-900 active:scale-[0.98] transition-all shadow-sm shadow-blue-900/20"
-            >
-              {t('schedule.book')}
-            </button>
-          ) : (
-            <div className="w-full flex justify-end">
-              <button
-                onClick={onBook}
-                className="text-[15px] font-bold text-[#2563EB] active:opacity-60 transition-opacity flex items-center"
-              >
-                Записаться <span className="font-normal ml-0.5">→</span>
-              </button>
-            </div>
-          )
+          <button
+            onClick={onBook}
+            className="w-full py-3.5 bg-[#1E3A8A] text-white rounded-[16px] font-semibold text-[15px] hover:bg-blue-900 active:scale-[0.98] transition-all shadow-sm shadow-blue-900/20"
+          >
+            {t('schedule.book')}
+          </button>
         )}
       </div>
     </div>
