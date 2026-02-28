@@ -105,12 +105,12 @@ export const RequestPriceModal: React.FC<RequestPriceModalProps> = ({
   // Success state
   if (success) {
     return (
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4">
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-70 flex items-center justify-center p-4">
         <div 
           className="bg-white w-full max-w-sm rounded-2xl p-6 text-center"
           style={{ animation: 'scaleIn 0.3s ease-out' }}
         >
-          <div className="w-16 h-16 bg-gradient-to-br from-[#34D399] to-[#059669] rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-[#A7F3D0]">
+          <div className="w-16 h-16 bg-linear-to-br from-[#34D399] to-[#059669] rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-[#A7F3D0]">
             <CheckCircle size={32} className="text-white" />
           </div>
           <h3 className="text-lg font-bold text-gray-900 mb-2">
@@ -131,13 +131,13 @@ export const RequestPriceModal: React.FC<RequestPriceModalProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-end sm:items-center justify-center">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-70 flex items-end sm:items-center justify-center">
       <div 
         className="bg-white w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl"
         style={{ animation: 'slideUp 0.3s ease-out' }}
       >
         {/* Header */}
-        <div className="bg-gradient-to-r from-violet-500 to-purple-600 px-5 py-4 flex items-center justify-between">
+        <div className="bg-linear-to-r from-violet-500 to-purple-600 px-5 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
               <Tag size={20} className="text-white" />
@@ -161,7 +161,7 @@ export const RequestPriceModal: React.FC<RequestPriceModalProps> = ({
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-5 space-y-5">
           {/* Tariff info */}
-          <div className="p-4 bg-gradient-to-br from-gray-50 to-violet-50/50 rounded-xl border border-violet-100">
+          <div className="p-4 bg-linear-to-br from-gray-50 to-violet-50/50 rounded-xl border border-violet-100">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500">{t('clubs.priceRequest.selectedTariff')}</p>
@@ -176,7 +176,7 @@ export const RequestPriceModal: React.FC<RequestPriceModalProps> = ({
 
           {/* Info banner */}
           <div className="flex items-start gap-3 p-3 bg-blue-50 border border-blue-100 rounded-xl">
-            <HelpCircle size={18} className="text-[#2563EB] mt-0.5 flex-shrink-0" />
+            <HelpCircle size={18} className="text-[#2563EB] mt-0.5 shrink-0" />
             <p className="text-sm text-[#1E3A8A]">
               {t('clubs.priceRequest.info')}
             </p>
@@ -284,7 +284,7 @@ export const RequestPriceModal: React.FC<RequestPriceModalProps> = ({
             <button
               onClick={handleSubmit}
               disabled={!isValid() || submitting}
-              className="flex-1 px-4 py-3 bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-xl font-medium flex items-center justify-center gap-2 hover:from-violet-600 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-violet-200 disabled:shadow-none"
+              className="flex-1 px-4 py-3 bg-linear-to-r from-violet-500 to-purple-600 text-white rounded-xl font-medium flex items-center justify-center gap-2 hover:from-violet-600 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-violet-200 disabled:shadow-none"
             >
               {submitting ? (
                 <>

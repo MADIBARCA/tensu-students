@@ -42,6 +42,7 @@ export interface MembershipResponse {
   is_tariff_deleted: boolean;  // Indicates if the tariff was discontinued
   freeze_days_available: number;
   freeze_days_used: number;
+  freeze_days_min: number;
   freeze_start_date: string | null;
   freeze_end_date: string | null;
   coach_id: number | null;
@@ -318,6 +319,7 @@ export interface ClubTariffResponse {
   duration_days: number | null;
   sessions_count: number | null;
   freeze_days_total: number;
+  freeze_days_min: number;
   features: string[];
   included_sections: TariffAccessInfo[];
   included_groups: TariffAccessInfo[];

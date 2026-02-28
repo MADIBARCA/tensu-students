@@ -10,6 +10,7 @@ interface FreezeMembershipModalProps {
     status: string;
     freeze_days_available?: number;
     freeze_days_used?: number;
+    freeze_days_min?: number;
     freeze_start_date?: string | null;
     freeze_end_date?: string | null;
   };
@@ -76,7 +77,8 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
     return start >= tomorrow;
   }, [startDate]);
   
-  const isValid = freezeDays >= 1 && freezeDays <= 30 && freezeDays <= freezeDaysAvailable && isStartDateValid;
+  const minFreeze = membership.freeze_days_min || 1;
+  const isValid = freezeDays >= minFreeze && freezeDays <= 30 && freezeDays <= freezeDaysAvailable && isStartDateValid;
 
   const handleFreeze = async () => {
     if (!isValid) return;
@@ -275,9 +277,12 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
                 <p className="text-sm font-medium text-gray-900">Доступно дней для заморозки</p>
               </div>
               <p className="text-2xl font-bold text-[#1E3A8A]">{freezeDaysAvailable}</p>
-              <p className="text-xs text-gray-500 mt-1">
-                Максимальный срок заморозки: 30 дней
-              </p>
+              <div className="text-xs text-gray-500 mt-2 space-y-1">
+                <p>Максимальный срок заморозки: 30 дней</p>
+                {membership.freeze_days_min ? (
+                  <p>Минимальный срок заморозки: {membership.freeze_days_min} дней</p>
+                ) : null}
+              </div>
             </div>
 
             <div>
@@ -322,7 +327,7 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
                     ? 'Максимальный срок заморозки: 30 дней'
                     : freezeDays > freezeDaysAvailable
                     ? `Доступно только ${freezeDaysAvailable} дней`
-                    : 'Минимальный срок заморозки: 1 день'}
+                    : `Минимальный срок заморозки: ${minFreeze} ${minFreeze === 1 ? 'день' : 'дней'}`}
                 </p>
               </div>
             )}
