@@ -226,7 +226,7 @@ export const CashPaymentForm: React.FC<CashPaymentFormProps> = ({
       </div>
 
       {/* Submit button */}
-      <div className="px-4 py-4 border-t border-gray-100" style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 16px), 16px)' }}>
+      <div className="px-4 pt-4 pb-6 border-t border-gray-100" style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 16px), 16px)' }}>
         <button
           onClick={handleSubmit}
           disabled={isSubmitting || !amount || parseFloat(amount) <= 0}
