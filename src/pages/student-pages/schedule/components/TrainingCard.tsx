@@ -76,6 +76,17 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
     ? Math.min((training.current_participants / training.max_participants) * 100, 100)
     : 0;
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  
+  const next7Days = new Date(today);
+  next7Days.setDate(today.getDate() + 6);
+  const next7DaysStr = `${next7Days.getFullYear()}-${String(next7Days.getMonth() + 1).padStart(2, '0')}-${String(next7Days.getDate()).padStart(2, '0')}`;
+  
+  const isWithinBookingWindow = training.date >= todayStr && training.date <= next7DaysStr;
+  const isPast = training.date < todayStr;
+
   // ── Render ───────────────────────────────────────────────
 
   const spotsLeft = training.max_participants ? training.max_participants - training.current_participants : null;
@@ -181,48 +192,63 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
       )}
 
       {/* ── Actions ───────────────────────────────────── */}
-      <div className="flex items-center gap-3 pt-1">
-        {training.is_booked ? (
-          <>
+      {(training.is_booked || training.is_in_waitlist) ? (
+        <div className="flex items-center gap-3 pt-1">
+          {training.is_booked ? (
+            <>
+              {!isPast && (
+                <button
+                  onClick={onCancelBooking}
+                  className="text-[13px] font-medium text-red-500 hover:text-[#DC2626] active:text-[#7F1D1D] transition-colors"
+                >
+                  {t('schedule.cancelBooking')}
+                </button>
+              )}
+              <div className="flex-1" />
+              <button
+                onClick={onShowParticipants}
+                className="flex items-center gap-1 text-[13px] text-[#6B7280] hover:text-[#111] transition-colors"
+              >
+                <Eye size={14} />
+                <span>{t('schedule.participants.title')}</span>
+              </button>
+            </>
+          ) : (
+             <button
+              onClick={onWaitlist}
+              disabled={true}
+              className="text-[13px] font-medium transition-colors text-gray-300 cursor-not-allowed"
+             >
+               <span className="inline-flex items-center gap-1">
+                 <Bell size={14} />
+                 {t('schedule.inWaitlist')}
+               </span>
+             </button>
+          )}
+        </div>
+      ) : isWithinBookingWindow ? (
+        <div className="flex items-center gap-3 pt-1">
+          {isFull ? (
             <button
-              onClick={onCancelBooking}
-              className="text-[13px] font-medium text-red-500 hover:text-[#DC2626] active:text-[#7F1D1D] transition-colors"
+              onClick={onWaitlist}
+              disabled={false}
+              className="text-[13px] font-medium transition-colors text-amber-600 hover:text-amber-700 active:text-amber-800"
             >
-              {t('schedule.cancelBooking')}
+              <span className="inline-flex items-center gap-1">
+                <Bell size={14} />
+                {t('schedule.notifyMe')}
+              </span>
             </button>
-            <div className="flex-1" />
+          ) : (
             <button
-              onClick={onShowParticipants}
-              className="flex items-center gap-1 text-[13px] text-[#6B7280] hover:text-[#111] transition-colors"
+              onClick={onBook}
+              className="w-full py-3.5 bg-[#1E3A8A] text-white rounded-[16px] font-semibold text-[15px] hover:bg-blue-900 active:scale-[0.98] transition-all shadow-sm shadow-blue-900/20"
             >
-              <Eye size={14} />
-              <span>{t('schedule.participants.title')}</span>
+              {t('schedule.book')}
             </button>
-          </>
-        ) : isFull ? (
-          <button
-            onClick={onWaitlist}
-            disabled={training.is_in_waitlist}
-            className={`text-[13px] font-medium transition-colors ${
-              training.is_in_waitlist
-                ? 'text-gray-300 cursor-not-allowed'
-                : 'text-amber-600 hover:text-amber-700 active:text-amber-800'
-            }`}
-          >
-            <span className="inline-flex items-center gap-1">
-              <Bell size={14} />
-              {training.is_in_waitlist ? t('schedule.inWaitlist') : t('schedule.notifyMe')}
-            </span>
-          </button>
-        ) : (
-          <button
-            onClick={onBook}
-            className="w-full py-3.5 bg-[#1E3A8A] text-white rounded-[16px] font-semibold text-[15px] hover:bg-blue-900 active:scale-[0.98] transition-all shadow-sm shadow-blue-900/20"
-          >
-            {t('schedule.book')}
-          </button>
-        )}
-      </div>
+          )}
+        </div>
+      ) : null}
     </div>
   );
 };

@@ -28,6 +28,7 @@ declare global {
   interface Window {
     Telegram?: {
       WebApp: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         [x: string]: any;
         isVersionAtLeast(version: string): boolean;
         disableVerticalSwipes(): void;

@@ -10,8 +10,34 @@ interface ClubDetailsModalProps {
   onClose: () => void;
 }
 
+interface GroupData {
+  id: number;
+  name: string;
+}
+
+interface SectionData {
+  id: number;
+  name: string;
+  groups?: GroupData[];
+}
+
+interface PricingData {
+  name: string;
+  price: number;
+}
+
+interface ClubData {
+  name: string;
+  address?: string;
+  phone?: string;
+  instagram_url?: string;
+  telegram_url?: string;
+  sections?: SectionData[];
+  pricing?: PricingData[];
+}
+
 export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ onClose }) => {
-  const [clubData, setClubData] = useState<any>(null);
+  const [clubData, setClubData] = useState<ClubData | null>(null);
   const [loading, setLoading] = useState(true);
   const { openTgLink } = useTelegram();
 
@@ -103,7 +129,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ onClose }) =
 
           {clubData.instagram_url && (
             <button
-              onClick={() => tg?.openLink?.(clubData.instagram_url)}
+              onClick={() => tg?.openLink?.(clubData.instagram_url!)}
               className="flex items-center gap-3 w-full p-3 bg-pink-50 rounded-xl hover:bg-pink-100 transition-colors text-left"
             >
               <div className="w-10 h-10 bg-pink-100 rounded-xl flex items-center justify-center">
@@ -115,7 +141,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ onClose }) =
 
           {clubData.telegram_url && (
             <button
-              onClick={() => openTgLink(clubData.telegram_url)}
+              onClick={() => openTgLink(clubData.telegram_url!)}
               className="flex items-center gap-3 w-full p-3 bg-[#229ED9]/10 rounded-xl hover:bg-[#229ED9]/20 transition-colors text-left"
             >
               <div className="w-10 h-10 bg-[#229ED9]/15 rounded-xl flex items-center justify-center">
@@ -133,12 +159,12 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ onClose }) =
             Секции и группы
           </h3>
           <div className="space-y-2">
-            {clubData.sections?.map((section: any) => (
+            {clubData.sections?.map((section) => (
               <Card key={section.id} className="p-3">
                 <p className="font-medium text-gray-900 mb-2">{section.name}</p>
-                {section.groups?.length > 0 && (
+                {section.groups && section.groups.length > 0 && (
                   <div className="space-y-1">
-                    {section.groups.map((group: any) => (
+                    {section.groups.map((group) => (
                       <p key={group.id} className="text-sm text-gray-600 pl-4">
                         • {group.name}
                       </p>
@@ -157,7 +183,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ onClose }) =
             Прайсинг
           </h3>
           <div className="space-y-2">
-            {clubData.pricing?.map((item: any, index: number) => (
+            {clubData.pricing?.map((item, index: number) => (
               <Card key={index} className="p-3">
                 <div className="flex items-center justify-between">
                   <p className="font-medium text-gray-900">{item.name}</p>

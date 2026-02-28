@@ -80,6 +80,7 @@ export default function SchedulePage() {
 
   useEffect(() => {
     loadData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadData = async () => {
@@ -91,7 +92,7 @@ export default function SchedulePage() {
       
       // Load all data in parallel
       const [sessionsResponse, trainersResponse, clubsResponse, membershipsResponse] = await Promise.all([
-        scheduleApi.getSessions(token, 1, 100, { only_my_sessions: filters.sectionsType === 'my' }),
+        scheduleApi.getSessions(token, 1, 300, { only_my_sessions: filters.sectionsType === 'my' }),
         scheduleApi.getTrainers(token),
         clubsApi.getAll(token, 1, 100),
         membershipsApi.getActive(token),
