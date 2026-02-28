@@ -43,24 +43,33 @@ export default function StudentMainPage() {
 
   if (loading) {
     return (
-      <Layout title={t('nav.home')}>
-        <PageContainer>
+      <Layout title="">
+        <PageContainer className="bg-[#F2F2F7] min-h-screen">
           <div className="flex items-center justify-center py-8">
-            <div className="text-gray-600">{t('common.loading')}</div>
+            <div className="w-6 h-6 border-2 border-[#8E8E93] border-t-transparent rounded-full animate-spin" />
           </div>
         </PageContainer>
       </Layout>
     );
   }
 
+  // Current Date display like iOS
+  const dateOptions: Intl.DateTimeFormatOptions = { weekday: 'long', day: 'numeric', month: 'short' };
+  const todayDateStr = new Date().toLocaleDateString('ru-RU', dateOptions).toUpperCase();
+
   return (
-    <Layout title={t('nav.home')}>
-      <PageContainer>
-        <div className="mb-6 mt-[-8px]">
-          <h1 className="text-[28px] font-extrabold text-gray-900 tracking-tight leading-tight">
+    <Layout title="">
+      <PageContainer className="bg-[#F2F2F7] min-h-dvh">
+        {/* iOS-style Large Title Header */}
+        <div className="px-4 pt-4 pb-2">
+          <p className="text-[13px] font-semibold text-[#8E8E93] uppercase tracking-wider mb-1">
+            {todayDateStr}
+          </p>
+          <h1 className="text-[34px] font-bold text-[#000000] tracking-tight leading-none mb-4">
             {t(getGreetingKey(), { name: userName }).replace('  ', ' ')}
           </h1>
         </div>
+
         {!hasActiveMembership ? (
           <NoMembershipBanner />
         ) : (
