@@ -1420,10 +1420,11 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                                       </>
                                     )}
                                     <span className="text-xs text-gray-300">•</span>
-                                    <span className="text-xs text-[#1E3A8A] font-medium">{getPackageTypeLabel(plan.packageType)}</span>
+                                      <span className="text-xs text-[#1E3A8A] font-medium">{getPackageTypeLabel(plan.packageType)}</span>
                                     </div>
                                   </div>
-                                  <div className="text-right">
+                                </div>
+                                <div className="text-right">
                                   {effectivePrice.isDiscounted ? (
                                     <>
                                       <div className="flex items-center gap-2 justify-end">
@@ -1498,7 +1499,8 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                                   <CreditCard size={18} />
                                   {t('clubs.details.purchase')}
                                 </button>
-                                
+                                {/* Request individual price button - only show if no individual price and no pending request */}
+                                {!effectivePrice.isDiscounted && !hasPending && (
                                   <button
                                     onClick={() => handleRequestPrice(plan)}
                                     className="w-full px-4 py-2 text-violet-600 bg-transparent rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-violet-50/50 transition-colors"
