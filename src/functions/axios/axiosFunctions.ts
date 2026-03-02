@@ -125,6 +125,9 @@ export const attendanceApi = {
 
   getStats: (token: string | null) =>
     axiosRequest<AttendanceStatsResponse>(ENDPOINTS.ATTENDANCE.STATS, 'GET', token),
+
+  scanCheckIn: (qrToken: string, token: string | null) =>
+    axiosRequest<CheckInResponse>(ENDPOINTS.ATTENDANCE.SCAN_CHECKIN, 'POST', token, { qr_token: qrToken }),
 };
 
 // Legacy checkInApi for backward compatibility

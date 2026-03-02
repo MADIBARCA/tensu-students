@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Layout, PageContainer } from '@/components/Layout';
 import { useI18n } from '@/i18n/i18n';
 import { NextSessionsSection } from './components/NextSessionsSection';
+import { QrScanSection } from './components/QrScanSection';
 import { LocationDistance } from './components/LocationDistance';
 import { NoMembershipBanner } from './components/NoMembershipBanner';
 import { membershipsApi } from '@/functions/axios/axiosFunctions';
@@ -76,6 +77,7 @@ export default function StudentMainPage() {
           <>
             <LocationDistance />
             <NextSessionsSection />
+            <QrScanSection />
           </>
         )}
       </PageContainer>

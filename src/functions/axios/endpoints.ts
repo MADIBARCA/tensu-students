@@ -25,6 +25,7 @@ export const ENDPOINTS = {
   ATTENDANCE: {
     BASE: '/students/attendance/',
     CHECKIN: '/students/attendance/checkin',
+    SCAN_CHECKIN: '/students/attendance/scan-checkin',
     STATS: '/students/attendance/stats',
   },
 
