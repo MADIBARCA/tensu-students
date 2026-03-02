@@ -73,16 +73,20 @@ export const NextSessionsSection: React.FC = () => {
         s => s.date > todayStr && s.date <= next7Str
       );
 
-      let toShow: Session[];
-      if (inProgress.length > 0) {
+      // Group sessions so today's are prioritized, but we still show future ones to fill the list.
+      // If today has sessions, they naturally come first because backend returns ordered by date/time.
+      // We will show up to 10 sessions total.
+      let toShow: Session[] = [];
+      
+      if (todaySessions.length > 0) {
+        // Find all future sessions including today to ensure we don't hide the "next closest" one.
+        const allNext = nonCompleted.filter(s => s.date >= todayStr);
+        // Put inProgress first (though they usually are already), then the rest
         const inProgressIds = new Set(inProgress.map(s => s.id));
-        const rest = (todaySessions.length > 0 ? todaySessions : upcomingSessions)
-          .filter(s => !inProgressIds.has(s.id));
+        const rest = allNext.filter(s => !inProgressIds.has(s.id));
         toShow = [...inProgress, ...rest].slice(0, 10);
-      } else if (todaySessions.length > 0) {
-        toShow = todaySessions;
       } else {
-        toShow = upcomingSessions.slice(0, 3);
+        toShow = upcomingSessions.slice(0, 5);
       }
 
       setSessions(toShow);
