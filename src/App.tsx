@@ -15,6 +15,7 @@ import StudentMainPage from "./pages/student-pages/main/StudentMainPage";
 import SchedulePage from "./pages/student-pages/schedule/SchedulePage";
 import ProfilePage from "./pages/student-pages/profile/ProfilePage";
 import ClubsPage from "./pages/student-pages/clubs/ClubsPage";
+import AttendancePage from "./pages/student-pages/attendance/AttendancePage";
 
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 
@@ -28,6 +29,7 @@ const PAGE_ROUTES: Record<string, string> = {
   'clubs': '/student/clubs',
   'schedule': '/student/schedule',
   'groups': '/student/groups',
+  'attendance': '/student/attendance',
   'onboarding': '/onboarding',
   'privacy': '/privacy',
 };
@@ -116,6 +118,7 @@ function AppRoutes() {
         <Route path="/student/schedule" element={<SchedulePage />} />
         <Route path="/student/groups" element={<ClubsPage />} />
         <Route path="/student/profile" element={<ProfilePage />} />
+        <Route path="/student/attendance" element={<AttendancePage />} />
         <Route path="/student/clubs" element={<ClubsPage />} />
 
         <Route path="/privacy" element={<PrivacyPolicy />} />

@@ -40,6 +40,8 @@ const RU: Dict = {
   'profile.attendance.emptyTitle': 'Начните свой путь',
   'profile.attendance.emptyDesc': 'У вас пока нет посещений. Запишитесь на первую тренировку и отслеживайте свой прогресс здесь.',
   'profile.attendance.emptyAction': 'Записаться на тренировку',
+  'profile.attendance.viewAll': 'Все посещения',
+  'profile.attendance.endOfList': 'Это все записи',
   'profile.payments': 'История платежей',
   'profile.settings': 'Настройки',
 
@@ -447,6 +449,8 @@ const KK: Dict = {
   'profile.attendance.emptyTitle': 'Жолыңызды бастаңыз',
   'profile.attendance.emptyDesc': 'Сізде әзірше қатысулар жоқ. Алғашқы жаттығуға жазылыңыз.',
   'profile.attendance.emptyAction': 'Жаттығуға жазылу',
+  'profile.attendance.viewAll': 'Барлық қатысулар',
+  'profile.attendance.endOfList': 'Бұл барлық жазбалар',
   'profile.payments': 'Төлем тарихы',
   'profile.settings': 'Баптаулар',
 
