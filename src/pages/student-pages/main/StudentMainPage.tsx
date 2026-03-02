@@ -52,7 +52,7 @@ export default function StudentMainPage() {
   if (loading) {
     return (
       <Layout title="">
-        <PageContainer className="bg-gray-50 min-h-dvh">
+        <PageContainer className="bg-gray-50 h-dvh overflow-hidden">
           <div className="flex items-center justify-center py-8">
             <div className="w-6 h-6 border-2 border-[#8E8E93] border-t-transparent rounded-full animate-spin" />
           </div>
@@ -67,7 +67,7 @@ export default function StudentMainPage() {
 
   return (
     <Layout title="">
-      <PageContainer className="bg-gray-50 min-h-dvh">
+      <PageContainer className="bg-gray-50 h-dvh overflow-hidden">
         {/* Tech Vibe Header */}
         <div className="px-4 pt-23 pb-6">
           <p className="text-[12px] font-bold text-gray-500 uppercase tracking-widest mb-1">
