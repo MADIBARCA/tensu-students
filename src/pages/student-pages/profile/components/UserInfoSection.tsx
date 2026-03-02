@@ -1,5 +1,5 @@
 import React from 'react';
-import { Edit2, Camera } from 'lucide-react';
+import { Edit2 } from 'lucide-react';
 import { useTelegram } from '@/hooks/useTelegram';
 import { useI18n } from '@/i18n/i18n';
 import type { StudentResponse } from '@/functions/axios/responses';
