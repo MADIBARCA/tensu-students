@@ -39,11 +39,39 @@ export const ScanQrFAB: React.FC = () => {
 
     setScanning(true);
 
+    const resetScanning = () => {
+      setScanning(false);
+    };
+
+    const handlePopupClosed = () => {
+      tg.offEvent?.('scanQrPopupClosed', handlePopupClosed);
+      window.removeEventListener('focus', handleFocusFallback);
+      resetScanning();
+    };
+
+    const handleFocusFallback = () => {
+      window.removeEventListener('focus', handleFocusFallback);
+      resetScanning();
+    };
+
+    if (tg.onEvent && tg.isVersionAtLeast?.('7.7')) {
+      tg.onEvent('scanQrPopupClosed', handlePopupClosed);
+    } else {
+      window.addEventListener('focus', handleFocusFallback);
+    }
+
     tg.showScanQrPopup(
       { text: t('home.qr.hint') },
       async (qrData: string) => {
-        tg.closeScanQrPopup();
-        
+        tg.closeScanQrPopup?.();
+        tg.offEvent?.('scanQrPopupClosed', handlePopupClosed);
+        window.removeEventListener('focus', handleFocusFallback);
+
+        if (!qrData?.trim()) {
+          resetScanning();
+          return true;
+        }
+
         try {
           const token = tg.initData || null;
           const response = await attendanceApi.scanCheckIn(qrData, token);
@@ -68,7 +96,7 @@ export const ScanQrFAB: React.FC = () => {
             tg.HapticFeedback.notificationOccurred('error');
           }
         } finally {
-          setScanning(false);
+          resetScanning();
         }
 
         return true;
