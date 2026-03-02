@@ -1416,13 +1416,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                             : 'border-transparent shadow-sm ring-1 ring-gray-100 bg-white'
                         }`}
                       >
-                        {isPopular && (
-                          <div className="absolute top-3 right-3">
-                            <div className="bg-[#1E3A8A] text-white text-[10px] font-medium px-2.5 py-1 rounded-lg shadow-sm">
-                              {t('clubs.membership.popular')}
-                            </div>
-                          </div>
-                        )}
+                        {/* Popular badge moved to title to prevent overlapping price */}
                         
                         {(() => {
                           const effectivePrice = getEffectivePrice(plan);
@@ -1430,27 +1424,34 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
                           
                           return (
                             <>
-                              <div className="flex items-start justify-between mb-3">
-                                <div>
-                                  <div className={isPopular ? "pr-20" : ""}>
-                                    <h4 className="font-bold text-gray-900 text-lg">{plan.name}</h4>
-                                    <div className="flex items-center gap-2 mt-0.5">
-                                    <span className="text-xs text-gray-500">{getPlanDuration(plan)}</span>
-                                    {plan.freezeDaysTotal > 0 && (
-                                      <>
-                                        <span className="text-xs text-gray-300">•</span>
-                                        <span className="text-xs text-[#2563EB] font-medium flex items-center gap-0.5">
-                                          <Snowflake size={10} />
-                                          {plan.freezeDaysTotal} {t('clubs.membership.days')}
+                              <div className="flex items-start justify-between mb-3 gap-2">
+                                <div className="flex-1 min-w-0">
+                                  <div>
+                                    <h4 className="font-bold text-gray-900 text-lg flex items-center flex-wrap gap-2">
+                                      {plan.name}
+                                      {isPopular && (
+                                        <span className="bg-[#1E3A8A] text-white text-[10px] font-medium px-2 py-0.5 rounded-md shadow-sm">
+                                          {t('clubs.membership.popular')}
                                         </span>
-                                      </>
-                                    )}
-                                    <span className="text-xs text-gray-300">•</span>
-                                      <span className="text-xs text-[#1E3A8A] font-medium">{getPackageTypeLabel(plan.packageType)}</span>
+                                      )}
+                                    </h4>
+                                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-0.5">
+                                      <span className="text-xs text-gray-500 whitespace-nowrap">{getPlanDuration(plan)}</span>
+                                      {plan.freezeDaysTotal > 0 && (
+                                        <>
+                                          <span className="text-xs text-gray-300">•</span>
+                                          <span className="text-xs text-[#2563EB] font-medium flex items-center gap-0.5 whitespace-nowrap">
+                                            <Snowflake size={10} />
+                                            {plan.freezeDaysTotal} {t('clubs.membership.days')}
+                                          </span>
+                                        </>
+                                      )}
+                                      <span className="text-xs text-gray-300">•</span>
+                                      <span className="text-xs text-[#1E3A8A] font-medium whitespace-nowrap">{getPackageTypeLabel(plan.packageType)}</span>
                                     </div>
                                   </div>
                                 </div>
-                                <div className="text-right">
+                                <div className="text-right shrink-0">
                                   {effectivePrice.isDiscounted ? (
                                     <>
                                       <div className="flex items-center gap-2 justify-end">
