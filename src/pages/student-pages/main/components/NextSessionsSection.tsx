@@ -248,6 +248,7 @@ export const NextSessionsSection: React.FC = () => {
             session.date, session.time, session.duration_minutes,
           );
           const isActive = liveStatus === 'in_progress';
+          const isCompleted = liveStatus === 'completed';
 
           const todayStr = new Date().toISOString().split('T')[0];
           const isToday = session.date === todayStr;
@@ -307,7 +308,7 @@ export const NextSessionsSection: React.FC = () => {
                 <div className="flex flex-col gap-1 mb-5 text-[14px] text-gray-500 font-medium">
                   <p>{getDateLabel()}, {timeLabel}</p>
                   <p>Тренер: {session.coach_name || 'Не указан'}</p>
-                  {spotsLeft !== null && spotsLeft <= 5 && !session.is_booked && (
+                  {!isCompleted && spotsLeft !== null && spotsLeft <= 5 && !session.is_booked && (
                     <p className={`${spotsLeft === 0 ? 'text-[#EF4444]' : 'text-[#F59E0B]'} font-bold mt-1`}>
                       {spotsLeft === 0 ? t('home.sessions.status.full') : `Осталось ${spotsLeft} места`}
                     </p>

@@ -182,7 +182,7 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
       {/* ── Row 3 · Time · Participants ────────────────── */}
       <div className="flex items-center gap-4 text-[13px] text-[#111] mb-1.5">
         <span>🕐 {formatTrainingDate(training.date, training.time)}</span>
-        <span className={isFull ? 'text-red-500' : ''}>
+        <span className={!isCompleted && isFull ? 'text-red-500' : ''}>
           👥 {training.current_participants}/{training.max_participants ?? '∞'}
         </span>
       </div>
@@ -193,7 +193,7 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
       )}
 
       {/* ── Fill bar (subtle) ─────────────────────────── */}
-      {training.max_participants !== null && (
+      {!isCompleted && training.max_participants !== null && (
         <div className="mb-3 mt-1">
           <div className="flex items-center justify-between mb-1.5">
             <span className={`text-[12px] font-medium ${isFull ? 'text-red-500' : fillPct > 75 ? 'text-amber-600' : 'text-gray-500'}`}>
