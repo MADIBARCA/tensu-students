@@ -12,8 +12,7 @@ import {
   Calendar,
   TrendingUp,
   Dumbbell,
-  ArrowRight,
-  Sparkles
+  ArrowRight
 } from 'lucide-react';
 
 type OnboardingState = 'checking' | 'welcome' | 'requesting' | 'creating' | 'success' | 'error';
