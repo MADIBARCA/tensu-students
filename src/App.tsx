@@ -122,7 +122,11 @@ function AppRoutes() {
         {/* Default route - checks for Telegram startapp before going to onboarding */}
         <Route path="*" element={<DefaultRoute />} />
       </Routes>
-      <ToastContainer position="top-right" autoClose={3000} />
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        style={{ marginTop: 'calc(env(safe-area-inset-top, 0px) + 50px)' }}
+      />
     </div>
   );
 }
