@@ -120,7 +120,7 @@ export const NextSessionsSection: React.FC = () => {
     };
 
     if (tg?.showConfirm) {
-      tg.showConfirm(t('schedule.cancelBooking') + '?', (confirmed) => {
+      tg.showConfirm(t('schedule.cancelBooking') + '?', (confirmed: boolean) => {
         if (confirmed) executeCancel();
       });
     } else {
