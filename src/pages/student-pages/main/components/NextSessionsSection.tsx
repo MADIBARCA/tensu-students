@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useI18n } from '@/i18n/i18n';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, Eye } from 'lucide-react';
 import { scheduleApi } from '@/functions/axios/axiosFunctions';
 import type { SessionResponse, SessionStatus } from '@/functions/axios/responses';
+import { ParticipantsModal } from '../../schedule/components/ParticipantsModal';
+import type { Training } from '../../schedule/SchedulePage';
 
 interface Session {
   id: number;
@@ -27,6 +29,7 @@ export const NextSessionsSection: React.FC = () => {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [showParticipantsFor, setShowParticipantsFor] = useState<Session | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -97,6 +100,65 @@ export const NextSessionsSection: React.FC = () => {
     }
   };
 
+  const handleCancelBooking = async (sessionId: number) => {
+    const tg = window.Telegram?.WebApp;
+    const token = tg?.initData || null;
+
+    const executeCancel = async () => {
+      try {
+        const response = await scheduleApi.cancel(sessionId, token);
+        if (response.data.success) {
+          setSessions(prev => prev.map(s => 
+            s.id === sessionId ? { 
+              ...s, 
+              status: 'scheduled' as SessionStatus,
+              is_booked: false,
+              participants_count: Math.max(0, s.participants_count - 1)
+            } : s
+          ));
+          if (tg) tg.showAlert(response.data.message || t('schedule.cancelSuccess'));
+        }
+      } catch (error: any) {
+        console.error('Failed to cancel booking:', error);
+        if (tg) {
+          const errorMessage = error.response?.data?.detail || t('schedule.cancelError');
+          tg.showAlert(errorMessage);
+        }
+      }
+    };
+
+    if (tg?.showConfirm) {
+      tg.showConfirm(t('schedule.cancelConfirm'), (confirmed) => {
+        if (confirmed) executeCancel();
+      });
+    } else {
+      if (window.confirm(t('schedule.cancelConfirm'))) {
+        executeCancel();
+      }
+    }
+  };
+
+  const getTrainingFromSession = (session: Session): Training => ({
+    id: session.id,
+    section_name: session.section_name,
+    group_name: session.group_name || null,
+    trainer_name: session.coach_name,
+    trainer_id: null,
+    trainer_photo_url: null,
+    club_id: 0,
+    club_name: session.club_name,
+    club_logo_url: null,
+    date: session.date,
+    time: session.time,
+    location: session.club_address,
+    max_participants: session.max_participants || null,
+    current_participants: session.participants_count,
+    participants: [],
+    notes: session.notes || null,
+    is_booked: session.is_booked,
+    is_in_waitlist: false,
+  });
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-10">
@@ -145,7 +207,7 @@ export const NextSessionsSection: React.FC = () => {
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="flex overflow-x-auto snap-x snap-mandatory gap-3 px-4 pb-2"
+        className="flex overflow-x-auto snap-x snap-mandatory gap-3 px-4 pb-2 items-stretch"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
       >
         {sessions.map((session) => {
@@ -163,7 +225,7 @@ export const NextSessionsSection: React.FC = () => {
               className="snap-center shrink-0"
               style={{ width: sessions.length === 1 ? '100%' : '85%' }}
             >
-              <div className="bg-white rounded-[24px] p-5 shadow-sm border border-gray-100 relative overflow-hidden">
+              <div className="bg-white rounded-[24px] p-5 shadow-sm border border-gray-100 relative overflow-hidden h-full flex flex-col">
                 <div className="flex items-center justify-between mb-4">
                   <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[12px] font-bold bg-[#EFF6FF] text-[#2563EB] uppercase tracking-wider">
                     {t('home.sessions.today')}
@@ -194,14 +256,37 @@ export const NextSessionsSection: React.FC = () => {
                   )}
                 </div>
 
-                {!session.is_booked && canBook && (
-                  <button
-                    onClick={() => handleBookSession(session.id)}
-                    className="w-full py-3.5 bg-[#1E3A8A] text-white rounded-[16px] font-semibold text-[15px] hover:bg-blue-900 active:scale-[0.98] transition-all shadow-sm shadow-blue-900/20"
-                  >
-                    {t('home.sessions.book')}
-                  </button>
-                )}
+                <div className="mt-auto pt-2">
+                  {session.is_booked ? (
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => handleCancelBooking(session.id)}
+                        className="text-[13px] font-medium text-red-500 hover:text-[#DC2626] active:text-[#7F1D1D] transition-colors"
+                      >
+                        {t('schedule.cancelBooking')}
+                      </button>
+                      <div className="flex-1" />
+                      <button
+                        onClick={() => setShowParticipantsFor(session)}
+                        className="flex items-center gap-1 text-[13px] text-[#6B7280] hover:text-[#111] transition-colors"
+                      >
+                        <Eye size={14} />
+                        <span>{t('schedule.participants.title')}</span>
+                      </button>
+                    </div>
+                  ) : canBook ? (
+                    <button
+                      onClick={() => handleBookSession(session.id)}
+                      className="w-full py-3.5 bg-[#1E3A8A] text-white rounded-[16px] font-semibold text-[15px] hover:bg-blue-900 active:scale-[0.98] transition-all shadow-sm shadow-blue-900/20"
+                    >
+                      {t('home.sessions.book')}
+                    </button>
+                  ) : (
+                    <div className="w-full py-3.5 bg-gray-50 text-gray-400 rounded-[16px] font-semibold text-[15px] text-center">
+                      {isFull ? t('schedule.full') : t('schedule.unavailable')}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           );
@@ -221,6 +306,13 @@ export const NextSessionsSection: React.FC = () => {
             />
           ))}
         </div>
+      )}
+
+      {showParticipantsFor && (
+        <ParticipantsModal
+          training={getTrainingFromSession(showParticipantsFor)}
+          onClose={() => setShowParticipantsFor(null)}
+        />
       )}
     </div>
   );
