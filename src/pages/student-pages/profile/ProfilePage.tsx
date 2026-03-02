@@ -12,23 +12,12 @@ import { PaymentHistorySection } from './components/PaymentHistorySection';
 
 import { SettingsSection } from './components/SettingsSection';
 import { EditProfileModal } from './components/EditProfileModal';
+import { MembershipDetailsModal } from './components/MembershipDetailsModal';
 
 import { FreezeMembershipModal } from './components/FreezeMembershipModal';
-import type { StudentResponse, MembershipStatus } from '@/functions/axios/responses';
+import type { StudentResponse } from '@/functions/axios/responses';
 
-interface SelectedMembership {
-  id: number;
-  status: MembershipStatus;
-  freeze_days_available?: number;
-  freeze_days_used?: number;
-  freeze_days_min?: number;
-  freeze_start_date?: string | null;
-  freeze_end_date?: string | null;
-  club_name: string;
-  section_name?: string | null;
-  end_date: string;
-  is_tariff_deleted?: boolean;
-}
+import type { MembershipDetail } from './components/MembershipDetailsModal';
 
 export default function ProfilePage() {
   const { t } = useI18n();
@@ -38,7 +27,8 @@ export default function ProfilePage() {
   const [showEditModal, setShowEditModal] = useState(false);
 
   const [showFreezeModal, setShowFreezeModal] = useState(false);
-  const [selectedMembership, setSelectedMembership] = useState<SelectedMembership | null>(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedMembership, setSelectedMembership] = useState<MembershipDetail | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const loadStudentData = useCallback(async () => {
@@ -106,15 +96,14 @@ export default function ProfilePage() {
 
 
 
-  const handleFreeze = (membership: SelectedMembership) => {
+  const handleManage = (membership: MembershipDetail) => {
     setSelectedMembership(membership);
-    setShowFreezeModal(true);
+    setShowDetailsModal(true);
   };
 
-  const handleClubClick = (_clubId: number) => {
-    // Navigate to club page or open modal
-    // For now, just log it
-    console.log('Club clicked:', _clubId);
+  const handleRenew = () => {
+    // Eventually navigate to tariffs / clubs page to renew
+    window.Telegram?.WebApp?.showAlert(t('membership.renewComingSoon') || 'Продление абонементов скоро появится');
   };
 
   const handleFreezeSuccess = () => {
@@ -146,8 +135,7 @@ export default function ProfilePage() {
         {/* My Memberships Section */}
         <MembershipsSection
           key={`memberships-${refreshKey}`}
-          onFreeze={handleFreeze}
-          onClubClick={handleClubClick}
+          onManage={handleManage}
         />
 
         {/* Membership History Section */}
@@ -169,6 +157,18 @@ export default function ProfilePage() {
             student={studentData}
             onClose={() => setShowEditModal(false)}
             onSave={handleSaveProfile}
+          />
+        )}
+
+        {showDetailsModal && selectedMembership && (
+          <MembershipDetailsModal
+            membership={selectedMembership}
+            onClose={() => {
+              setShowDetailsModal(false);
+              setSelectedMembership(null);
+            }}
+            onFreeze={() => setShowFreezeModal(true)}
+            onRenew={handleRenew}
           />
         )}
 

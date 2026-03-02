@@ -3,11 +3,11 @@ import { SectionHeader } from '@/components/Layout';
 import { useI18n } from '@/i18n/i18n';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui';
-import { Calendar, MapPin, Users, Snowflake, ChevronRight, AlertTriangle } from 'lucide-react';
+import { Calendar, MapPin, Users, ChevronRight, AlertTriangle } from 'lucide-react';
 import { membershipsApi } from '@/functions/axios/axiosFunctions';
 import type { MembershipResponse, MembershipStatus } from '@/functions/axios/responses';
 
-interface Membership {
+export interface Membership {
   id: number;
   club_name: string;
   section_name?: string | null;
@@ -26,13 +26,11 @@ interface Membership {
 }
 
 interface MembershipsSectionProps {
-  onFreeze: (membership: Membership) => void;
-  onClubClick: (clubId: number) => void;
+  onManage: (membership: Membership) => void;
 }
 
 export const MembershipsSection: React.FC<MembershipsSectionProps> = ({
-  onFreeze,
-  onClubClick,
+  onManage,
 }) => {
   const { t } = useI18n();
   const navigate = useNavigate();
@@ -143,7 +141,7 @@ export const MembershipsSection: React.FC<MembershipsSectionProps> = ({
         {memberships.map((membership) => (
           <Card
             key={membership.id}
-            onClick={() => onClubClick(membership.id)}
+            onClick={() => onManage(membership)}
             className="cursor-pointer group relative overflow-hidden transition-all hover:shadow-md border border-gray-100 p-4"
           >
             <div className="flex items-start justify-between mb-4">
@@ -195,7 +193,7 @@ export const MembershipsSection: React.FC<MembershipsSectionProps> = ({
 
             {/* Warning banner for discontinued tariffs */}
             {membership.is_tariff_deleted && (
-              <div className="flex items-start gap-2 p-3 mb-3 bg-amber-50 border border-amber-200 rounded-lg">
+              <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg mt-3">
                 <AlertTriangle size={18} className="text-amber-600 mt-0.5 flex-shrink-0" />
                 <div className="text-sm text-amber-800">
                   <p className="font-medium">{t('membership.tariffDiscontinued')}</p>
@@ -203,37 +201,6 @@ export const MembershipsSection: React.FC<MembershipsSectionProps> = ({
                 </div>
               </div>
             )}
-
-            <div className="flex gap-2">
-              {(membership.status === 'active' || membership.status === 'new') && !membership.is_tariff_deleted && (
-                <>
-                  {membership.freeze_days_available && membership.freeze_days_available > 0 ? (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onFreeze(membership);
-                      }}
-                      className="flex-1 px-3 py-2.5 bg-gray-50 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-100 transition-colors flex items-center justify-center gap-1.5 border border-gray-100 shadow-sm"
-                    >
-                      <Snowflake size={16} />
-                      {t('membership.freeze')}
-                    </button>
-                  ) : null}
-                </>
-              )}
-              {membership.status === 'frozen' && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onFreeze(membership);
-                  }}
-                  className="flex-1 px-3 py-2.5 bg-[#1E3A8A] text-white text-sm font-medium rounded-xl hover:bg-[#1E3A8A]/90 transition-colors flex items-center justify-center gap-1.5 shadow-md"
-                >
-                  <Snowflake size={16} />
-                  {t('membership.unfreeze')}
-                </button>
-              )}
-            </div>
           </Card>
         ))}
       </div>
