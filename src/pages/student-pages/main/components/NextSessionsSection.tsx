@@ -56,13 +56,28 @@ export const NextSessionsSection: React.FC = () => {
         is_booked: s.is_booked,
       }));
 
+      console.log('[NextSessions] Raw API data count:', response.data.length);
+      console.log('[NextSessions] Raw API sessions:', response.data.map((s: SessionResponse) => ({
+        id: s.id, date: s.date, time: s.time, section: s.section_name, status: s.status,
+        duration: s.duration_minutes,
+      })));
+      console.log('[NextSessions] todayStr:', todayStr, 'now:', now.toISOString());
+
       const nonCompleted = allMapped.filter(
         s => getTrainingLiveStatus(s.date, s.time, s.duration_minutes) !== 'completed'
+      );
+
+      console.log('[NextSessions] After completed filter:', nonCompleted.length,
+        'Dropped completed:', allMapped.filter(
+          s => getTrainingLiveStatus(s.date, s.time, s.duration_minutes) === 'completed'
+        ).map(s => ({ id: s.id, date: s.date, time: s.time, dur: s.duration_minutes }))
       );
 
       const inProgress = nonCompleted.filter(
         s => getTrainingLiveStatus(s.date, s.time, s.duration_minutes) === 'in_progress'
       );
+
+      console.log('[NextSessions] In progress:', inProgress.map(s => ({ id: s.id, date: s.date, time: s.time })));
 
       const next7 = new Date(now);
       next7.setDate(next7.getDate() + 7);
@@ -73,15 +88,14 @@ export const NextSessionsSection: React.FC = () => {
         s => s.date > todayStr && s.date <= next7Str
       );
 
-      // Group sessions so today's are prioritized, but we still show future ones to fill the list.
-      // If today has sessions, they naturally come first because backend returns ordered by date/time.
-      // We will show up to 10 sessions total.
+      console.log('[NextSessions] todaySessions:', todaySessions.map(s => ({ id: s.id, date: s.date, time: s.time })));
+      console.log('[NextSessions] upcomingSessions:', upcomingSessions.map(s => ({ id: s.id, date: s.date, time: s.time })));
+
+      // Show all non-completed sessions: today first (with in-progress prioritized), then upcoming days.
       let toShow: Session[] = [];
       
       if (todaySessions.length > 0) {
-        // Find all future sessions including today to ensure we don't hide the "next closest" one.
         const allNext = nonCompleted.filter(s => s.date >= todayStr);
-        // Put inProgress first (though they usually are already), then the rest
         const inProgressIds = new Set(inProgress.map(s => s.id));
         const rest = allNext.filter(s => !inProgressIds.has(s.id));
         toShow = [...inProgress, ...rest].slice(0, 10);
@@ -89,6 +103,7 @@ export const NextSessionsSection: React.FC = () => {
         toShow = upcomingSessions.slice(0, 5);
       }
 
+      console.log('[NextSessions] Final toShow:', toShow.map(s => ({ id: s.id, date: s.date, time: s.time, section: s.section_name })));
       setSessions(toShow);
     } catch (error) {
       console.error('Failed to load sessions:', error);
