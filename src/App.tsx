@@ -125,7 +125,7 @@ function AppRoutes() {
       <ToastContainer
         position="top-center"
         autoClose={3000}
-        style={{ marginTop: 'calc(env(safe-area-inset-top, 0px) + 50px)' }}
+        style={{ marginTop: 'calc(env(safe-area-inset-top, 0px) + 60px)' }}
       />
     </div>
   );
