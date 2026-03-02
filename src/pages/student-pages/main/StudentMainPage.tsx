@@ -51,8 +51,8 @@ export default function StudentMainPage() {
 
   if (loading) {
     return (
-      <Layout title="">
-        <PageContainer className="bg-gray-50 h-dvh overflow-hidden">
+      <Layout title="" noScroll={true}>
+        <PageContainer className="bg-gray-50 flex-1 flex flex-col h-full overflow-hidden">
           <div className="flex items-center justify-center py-8">
             <div className="w-6 h-6 border-2 border-[#8E8E93] border-t-transparent rounded-full animate-spin" />
           </div>
@@ -66,8 +66,8 @@ export default function StudentMainPage() {
   const todayDateStr = new Date().toLocaleDateString('ru-RU', dateOptions).toUpperCase();
 
   return (
-    <Layout title="">
-      <PageContainer className="bg-gray-50 h-dvh overflow-hidden">
+    <Layout title="" noScroll={true}>
+      <PageContainer className="bg-gray-50 flex-1 flex flex-col h-full overflow-hidden pb-[80px]">
         {/* Tech Vibe Header */}
         <div className="px-4 pt-23 pb-6">
           <p className="text-[12px] font-bold text-gray-500 uppercase tracking-widest mb-1">

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useI18n } from '@/i18n/i18n';
-import { CheckCircle, Eye, Loader2 } from 'lucide-react';
+import { CheckCircle, Loader2, Trash2, Users } from 'lucide-react';
 import { scheduleApi } from '@/functions/axios/axiosFunctions';
 import type { SessionResponse, SessionStatus } from '@/functions/axios/responses';
 import { ParticipantsModal } from '../../schedule/components/ParticipantsModal';
@@ -120,9 +120,9 @@ export const NextSessionsSection: React.FC = () => {
         if (response.data.success) {
           if (tg) tg.showAlert(response.data.message || t('schedule.cancelSuccess'));
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Failed to cancel booking:', error);
-        const errMsg = error.response?.data?.detail || t('schedule.cancelError');
+        const errMsg = (error as { response?: { data?: { detail?: string } } })?.response?.data?.detail || t('schedule.cancelError');
         if (tg) tg.showAlert(errMsg);
       } finally {
         await fetchSessions(false);
@@ -261,23 +261,21 @@ export const NextSessionsSection: React.FC = () => {
 
                 <div className="mt-auto pt-2">
                   {session.is_booked ? (
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center justify-end gap-3">
                       <button
                         onClick={() => handleCancelBooking(session.id)}
                         disabled={actionInProgress === session.id}
-                        className="text-[13px] font-medium text-red-500 hover:text-[#DC2626] active:text-[#7F1D1D] transition-colors disabled:opacity-50"
+                        className="p-2.5 rounded-full bg-red-50 text-red-500 hover:bg-red-100 active:bg-red-200 transition-colors disabled:opacity-50"
                       >
                         {actionInProgress === session.id
-                          ? <Loader2 size={14} className="animate-spin inline" />
-                          : t('schedule.cancelBooking')}
+                          ? <Loader2 size={18} className="animate-spin" />
+                          : <Trash2 size={18} />}
                       </button>
-                      <div className="flex-1" />
                       <button
                         onClick={() => setShowParticipantsFor(session)}
-                        className="flex items-center gap-1 text-[13px] text-[#6B7280] hover:text-[#111] transition-colors"
+                        className="p-2.5 rounded-full bg-gray-50 text-gray-500 hover:bg-gray-100 active:bg-gray-200 transition-colors"
                       >
-                        <Eye size={14} />
-                        <span>{t('schedule.participants.title')}</span>
+                        <Users size={18} />
                       </button>
                     </div>
                   ) : canBook ? (

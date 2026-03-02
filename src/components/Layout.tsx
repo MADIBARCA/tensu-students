@@ -23,6 +23,7 @@ interface LayoutProps {
   title?: string;
   showBackButton?: boolean;
   actions?: React.ReactNode;
+  noScroll?: boolean;
 }
 
 export const Layout: React.FC<LayoutProps> = ({
@@ -30,6 +31,7 @@ export const Layout: React.FC<LayoutProps> = ({
   title,
   showBackButton = false,
   actions,
+  noScroll = false,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -43,7 +45,10 @@ export const Layout: React.FC<LayoutProps> = ({
   ];
 
   return (
-    <div className="min-h-screen bg-[#FAFBFF] flex flex-col">
+    <div className={clsx(
+      "bg-[#FAFBFF] flex flex-col",
+      noScroll ? "h-dvh overflow-hidden" : "min-h-screen"
+    )}>
       {/* Header — fixed at top with constant padding */}
       {title && (
         <header
@@ -78,7 +83,11 @@ export const Layout: React.FC<LayoutProps> = ({
       )}
 
       {/* Main Content — padding-top to account for fixed header */}
-      <main className={clsx("flex-1 pb-20", title && "pt-[148px]")}>
+      <main className={clsx(
+        "flex-1 pb-20", 
+        title && "pt-[148px]",
+        noScroll && "overflow-y-auto no-scrollbar flex flex-col"
+      )}>
         {children}
       </main>
 
