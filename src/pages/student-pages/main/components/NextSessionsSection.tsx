@@ -82,6 +82,17 @@ export const NextSessionsSection: React.FC = () => {
     const token = tg?.initData || null;
     
     try {
+      const session = sessions.find(s => s.id === sessionId);
+      if (session?.max_participants) {
+        const check = await scheduleApi.getParticipants(sessionId, token);
+        if (check.data.max_participants && check.data.total >= check.data.max_participants) {
+          if (tg) tg.showAlert(t('schedule.full'));
+          await fetchSessions(false);
+          setActionInProgress(null);
+          return;
+        }
+      }
+
       const response = await scheduleApi.book(sessionId, token);
       if (response.data.success) {
         if (tg) tg.showAlert(response.data.message || t('home.sessions.bookingSuccess'));

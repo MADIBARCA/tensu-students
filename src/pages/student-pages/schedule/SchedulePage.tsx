@@ -270,6 +270,17 @@ export default function SchedulePage() {
     const token = tg?.initData || null;
 
     try {
+      const training = trainings.find(tr => tr.id === trainingId);
+      if (training?.max_participants) {
+        const check = await scheduleApi.getParticipants(trainingId, token);
+        if (check.data.max_participants && check.data.total >= check.data.max_participants) {
+          if (tg) tg.showAlert(t('schedule.full'));
+          await refreshSessions();
+          setActionInProgress(null);
+          return;
+        }
+      }
+
       const response = await scheduleApi.book(trainingId, token);
       if (response.data.success) {
         if (tg) tg.showAlert(response.data.message || t('schedule.bookingSuccess'));
