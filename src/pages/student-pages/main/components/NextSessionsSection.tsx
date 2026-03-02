@@ -50,6 +50,7 @@ export const NextSessionsSection: React.FC = () => {
 
       const allMapped: Session[] = response.data.map((s: SessionResponse) => ({
         ...s,
+        date: (s.date || '').slice(0, 10),
         duration_minutes: s.duration_minutes || 60,
         status: s.is_booked ? ('booked' as SessionStatus) : s.status,
         is_booked: s.is_booked,
@@ -59,20 +60,32 @@ export const NextSessionsSection: React.FC = () => {
         s => getTrainingLiveStatus(s.date, s.time, s.duration_minutes) !== 'completed'
       );
 
+      const inProgress = nonCompleted.filter(
+        s => getTrainingLiveStatus(s.date, s.time, s.duration_minutes) === 'in_progress'
+      );
+
+      const next7 = new Date(now);
+      next7.setDate(next7.getDate() + 7);
+      const next7Str = `${next7.getFullYear()}-${String(next7.getMonth() + 1).padStart(2, '0')}-${String(next7.getDate()).padStart(2, '0')}`;
+
       const todaySessions = nonCompleted.filter(s => s.date === todayStr);
+      const upcomingSessions = nonCompleted.filter(
+        s => s.date > todayStr && s.date <= next7Str
+      );
 
-      if (todaySessions.length > 0) {
-        setSessions(todaySessions);
+      let toShow: Session[];
+      if (inProgress.length > 0) {
+        const inProgressIds = new Set(inProgress.map(s => s.id));
+        const rest = (todaySessions.length > 0 ? todaySessions : upcomingSessions)
+          .filter(s => !inProgressIds.has(s.id));
+        toShow = [...inProgress, ...rest].slice(0, 10);
+      } else if (todaySessions.length > 0) {
+        toShow = todaySessions;
       } else {
-        const next7 = new Date(now);
-        next7.setDate(next7.getDate() + 7);
-        const next7Str = `${next7.getFullYear()}-${String(next7.getMonth() + 1).padStart(2, '0')}-${String(next7.getDate()).padStart(2, '0')}`;
-
-        const upcoming = nonCompleted
-          .filter(s => s.date > todayStr && s.date <= next7Str)
-          .slice(0, 3);
-        setSessions(upcoming);
+        toShow = upcomingSessions.slice(0, 3);
       }
+
+      setSessions(toShow);
     } catch (error) {
       console.error('Failed to load sessions:', error);
       if (showLoader) setSessions([]);
