@@ -5,6 +5,7 @@ import type { MembershipStatus } from '@/functions/axios/responses';
 
 export interface MembershipDetail {
   id: number;
+  club_id: number;
   club_name: string;
   section_name?: string | null;
   group_name?: string | null;
@@ -23,9 +24,9 @@ export interface MembershipDetail {
 
 interface MembershipDetailsModalProps {
   membership: MembershipDetail;
-  onClose: () => void;
-  onFreeze: (membership: MembershipDetail) => void;
   onRenew: (membership: MembershipDetail) => void;
+  onFreeze: (membership: MembershipDetail) => void;
+  onClose: () => void;
 }
 
 export const MembershipDetailsModal: React.FC<MembershipDetailsModalProps> = ({

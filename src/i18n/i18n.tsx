@@ -62,6 +62,11 @@ const RU: Dict = {
   'membership.unfreeze': 'Разморозить',
   'membership.tariffDiscontinued': 'Тариф больше недоступен',
   'membership.tariffDiscontinuedHint': 'Заморозка и продление недоступны. Абонемент действует до окончания срока.',
+  'membership.management': 'Управление',
+  'membership.renew': 'Продлить',
+  'membership.freezeAction': 'Заморозить',
+  'membership.freezeAvailable': 'Доступно:',
+  'membership.freezeDays': 'дн.',
 
   'freeze.title': 'Заморозить абонемент',
   'freeze.unfreeze.title': 'Разморозить абонемент',
@@ -472,6 +477,11 @@ const KK: Dict = {
   'membership.unfreeze': 'Еріту',
   'membership.tariffDiscontinued': 'Тариф қолжетімсіз',
   'membership.tariffDiscontinuedHint': 'Тоңазыту мен ұзарту қолжетімсіз. Абонемент мерзімі біткенше жұмыс істейді.',
+  'membership.management': 'Басқару',
+  'membership.renew': 'Ұзарту',
+  'membership.freezeAction': 'Тоңазыту',
+  'membership.freezeAvailable': 'Қолжетімді:',
+  'membership.freezeDays': 'күн',
 
   'freeze.title': 'Абонементті қатып қалдыру',
   'freeze.unfreeze.title': 'Абонементті еріту',

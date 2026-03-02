@@ -9,6 +9,7 @@ import type { MembershipResponse, MembershipStatus } from '@/functions/axios/res
 
 export interface Membership {
   id: number;
+  club_id: number;
   club_name: string;
   section_name?: string | null;
   group_name?: string | null;
@@ -48,6 +49,7 @@ export const MembershipsSection: React.FC<MembershipsSectionProps> = ({
         // Map API response to component format
         const mappedMemberships: Membership[] = response.data.memberships.map((m: MembershipResponse) => ({
           id: m.id,
+          club_id: m.club_id,
           club_name: m.club_name,
           section_name: m.section_name,
           group_name: m.group_name,

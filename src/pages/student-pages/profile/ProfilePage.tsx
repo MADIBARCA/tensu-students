@@ -18,6 +18,8 @@ import { FreezeMembershipModal } from './components/FreezeMembershipModal';
 import type { StudentResponse } from '@/functions/axios/responses';
 
 import type { MembershipDetail } from './components/MembershipDetailsModal';
+import { ClubDetailsModal } from '../clubs/components/ClubDetailsModal';
+import type { Club } from '../clubs/ClubsPage';
 
 export default function ProfilePage() {
   const { t } = useI18n();
@@ -29,6 +31,7 @@ export default function ProfilePage() {
   const [showFreezeModal, setShowFreezeModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedMembership, setSelectedMembership] = useState<MembershipDetail | null>(null);
+  const [selectedClub, setSelectedClub] = useState<Club | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const loadStudentData = useCallback(async () => {
@@ -101,9 +104,16 @@ export default function ProfilePage() {
     setShowDetailsModal(true);
   };
 
-  const handleRenew = () => {
-    // Eventually navigate to tariffs / clubs page to renew
-    window.Telegram?.WebApp?.showAlert(t('membership.renewComingSoon') || 'Продление абонементов скоро появится');
+  const handleRenew = (membership: MembershipDetail) => {
+    setShowDetailsModal(false);
+    setSelectedClub({
+      id: membership.club_id,
+      name: membership.club_name,
+      address: null,
+      sections_count: 0,
+      students_count: 0,
+      tags: [],
+    });
   };
 
   const handleFreezeSuccess = () => {
@@ -181,6 +191,14 @@ export default function ProfilePage() {
               setSelectedMembership(null);
             }}
             onSuccess={handleFreezeSuccess}
+          />
+        )}
+
+        {selectedClub && (
+          <ClubDetailsModal
+            club={selectedClub}
+            isMember={true}
+            onClose={() => setSelectedClub(null)}
           />
         )}
       </PageContainer>
