@@ -336,7 +336,7 @@ const RU: Dict = {
   // Onboarding
   'onboarding.welcome': 'Добро пожаловать',
   'onboarding.subtitle': 'Для начала работы подтвердите ваш номер телефона',
-  'onboarding.sharePhone': 'Поделиться номером',
+  'onboarding.sharePhone': 'Подтвердить номер',
   'onboarding.continue': 'Продолжить',
   'onboarding.loading': 'Загружаем данные...',
   'onboarding.processing': 'Создаём ваш профиль...',
@@ -745,7 +745,7 @@ const KK: Dict = {
   // Onboarding
   'onboarding.welcome': 'Қош келдіңіз',
   'onboarding.subtitle': 'Жұмысты бастау үшін телефон нөміріңізді растаңыз',
-  'onboarding.sharePhone': 'Нөмірді бөлісу',
+  'onboarding.sharePhone': 'Нөмірді растау',
   'onboarding.continue': 'Жалғастыру',
   'onboarding.loading': 'Деректер жүктелуде...',
   'onboarding.processing': 'Профиліңіз жасалуда...',

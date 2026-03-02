@@ -234,19 +234,6 @@ export default function OnboardingPage() {
 
       {/* Content */}
       <div className="relative z-10 w-full max-w-md px-6 py-8">
-        {/* Logo/Branding */}
-        <div className={`text-center mb-8 transition-all duration-700 ${showCard ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl mb-4">
-            <Sparkles className="w-8 h-8 text-white" />
-          </div>
-          <h1 className="text-3xl font-bold text-white mb-1">
-            TENSU
-          </h1>
-          <p className="text-blue-200 text-sm">
-            Sports Club App
-          </p>
-        </div>
-
         {/* Main Card */}
         <div 
           className={`bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden transition-all duration-700 delay-150 ${
