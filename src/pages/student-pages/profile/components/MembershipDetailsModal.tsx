@@ -57,6 +57,12 @@ export const MembershipDetailsModal: React.FC<MembershipDetailsModalProps> = ({
     return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
 
+  const canRenew = !membership.is_tariff_deleted;
+  const canFreeze = !membership.is_tariff_deleted && membership.freeze_days_available !== undefined && membership.freeze_days_available > 0;
+  const canUnfreeze = membership.status === 'frozen';
+  const showManagementBlock = (membership.status === 'active' || membership.status === 'frozen' || membership.status === 'new') &&
+    (canRenew || canFreeze || canUnfreeze);
+
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm">
       <div className="bg-[#F9FAFB] w-full sm:max-w-md sm:rounded-2xl rounded-t-3xl max-h-[90vh] flex flex-col shadow-2xl animate-in slide-in-from-bottom duration-300">
@@ -128,7 +134,7 @@ export const MembershipDetailsModal: React.FC<MembershipDetailsModalProps> = ({
           </div>
 
           {/* Management Block (iOS Settings Style) */}
-          {(membership.status === 'active' || membership.status === 'frozen' || membership.status === 'new') && (
+          {showManagementBlock && (
             <div>
               <h3 className="text-[13px] font-semibold uppercase tracking-wider text-gray-500 pl-3 mb-2">
                 {t('membership.management') || 'Управление'}
@@ -136,26 +142,30 @@ export const MembershipDetailsModal: React.FC<MembershipDetailsModalProps> = ({
               
               <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
                 {/* Renew Button */}
-                <button
-                  onClick={() => onRenew(membership)}
-                  className="w-full flex items-center justify-between p-4 bg-white active:bg-gray-50 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center">
-                      <Crown size={18} className="text-blue-600" />
+                {canRenew && (
+                  <button
+                    onClick={() => onRenew(membership)}
+                    className="w-full flex items-center justify-between p-4 bg-white active:bg-gray-50 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center">
+                        <Crown size={18} className="text-blue-600" />
+                      </div>
+                      <span className="text-[16px] font-medium text-gray-900">
+                        {t('membership.renew') || 'Продлить'}
+                      </span>
                     </div>
-                    <span className="text-[16px] font-medium text-gray-900">
-                      {t('membership.renew') || 'Продлить'}
-                    </span>
-                  </div>
-                  <ChevronRight size={20} className="text-gray-300" />
-                </button>
+                    <ChevronRight size={20} className="text-gray-300" />
+                  </button>
+                )}
 
                 {/* Separator */}
-                <div className="h-px bg-gray-100 ml-12" />
+                {canRenew && (canFreeze || canUnfreeze) && (
+                  <div className="h-px bg-gray-100 ml-12" />
+                )}
 
                 {/* Freeze Button / Unfreeze Button */}
-                {membership.status === 'frozen' ? (
+                {canUnfreeze ? (
                    <button
                     onClick={() => onFreeze(membership)}
                     className="w-full flex items-center justify-between p-4 bg-white active:bg-gray-50 transition-colors"
@@ -171,7 +181,7 @@ export const MembershipDetailsModal: React.FC<MembershipDetailsModalProps> = ({
                     <ChevronRight size={20} className="text-gray-300" />
                   </button>
                 ) : (
-                  (!membership.is_tariff_deleted && membership.freeze_days_available !== undefined && membership.freeze_days_available > 0) && (
+                  canFreeze && (
                     <button
                       onClick={() => onFreeze(membership)}
                       className="w-full flex items-center justify-between p-4 bg-white active:bg-gray-50 transition-colors"

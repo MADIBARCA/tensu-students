@@ -75,6 +75,7 @@ interface Coach {
 interface ClubDetailsModalProps {
   club: Club;
   isMember?: boolean;
+  initialTab?: 'info' | 'memberships';
   onClose: () => void;
 }
 
@@ -100,7 +101,7 @@ interface ActiveMembershipInfo {
   isTariffDeleted?: boolean;  // Indicates if the tariff was discontinued
 }
 
-export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClose }) => {
+export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, initialTab = 'info', onClose }) => {
   const { t } = useI18n();
   const [sections, setSections] = useState<Section[]>([]);
   const [membershipPlans, setMembershipPlans] = useState<MembershipPlan[]>([]);
@@ -112,7 +113,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
   const [showPaymentMethodModal, setShowPaymentMethodModal] = useState(false);
   const [showCashPaymentForm, setShowCashPaymentForm] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'info' | 'memberships'>('info');
+  const [activeTab, setActiveTab] = useState<'info' | 'memberships'>(initialTab);
   // Current active membership in this club (if any) - primary one for display
   const [activeMembershipForClub, setActiveMembershipForClub] = useState<ActiveMembershipInfo | null>(null);
   // All active memberships in this club (for filtering out from buy options)

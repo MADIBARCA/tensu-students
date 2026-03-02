@@ -197,7 +197,7 @@ export default function ProfilePage() {
         {selectedClub && (
           <ClubDetailsModal
             club={selectedClub}
-            isMember={true}
+            initialTab="memberships"
             onClose={() => setSelectedClub(null)}
           />
         )}
