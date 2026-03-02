@@ -21,10 +21,13 @@ interface SelectedMembership {
   status: MembershipStatus;
   freeze_days_available?: number;
   freeze_days_used?: number;
+  freeze_days_min?: number;
+  freeze_start_date?: string | null;
+  freeze_end_date?: string | null;
   club_name: string;
   section_name?: string | null;
   end_date: string;
-  is_tariff_deleted?: boolean;  // Indicates if the tariff was discontinued
+  is_tariff_deleted?: boolean;
 }
 
 export default function ProfilePage() {

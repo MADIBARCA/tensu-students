@@ -42,20 +42,18 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
     return diffDays;
   };
 
-  // Calculate days that will be deducted on early unfreeze
+  // Total freeze period that will be burned on early unfreeze
   const daysToDeduct = useMemo(() => {
-    if (!isFrozen || !membership.freeze_start_date) return 0;
+    if (!isFrozen || !membership.freeze_start_date || !membership.freeze_end_date) return 0;
     const freezeStart = new Date(membership.freeze_start_date);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const freezeEnd = new Date(membership.freeze_end_date);
     freezeStart.setHours(0, 0, 0, 0);
+    freezeEnd.setHours(0, 0, 0, 0);
     
-    if (today < freezeStart) return 0;
-    
-    const diffTime = today.getTime() - freezeStart.getTime();
+    const diffTime = freezeEnd.getTime() - freezeStart.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays;
-  }, [isFrozen, membership.freeze_start_date]);
+  }, [isFrozen, membership.freeze_start_date, membership.freeze_end_date]);
 
   // Format freeze dates for display
   const formatDate = (dateStr: string | null | undefined) => {

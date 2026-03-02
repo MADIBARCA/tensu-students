@@ -91,6 +91,7 @@ interface ActiveMembershipInfo {
   price: number;
   freezeDaysAvailable: number;
   freezeDaysUsed: number;
+  freezeDaysMin: number;
   freezeStartDate: string | null;
   freezeEndDate: string | null;
   features: string[];
@@ -198,6 +199,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
               price: m.price,
               freezeDaysAvailable: m.freeze_days_available,
               freezeDaysUsed: m.freeze_days_used,
+              freezeDaysMin: m.freeze_days_min,
               freezeStartDate: m.freeze_start_date,
               freezeEndDate: m.freeze_end_date,
               features: plan?.features || [],
@@ -629,6 +631,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
             price: m.price,
             freezeDaysAvailable: m.freeze_days_available,
             freezeDaysUsed: m.freeze_days_used,
+            freezeDaysMin: m.freeze_days_min,
             freezeStartDate: m.freeze_start_date,
             freezeEndDate: m.freeze_end_date,
             features: plan?.features || [],
@@ -1570,6 +1573,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, onClos
             status: activeMembershipForClub.status,
             freeze_days_available: activeMembershipForClub.freezeDaysAvailable,
             freeze_days_used: activeMembershipForClub.freezeDaysUsed,
+            freeze_days_min: activeMembershipForClub.freezeDaysMin,
             freeze_start_date: activeMembershipForClub.freezeStartDate,
             freeze_end_date: activeMembershipForClub.freezeEndDate,
           }}

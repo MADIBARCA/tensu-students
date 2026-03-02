@@ -19,7 +19,10 @@ interface Membership {
   end_date: string;
   freeze_days_available?: number;
   freeze_days_used?: number;
-  is_tariff_deleted?: boolean;  // Indicates if the tariff was discontinued
+  freeze_days_min?: number;
+  freeze_start_date?: string | null;
+  freeze_end_date?: string | null;
+  is_tariff_deleted?: boolean;
 }
 
 interface MembershipsSectionProps {
@@ -57,6 +60,9 @@ export const MembershipsSection: React.FC<MembershipsSectionProps> = ({
           end_date: m.end_date,
           freeze_days_available: m.freeze_days_available,
           freeze_days_used: m.freeze_days_used,
+          freeze_days_min: m.freeze_days_min,
+          freeze_start_date: m.freeze_start_date,
+          freeze_end_date: m.freeze_end_date,
           is_tariff_deleted: m.is_tariff_deleted,
         }));
         
