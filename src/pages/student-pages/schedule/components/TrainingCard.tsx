@@ -1,6 +1,6 @@
 import React from 'react';
 import { useI18n } from '@/i18n/i18n';
-import { Bell, Eye } from 'lucide-react';
+import { Bell, Eye, Loader2 } from 'lucide-react';
 import type { Training } from '../SchedulePage';
 
 interface TrainingCardProps {
@@ -9,6 +9,7 @@ interface TrainingCardProps {
   onCancelBooking: () => void;
   onWaitlist: () => void;
   onShowParticipants: () => void;
+  isActionInProgress?: boolean;
 }
 
 export const TrainingCard: React.FC<TrainingCardProps> = ({
@@ -17,6 +18,7 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
   onCancelBooking,
   onWaitlist,
   onShowParticipants,
+  isActionInProgress = false,
 }) => {
   const { t } = useI18n();
 
@@ -199,9 +201,12 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
               {!isPast && (
                 <button
                   onClick={onCancelBooking}
-                  className="text-[13px] font-medium text-red-500 hover:text-[#DC2626] active:text-[#7F1D1D] transition-colors"
+                  disabled={isActionInProgress}
+                  className="text-[13px] font-medium text-red-500 hover:text-[#DC2626] active:text-[#7F1D1D] transition-colors disabled:opacity-50"
                 >
-                  {t('schedule.cancelBooking')}
+                  {isActionInProgress
+                    ? <Loader2 size={14} className="animate-spin inline" />
+                    : t('schedule.cancelBooking')}
                 </button>
               )}
               <div className="flex-1" />
@@ -231,20 +236,25 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
           {isFull ? (
             <button
               onClick={onWaitlist}
-              disabled={false}
-              className="text-[13px] font-medium transition-colors text-amber-600 hover:text-amber-700 active:text-amber-800"
+              disabled={isActionInProgress}
+              className="text-[13px] font-medium transition-colors text-amber-600 hover:text-amber-700 active:text-amber-800 disabled:opacity-50"
             >
               <span className="inline-flex items-center gap-1">
-                <Bell size={14} />
+                {isActionInProgress
+                  ? <Loader2 size={14} className="animate-spin" />
+                  : <Bell size={14} />}
                 {t('schedule.notifyMe')}
               </span>
             </button>
           ) : (
             <button
               onClick={onBook}
-              className="w-full py-3.5 bg-[#1E3A8A] text-white rounded-[16px] font-semibold text-[15px] hover:bg-blue-900 active:scale-[0.98] transition-all shadow-sm shadow-blue-900/20"
+              disabled={isActionInProgress}
+              className="w-full py-3.5 bg-[#1E3A8A] text-white rounded-[16px] font-semibold text-[15px] hover:bg-blue-900 active:scale-[0.98] transition-all shadow-sm shadow-blue-900/20 disabled:opacity-60"
             >
-              {t('schedule.book')}
+              {isActionInProgress
+                ? <Loader2 size={18} className="animate-spin mx-auto" />
+                : t('schedule.book')}
             </button>
           )}
         </div>

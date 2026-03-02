@@ -14,6 +14,7 @@ interface CalendarViewProps {
   onCancelBooking: (trainingId: number) => void;
   onWaitlist: (trainingId: number) => void;
   onShowParticipants: (training: Training) => void;
+  actionInProgress?: number | null;
 }
 
 export const CalendarView: React.FC<CalendarViewProps> = ({
@@ -25,6 +26,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   onCancelBooking,
   onWaitlist,
   onShowParticipants,
+  actionInProgress = null,
 }) => {
   const { t } = useI18n();
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -218,6 +220,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                   onCancelBooking={() => onCancelBooking(training.id)}
                   onWaitlist={() => onWaitlist(training.id)}
                   onShowParticipants={() => onShowParticipants(training)}
+                  isActionInProgress={actionInProgress === training.id}
                 />
               ))}
             </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Layout, PageContainer } from '@/components/Layout';
 import { useI18n } from '@/i18n/i18n';
@@ -12,6 +12,8 @@ import { Card } from '@/components/ui';
 import { scheduleApi, membershipsApi, clubsApi } from '@/functions/axios/axiosFunctions';
 import { getErrorMessage } from '@/lib/utils/errorHandler';
 import type { SessionResponse, TrainerResponse, ClubResponse, MembershipResponse } from '@/functions/axios/responses';
+
+const POLL_INTERVAL = 15_000;
 
 export interface Training {
   id: number;
@@ -78,19 +80,55 @@ export default function SchedulePage() {
   // Calendar
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
-  useEffect(() => {
-    loadData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // Prevent double-click / concurrent actions
+  const [actionInProgress, setActionInProgress] = useState<number | null>(null);
 
-  const loadData = async () => {
+  const refreshSessions = useCallback(async () => {
+    try {
+      const tg = window.Telegram?.WebApp;
+      const token = tg?.initData || null;
+      const [sessionsResponse, membershipsResponse] = await Promise.all([
+        scheduleApi.getSessions(token, 1, 300, { only_my_sessions: filters.sectionsType === 'my' }),
+        membershipsApi.getActive(token),
+      ]);
+      const activeMembershipClubIds = new Set<number>(
+        membershipsResponse.data.memberships.map((m: MembershipResponse) => m.club_id)
+      );
+      const mappedTrainings: Training[] = sessionsResponse.data.sessions
+        .filter((s: SessionResponse) => activeMembershipClubIds.has(s.club_id))
+        .map((s: SessionResponse) => ({
+          id: s.id,
+          section_name: s.section_name,
+          group_name: s.group_name,
+          trainer_name: s.coach_name,
+          trainer_id: s.coach_id,
+          trainer_photo_url: s.coach_photo_url,
+          club_id: s.club_id,
+          club_name: s.club_name,
+          club_logo_url: s.club_logo_url,
+          date: s.date,
+          time: s.time,
+          location: s.location || s.club_address,
+          max_participants: s.max_participants,
+          current_participants: s.participants_count,
+          participants: [],
+          notes: s.notes,
+          is_booked: s.is_booked,
+          is_in_waitlist: s.is_in_waitlist,
+        }));
+      setTrainings(mappedTrainings);
+    } catch (err) {
+      console.error('Failed to refresh sessions:', err);
+    }
+  }, [filters.sectionsType]);
+
+  const loadData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const tg = window.Telegram?.WebApp;
       const token = tg?.initData || null;
       
-      // Load all data in parallel
       const [sessionsResponse, trainersResponse, clubsResponse, membershipsResponse] = await Promise.all([
         scheduleApi.getSessions(token, 1, 300, { only_my_sessions: filters.sectionsType === 'my' }),
         scheduleApi.getTrainers(token),
@@ -98,52 +136,48 @@ export default function SchedulePage() {
         membershipsApi.getActive(token),
       ]);
 
-      // Extract club IDs from active memberships
       const activeMembershipClubIds = new Set<number>(
         membershipsResponse.data.memberships.map((m: MembershipResponse) => m.club_id)
       );
       setHasActiveMembership(activeMembershipClubIds.size > 0);
 
-      // Map sessions to trainings - only include sessions from clubs with active memberships
       const mappedTrainings: Training[] = sessionsResponse.data.sessions
         .filter((s: SessionResponse) => activeMembershipClubIds.has(s.club_id))
         .map((s: SessionResponse) => ({
-        id: s.id,
-        section_name: s.section_name,
-        group_name: s.group_name,
-        trainer_name: s.coach_name,
-        trainer_id: s.coach_id,
-        trainer_photo_url: s.coach_photo_url,
-        club_id: s.club_id,
-        club_name: s.club_name,
-        club_logo_url: s.club_logo_url,
-        date: s.date,
-        time: s.time,
-        location: s.location || s.club_address,
-        max_participants: s.max_participants,
-        current_participants: s.participants_count,
-        participants: [],
-        notes: s.notes,
-        is_booked: s.is_booked,
-        is_in_waitlist: s.is_in_waitlist,
-      }));
+          id: s.id,
+          section_name: s.section_name,
+          group_name: s.group_name,
+          trainer_name: s.coach_name,
+          trainer_id: s.coach_id,
+          trainer_photo_url: s.coach_photo_url,
+          club_id: s.club_id,
+          club_name: s.club_name,
+          club_logo_url: s.club_logo_url,
+          date: s.date,
+          time: s.time,
+          location: s.location || s.club_address,
+          max_participants: s.max_participants,
+          current_participants: s.participants_count,
+          participants: [],
+          notes: s.notes,
+          is_booked: s.is_booked,
+          is_in_waitlist: s.is_in_waitlist,
+        }));
 
-      // Map clubs - only include clubs with active memberships
       const mappedClubs: Club[] = clubsResponse.data.clubs
         .filter((c: ClubResponse) => activeMembershipClubIds.has(c.id))
         .map((c: ClubResponse) => ({
-        id: c.id,
-        name: c.name,
-      }));
+          id: c.id,
+          name: c.name,
+        }));
 
-      // Map trainers - only from clubs with memberships
       const mappedTrainers: Trainer[] = trainersResponse.data
-        .filter((t: TrainerResponse) => t.club_id === null || activeMembershipClubIds.has(t.club_id))
-        .map((t: TrainerResponse) => ({
-        id: t.id,
-        name: t.name,
-        club_id: t.club_id,
-      }));
+        .filter((tr: TrainerResponse) => tr.club_id === null || activeMembershipClubIds.has(tr.club_id))
+        .map((tr: TrainerResponse) => ({
+          id: tr.id,
+          name: tr.name,
+          club_id: tr.club_id,
+        }));
 
       setTrainings(mappedTrainings);
       setClubs(mappedClubs);
@@ -154,7 +188,16 @@ export default function SchedulePage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters.sectionsType, t]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  useEffect(() => {
+    const interval = setInterval(() => refreshSessions(), POLL_INTERVAL);
+    return () => clearInterval(interval);
+  }, [refreshSessions]);
 
   // Helper functions
   function formatDate(date: Date): string {
@@ -220,72 +263,44 @@ export default function SchedulePage() {
       setShowNoMembershipModal(true);
       return;
     }
+    if (actionInProgress) return;
+    setActionInProgress(trainingId);
 
     const tg = window.Telegram?.WebApp;
     const token = tg?.initData || null;
 
     try {
       const response = await scheduleApi.book(trainingId, token);
-      
       if (response.data.success) {
-        // Update local state on success
-    setTrainings(prev => prev.map(t => {
-      if (t.id === trainingId) {
-        return {
-          ...t,
-          is_booked: true,
-          current_participants: t.current_participants + 1,
-          participants: [...(t.participants || []), 'Вы'],
-        };
-      }
-      return t;
-    }));
-    
-        if (tg) {
-          tg.showAlert(response.data.message || t('schedule.bookingSuccess'));
-        }
+        if (tg) tg.showAlert(response.data.message || t('schedule.bookingSuccess'));
       }
     } catch (err: unknown) {
       console.error('Failed to book training:', err);
-    if (tg) {
-        tg.showAlert(getErrorMessage(err, t('schedule.bookingError')));
-      }
+      if (tg) tg.showAlert(getErrorMessage(err, t('schedule.bookingError')));
+    } finally {
+      await refreshSessions();
+      setActionInProgress(null);
     }
   };
 
   const handleCancelBooking = async (trainingId: number) => {
-    const training = trainings.find(tr => tr.id === trainingId);
-    if (!training) return;
+    if (actionInProgress) return;
+    setActionInProgress(trainingId);
 
-      const tg = window.Telegram?.WebApp;
+    const tg = window.Telegram?.WebApp;
     const token = tg?.initData || null;
 
     try {
       const response = await scheduleApi.cancel(trainingId, token);
-      
       if (response.data.success) {
-        // Update local state on success
-        setTrainings(prev => prev.map(tr => {
-          if (tr.id === trainingId) {
-        return {
-              ...tr,
-          is_booked: false,
-              current_participants: Math.max(0, tr.current_participants - 1),
-              participants: (tr.participants || []).filter(p => p !== 'Вы'),
-        };
-      }
-          return tr;
-    }));
-    
-        if (tg) {
-          tg.showAlert(response.data.message || t('schedule.cancelSuccess'));
-        }
+        if (tg) tg.showAlert(response.data.message || t('schedule.cancelSuccess'));
       }
     } catch (err: unknown) {
       console.error('Failed to cancel booking:', err);
-    if (tg) {
-        tg.showAlert(getErrorMessage(err, t('schedule.cancelError')));
-      }
+      if (tg) tg.showAlert(getErrorMessage(err, t('schedule.cancelError')));
+    } finally {
+      await refreshSessions();
+      setActionInProgress(null);
     }
   };
 
@@ -294,31 +309,23 @@ export default function SchedulePage() {
       setShowNoMembershipModal(true);
       return;
     }
+    if (actionInProgress) return;
+    setActionInProgress(trainingId);
 
     const tg = window.Telegram?.WebApp;
     const token = tg?.initData || null;
 
     try {
       const response = await scheduleApi.joinWaitlist(trainingId, token);
-      
       if (response.data.success) {
-        // Update local state on success
-        setTrainings(prev => prev.map(tr => {
-          if (tr.id === trainingId) {
-            return { ...tr, is_in_waitlist: true };
-          }
-          return tr;
-        }));
-        
-        if (tg) {
-          tg.showAlert(response.data.message || t('schedule.waitlistSuccess'));
-        }
+        if (tg) tg.showAlert(response.data.message || t('schedule.waitlistSuccess'));
       }
     } catch (err: unknown) {
       console.error('Failed to join waitlist:', err);
-    if (tg) {
-        tg.showAlert(getErrorMessage(err, t('schedule.waitlistError')));
-      }
+      if (tg) tg.showAlert(getErrorMessage(err, t('schedule.waitlistError')));
+    } finally {
+      await refreshSessions();
+      setActionInProgress(null);
     }
   };
 
@@ -492,6 +499,7 @@ export default function SchedulePage() {
                   onCancelBooking={() => handleCancelBooking(training.id)}
                   onWaitlist={() => handleWaitlist(training.id)}
                   onShowParticipants={() => handleShowParticipants(training)}
+                  isActionInProgress={actionInProgress === training.id}
                 />
               ))
             )}
@@ -507,6 +515,7 @@ export default function SchedulePage() {
             onCancelBooking={handleCancelBooking}
             onWaitlist={handleWaitlist}
             onShowParticipants={handleShowParticipants}
+            actionInProgress={actionInProgress}
           />
         )}
 

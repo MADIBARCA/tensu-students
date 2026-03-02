@@ -1,11 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useI18n } from '@/i18n/i18n';
-import { CheckCircle, Eye } from 'lucide-react';
+import { CheckCircle, Eye, Loader2 } from 'lucide-react';
 import { scheduleApi } from '@/functions/axios/axiosFunctions';
 import type { SessionResponse, SessionStatus } from '@/functions/axios/responses';
 import { ParticipantsModal } from '../../schedule/components/ParticipantsModal';
 import type { Training } from '../../schedule/SchedulePage';
+
+const POLL_INTERVAL = 15_000;
 
 interface Session {
   id: number;
@@ -29,38 +31,41 @@ export const NextSessionsSection: React.FC = () => {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [actionInProgress, setActionInProgress] = useState<number | null>(null);
   const [showParticipantsFor, setShowParticipantsFor] = useState<Session | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const loadSessions = async () => {
-      try {
-        const tg = window.Telegram?.WebApp;
-        const token = tg?.initData || null;
-        
-        const response = await scheduleApi.getNext(token, 20);
-        
-        const todayStr = new Date().toISOString().split('T')[0];
-
-        const mappedSessions: Session[] = response.data
-          .map((s: SessionResponse) => ({
-            ...s,
-            status: s.is_booked ? 'booked' : s.status,
-            is_booked: s.is_booked,
-          }))
-          .filter((s: Session) => s.date === todayStr);
-        
-        setSessions(mappedSessions);
-      } catch (error) {
-        console.error('Failed to load sessions:', error);
-        setSessions([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadSessions();
+  const fetchSessions = useCallback(async (showLoader = false) => {
+    if (showLoader) setLoading(true);
+    try {
+      const tg = window.Telegram?.WebApp;
+      const token = tg?.initData || null;
+      const response = await scheduleApi.getNext(token, 20);
+      const todayStr = new Date().toISOString().split('T')[0];
+      const mappedSessions: Session[] = response.data
+        .map((s: SessionResponse) => ({
+          ...s,
+          status: s.is_booked ? 'booked' : s.status,
+          is_booked: s.is_booked,
+        }))
+        .filter((s: Session) => s.date === todayStr);
+      setSessions(mappedSessions);
+    } catch (error) {
+      console.error('Failed to load sessions:', error);
+      if (showLoader) setSessions([]);
+    } finally {
+      if (showLoader) setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchSessions(true);
+  }, [fetchSessions]);
+
+  useEffect(() => {
+    const interval = setInterval(() => fetchSessions(false), POLL_INTERVAL);
+    return () => clearInterval(interval);
+  }, [fetchSessions]);
 
   const handleScroll = () => {
     if (!scrollRef.current) return;
@@ -71,68 +76,55 @@ export const NextSessionsSection: React.FC = () => {
   };
 
   const handleBookSession = async (sessionId: number) => {
+    if (actionInProgress) return;
+    setActionInProgress(sessionId);
     const tg = window.Telegram?.WebApp;
     const token = tg?.initData || null;
     
     try {
       const response = await scheduleApi.book(sessionId, token);
-      
       if (response.data.success) {
-        setSessions(prev => prev.map(s => 
-          s.id === sessionId ? { 
-            ...s, 
-            status: 'booked' as SessionStatus,
-            is_booked: true,
-            participants_count: s.participants_count + 1
-          } : s
-        ));
-      
         if (tg) tg.showAlert(response.data.message || t('home.sessions.bookingSuccess'));
       }
     } catch (error: unknown) {
       console.error('Failed to book session:', error);
-      if (tg) {
-        const errorMessage = error instanceof Error ? error.message : 
-          (error as { response?: { data?: { detail?: string } } })?.response?.data?.detail || 
-          t('home.sessions.bookingError');
-        tg.showAlert(errorMessage);
-      }
+      const errMsg = (error as { response?: { data?: { detail?: string } } })?.response?.data?.detail
+        || t('home.sessions.bookingError');
+      if (tg) tg.showAlert(errMsg);
+    } finally {
+      await fetchSessions(false);
+      setActionInProgress(null);
     }
   };
 
   const handleCancelBooking = async (sessionId: number) => {
+    if (actionInProgress) return;
     const tg = window.Telegram?.WebApp;
     const token = tg?.initData || null;
 
     const executeCancel = async () => {
+      setActionInProgress(sessionId);
       try {
         const response = await scheduleApi.cancel(sessionId, token);
         if (response.data.success) {
-          setSessions(prev => prev.map(s => 
-            s.id === sessionId ? { 
-              ...s, 
-              status: 'scheduled' as SessionStatus,
-              is_booked: false,
-              participants_count: Math.max(0, s.participants_count - 1)
-            } : s
-          ));
           if (tg) tg.showAlert(response.data.message || t('schedule.cancelSuccess'));
         }
       } catch (error: any) {
         console.error('Failed to cancel booking:', error);
-        if (tg) {
-          const errorMessage = error.response?.data?.detail || t('schedule.cancelError');
-          tg.showAlert(errorMessage);
-        }
+        const errMsg = error.response?.data?.detail || t('schedule.cancelError');
+        if (tg) tg.showAlert(errMsg);
+      } finally {
+        await fetchSessions(false);
+        setActionInProgress(null);
       }
     };
 
     if (tg?.showConfirm) {
-      tg.showConfirm(t('schedule.cancelConfirm'), (confirmed) => {
+      tg.showConfirm(t('schedule.cancelBooking') + '?', (confirmed) => {
         if (confirmed) executeCancel();
       });
     } else {
-      if (window.confirm(t('schedule.cancelConfirm'))) {
+      if (window.confirm(t('schedule.cancelBooking') + '?')) {
         executeCancel();
       }
     }
@@ -261,9 +253,12 @@ export const NextSessionsSection: React.FC = () => {
                     <div className="flex items-center gap-3">
                       <button
                         onClick={() => handleCancelBooking(session.id)}
-                        className="text-[13px] font-medium text-red-500 hover:text-[#DC2626] active:text-[#7F1D1D] transition-colors"
+                        disabled={actionInProgress === session.id}
+                        className="text-[13px] font-medium text-red-500 hover:text-[#DC2626] active:text-[#7F1D1D] transition-colors disabled:opacity-50"
                       >
-                        {t('schedule.cancelBooking')}
+                        {actionInProgress === session.id
+                          ? <Loader2 size={14} className="animate-spin inline" />
+                          : t('schedule.cancelBooking')}
                       </button>
                       <div className="flex-1" />
                       <button
@@ -277,13 +272,16 @@ export const NextSessionsSection: React.FC = () => {
                   ) : canBook ? (
                     <button
                       onClick={() => handleBookSession(session.id)}
-                      className="w-full py-3.5 bg-[#1E3A8A] text-white rounded-[16px] font-semibold text-[15px] hover:bg-blue-900 active:scale-[0.98] transition-all shadow-sm shadow-blue-900/20"
+                      disabled={actionInProgress === session.id}
+                      className="w-full py-3.5 bg-[#1E3A8A] text-white rounded-[16px] font-semibold text-[15px] hover:bg-blue-900 active:scale-[0.98] transition-all shadow-sm shadow-blue-900/20 disabled:opacity-60"
                     >
-                      {t('home.sessions.book')}
+                      {actionInProgress === session.id
+                        ? <Loader2 size={18} className="animate-spin mx-auto" />
+                        : t('home.sessions.book')}
                     </button>
                   ) : (
                     <div className="w-full py-3.5 bg-gray-50 text-gray-400 rounded-[16px] font-semibold text-[15px] text-center">
-                      {isFull ? t('schedule.full') : t('schedule.unavailable')}
+                      {t('schedule.full')}
                     </div>
                   )}
                 </div>
