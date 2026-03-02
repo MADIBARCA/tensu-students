@@ -23,6 +23,13 @@ export default function StudentMainPage() {
   };
 
   useEffect(() => {
+    const tg = window.Telegram?.WebApp;
+    if (tg?.isVersionAtLeast?.('7.7')) {
+      tg.disableVerticalSwipes?.();
+    }
+  }, []);
+
+  useEffect(() => {
     const checkMembership = async () => {
       try {
         const tg = window.Telegram?.WebApp;
