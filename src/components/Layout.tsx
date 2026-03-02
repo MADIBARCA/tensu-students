@@ -58,18 +58,16 @@ export const Layout: React.FC<LayoutProps> = ({
     return () => window.removeEventListener('scroll', handleScroll);
   }, [title]);
 
-  const headerPadded = showBackButton || isScrolled;
-
   return (
     <div className="min-h-screen bg-[#FAFBFF] flex flex-col">
-      {/* Header — fixed at top when scrolling, like tensu-staff */}
+      {/* Header — sticky at top, starts with padding, shrinks on scroll */}
       {title && (
         <header
           className={clsx(
-            "fixed top-0 left-0 right-0 z-20 overflow-hidden",
+            "sticky top-0 z-20 overflow-hidden",
             "bg-white/95 backdrop-blur-sm border-b border-gray-100",
-            "transition-[padding-top] duration-300 ease-out will-change-[padding-top]",
-            headerPadded ? "pt-20" : "pt-0"
+            "transition-all duration-300 ease-out will-change-[padding-top]",
+            isScrolled ? "pt-0" : "pt-[92px]"
           )}
           style={{
             WebkitBackdropFilter: 'blur(12px) saturate(180%)',
@@ -96,13 +94,8 @@ export const Layout: React.FC<LayoutProps> = ({
         </header>
       )}
 
-      {/* Main Content — padding-top to prevent content under fixed header */}
-      <main
-        className={clsx(
-          "flex-1 pb-20",
-          title && (headerPadded ? "pt-[140px]" : "pt-[72px]")
-        )}
-      >
+      {/* Main Content */}
+      <main className="flex-1 pb-20">
         {children}
       </main>
 

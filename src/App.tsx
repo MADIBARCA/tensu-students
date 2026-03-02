@@ -106,12 +106,8 @@ function DefaultRoute() {
 }
 
 function AppRoutes() {
-  const location = useLocation();
-  const isOnboarding = location.pathname === "/onboarding";
-  const isPrivacy = location.pathname === "/privacy";
-
   return (
-    <div className={isOnboarding || isPrivacy ? "" : "pt-20"}>
+    <div>
       <Routes>
         <Route path="/onboarding" element={<OnboardingPage />} />
         <Route path="/student/main" element={<StudentMainPage />} />
