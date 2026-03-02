@@ -308,6 +308,14 @@ export const NextSessionsSection: React.FC = () => {
                 <div className="flex flex-col gap-1 mb-5 text-[14px] text-gray-500 font-medium">
                   <p>{getDateLabel()}, {timeLabel}</p>
                   <p>Тренер: {session.coach_name || 'Не указан'}</p>
+                  {session.club_address && (
+                    <p className="text-[12px] text-[#9CA3AF] mt-0.5 truncate">{session.club_address}</p>
+                  )}
+                  {session.notes && (
+                    <p className="text-[12px] text-[#6B7280] bg-gray-50 rounded-xl px-3 py-2 mt-1.5 whitespace-pre-wrap">
+                      {session.notes}
+                    </p>
+                  )}
                   {!isCompleted && spotsLeft !== null && spotsLeft <= 5 && !session.is_booked && (
                     <p className={`${spotsLeft === 0 ? 'text-[#EF4444]' : 'text-[#F59E0B]'} font-bold mt-1`}>
                       {spotsLeft === 0 ? t('home.sessions.status.full') : `Осталось ${spotsLeft} места`}
