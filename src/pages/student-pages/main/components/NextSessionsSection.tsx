@@ -4,6 +4,7 @@ import { useI18n } from '@/i18n/i18n';
 import { Ban, CheckCircle, Loader2, Users } from 'lucide-react';
 import { scheduleApi } from '@/functions/axios/axiosFunctions';
 import type { SessionResponse, SessionStatus } from '@/functions/axios/responses';
+import { getTrainingLiveStatus, type LiveTrainingStatus } from '@/lib/utils/trainingStatus';
 import { ParticipantsModal } from '../../schedule/components/ParticipantsModal';
 import type { Training } from '../../schedule/SchedulePage';
 
@@ -17,6 +18,7 @@ interface Session {
   club_name: string | null;
   date: string;
   time: string;
+  duration_minutes: number;
   club_address: string | null;
   participants_count: number;
   max_participants?: number | null;
@@ -40,16 +42,36 @@ export const NextSessionsSection: React.FC = () => {
     try {
       const tg = window.Telegram?.WebApp;
       const token = tg?.initData || null;
-      const response = await scheduleApi.getNext(token, 20);
-      const todayStr = new Date().toISOString().split('T')[0];
-      const mappedSessions: Session[] = response.data
-        .map((s: SessionResponse) => ({
-          ...s,
-          status: s.is_booked ? 'booked' : s.status,
-          is_booked: s.is_booked,
-        }))
-        .filter((s: Session) => s.date === todayStr);
-      setSessions(mappedSessions);
+      const response = await scheduleApi.getNext(token, 30);
+
+      const now = new Date();
+      const todayStr = now.toISOString().split('T')[0];
+
+      const allMapped: Session[] = response.data.map((s: SessionResponse) => ({
+        ...s,
+        duration_minutes: s.duration_minutes || 60,
+        status: s.is_booked ? ('booked' as SessionStatus) : s.status,
+        is_booked: s.is_booked,
+      }));
+
+      const nonCompleted = allMapped.filter(
+        s => getTrainingLiveStatus(s.date, s.time, s.duration_minutes) !== 'completed'
+      );
+
+      const todaySessions = nonCompleted.filter(s => s.date === todayStr);
+
+      if (todaySessions.length > 0) {
+        setSessions(todaySessions);
+      } else {
+        const next7 = new Date(now);
+        next7.setDate(next7.getDate() + 7);
+        const next7Str = `${next7.getFullYear()}-${String(next7.getMonth() + 1).padStart(2, '0')}-${String(next7.getDate()).padStart(2, '0')}`;
+
+        const upcoming = nonCompleted
+          .filter(s => s.date > todayStr && s.date <= next7Str)
+          .slice(0, 3);
+        setSessions(upcoming);
+      }
     } catch (error) {
       console.error('Failed to load sessions:', error);
       if (showLoader) setSessions([]);
@@ -153,6 +175,7 @@ export const NextSessionsSection: React.FC = () => {
     club_logo_url: null,
     date: session.date,
     time: session.time,
+    duration_minutes: session.duration_minutes,
     location: session.club_address,
     max_participants: session.max_participants || null,
     current_participants: session.participants_count,
@@ -221,6 +244,24 @@ export const NextSessionsSection: React.FC = () => {
           const spotsLeft = session.max_participants 
             ? session.max_participants - session.participants_count 
             : null;
+          const liveStatus: LiveTrainingStatus = getTrainingLiveStatus(
+            session.date, session.time, session.duration_minutes,
+          );
+          const isActive = liveStatus === 'in_progress';
+
+          const todayStr = new Date().toISOString().split('T')[0];
+          const isToday = session.date === todayStr;
+
+          const getDateLabel = () => {
+            if (isToday) return t('home.sessions.today');
+            const [y, m, d] = session.date.split('-').map(Number);
+            const date = new Date(y, m - 1, d);
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            tomorrow.setHours(0, 0, 0, 0);
+            if (date.getTime() === tomorrow.getTime()) return t('schedule.tomorrow');
+            return date.toLocaleDateString('ru-RU', { weekday: 'short', day: 'numeric', month: 'short' });
+          };
 
           return (
             <div
@@ -228,11 +269,25 @@ export const NextSessionsSection: React.FC = () => {
               className="snap-center shrink-0"
               style={{ width: sessions.length === 1 ? '100%' : '85%' }}
             >
-              <div className="bg-white rounded-[24px] p-5 shadow-sm border border-gray-100 relative overflow-hidden h-full flex flex-col">
+              <div className={`rounded-[24px] p-5 shadow-sm relative overflow-hidden h-full flex flex-col ${
+                isActive
+                  ? 'bg-white border-l-[3px] border-l-[#10B981] border border-[#D1FAE5]'
+                  : 'bg-white border border-gray-100'
+              }`}>
                 <div className="flex items-center justify-between mb-4">
-                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[12px] font-bold bg-[#EFF6FF] text-[#2563EB] uppercase tracking-wider">
-                    {t('home.sessions.today')}
-                  </span>
+                  {isActive ? (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[12px] font-bold bg-[#ECFDF5] text-[#059669] uppercase tracking-wider">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10B981] opacity-75" />
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-[#10B981]" />
+                      </span>
+                      {t('schedule.inProgress')}
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[12px] font-bold bg-[#EFF6FF] text-[#2563EB] uppercase tracking-wider">
+                      {getDateLabel()}
+                    </span>
+                  )}
                   
                   {session.is_booked && (
                     <span className="flex items-center gap-1 text-[13px] font-bold text-[#10B981]">
@@ -250,7 +305,7 @@ export const NextSessionsSection: React.FC = () => {
                 )}
 
                 <div className="flex flex-col gap-1 mb-5 text-[14px] text-gray-500 font-medium">
-                  <p>{t('home.sessions.today')}, {timeLabel}</p>
+                  <p>{getDateLabel()}, {timeLabel}</p>
                   <p>Тренер: {session.coach_name || 'Не указан'}</p>
                   {spotsLeft !== null && spotsLeft <= 5 && !session.is_booked && (
                     <p className={`${spotsLeft === 0 ? 'text-[#EF4444]' : 'text-[#F59E0B]'} font-bold mt-1`}>
@@ -260,7 +315,18 @@ export const NextSessionsSection: React.FC = () => {
                 </div>
 
                 <div className="mt-auto pt-2">
-                  {session.is_booked ? (
+                  {isActive ? (
+                    session.is_booked ? (
+                      <div className="flex items-center justify-end gap-3">
+                        <button
+                          onClick={() => setShowParticipantsFor(session)}
+                          className="p-2.5 rounded-full bg-gray-50 text-gray-500 hover:bg-gray-100 active:bg-gray-200 transition-colors"
+                        >
+                          <Users size={18} />
+                        </button>
+                      </div>
+                    ) : null
+                  ) : session.is_booked ? (
                     <div className="flex items-center justify-end gap-3">
                       <button
                         onClick={() => handleCancelBooking(session.id)}

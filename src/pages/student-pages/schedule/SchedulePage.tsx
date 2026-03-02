@@ -11,6 +11,7 @@ import { ParticipantsModal } from './components/ParticipantsModal';
 import { Card } from '@/components/ui';
 import { scheduleApi, membershipsApi, clubsApi } from '@/functions/axios/axiosFunctions';
 import { getErrorMessage } from '@/lib/utils/errorHandler';
+import { isSessionCompleted } from '@/lib/utils/trainingStatus';
 import type { SessionResponse, TrainerResponse, ClubResponse, MembershipResponse } from '@/functions/axios/responses';
 
 const POLL_INTERVAL = 15_000;
@@ -27,6 +28,7 @@ export interface Training {
   club_logo_url: string | null;
   date: string;
   time: string;
+  duration_minutes: number;
   location: string | null;
   max_participants: number | null;
   current_participants: number;
@@ -108,6 +110,7 @@ export default function SchedulePage() {
           club_logo_url: s.club_logo_url,
           date: s.date,
           time: s.time,
+          duration_minutes: s.duration_minutes || 60,
           location: s.location || s.club_address,
           max_participants: s.max_participants,
           current_participants: s.participants_count,
@@ -155,6 +158,7 @@ export default function SchedulePage() {
           club_logo_url: s.club_logo_url,
           date: s.date,
           time: s.time,
+          duration_minutes: s.duration_minutes || 60,
           location: s.location || s.club_address,
           max_participants: s.max_participants,
           current_participants: s.participants_count,
@@ -230,19 +234,19 @@ export default function SchedulePage() {
     return result;
   }, [trainings, filters]);
 
-  // Get upcoming trainings for list view — next 7 days
+  // Get upcoming trainings for list view — next 7 days, exclude completed
   const upcomingTrainings = useMemo(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const todayStr = formatDate(today);
     
-    // next 7 days (today + 6 days = 7 days total)
     const next7Days = new Date(today);
     next7Days.setDate(today.getDate() + 6);
     const next7DaysStr = formatDate(next7Days);
     
     return filteredTrainings
-      .filter(t => t.date >= todayStr && t.date <= next7DaysStr);
+      .filter(t => t.date >= todayStr && t.date <= next7DaysStr)
+      .filter(t => !isSessionCompleted(t.date, t.time, t.duration_minutes));
   }, [filteredTrainings]);
 
   // Get trainings for selected date in calendar

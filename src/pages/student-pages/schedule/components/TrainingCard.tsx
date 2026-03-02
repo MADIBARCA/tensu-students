@@ -1,6 +1,7 @@
 import React from 'react';
 import { useI18n } from '@/i18n/i18n';
 import { Bell, Eye, Loader2 } from 'lucide-react';
+import { getTrainingLiveStatus, type LiveTrainingStatus } from '@/lib/utils/trainingStatus';
 import type { Training } from '../SchedulePage';
 
 interface TrainingCardProps {
@@ -73,6 +74,12 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
     return palette[i];
   };
 
+  const liveStatus: LiveTrainingStatus = getTrainingLiveStatus(
+    training.date, training.time, training.duration_minutes,
+  );
+  const isCompleted = liveStatus === 'completed';
+  const isActive = liveStatus === 'in_progress';
+
   const isFull = training.max_participants !== null && training.current_participants >= training.max_participants;
   const fillPct = training.max_participants
     ? Math.min((training.current_participants / training.max_participants) * 100, 100)
@@ -94,7 +101,11 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
   const spotsLeft = training.max_participants ? training.max_participants - training.current_participants : null;
 
   return (
-    <div className="bg-white rounded-[14px] px-5 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.06)] active:scale-[0.98] transition-all duration-200 hover:shadow-[0_2px_8px_rgba(0,0,0,0.08)]">
+    <div className={`bg-white rounded-[14px] px-5 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.06)] transition-all duration-200 hover:shadow-[0_2px_8px_rgba(0,0,0,0.08)] ${
+      isActive ? 'border-l-[3px] border-l-[#10B981] border border-[#D1FAE5]' :
+      isCompleted ? 'opacity-75 border border-gray-200' :
+      'active:scale-[0.98]'
+    }`}>
 
       {/* ── Row 1 · Club + Status ─────────────────────── */}
       <div className="flex items-center gap-3 mb-3">
@@ -120,18 +131,32 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
           </p>
         </div>
 
-        {/* Status */}
-        {training.is_booked && (
+        {/* Status badges */}
+        {isActive && (
+          <span className="shrink-0 inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#059669] bg-[#ECFDF5] px-2.5 py-1 rounded-full">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10B981] opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#10B981]" />
+            </span>
+            {t('schedule.inProgress')}
+          </span>
+        )}
+        {isCompleted && (
+          <span className="shrink-0 text-[12px] font-medium text-[#6B7280] bg-gray-100 px-2.5 py-1 rounded-full">
+            {t('schedule.completed')}
+          </span>
+        )}
+        {!isActive && !isCompleted && training.is_booked && (
           <span className="shrink-0 text-[12px] font-medium text-[#059669] bg-[#ECFDF5] px-2.5 py-1 rounded-full">
             ✓ {t('schedule.booked')}
           </span>
         )}
-        {training.is_in_waitlist && !training.is_booked && (
+        {!isActive && !isCompleted && training.is_in_waitlist && !training.is_booked && (
           <span className="shrink-0 text-[12px] font-medium text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full">
             {t('schedule.inWaitlist')}
           </span>
         )}
-        {isFull && !training.is_booked && !training.is_in_waitlist && (
+        {!isActive && !isCompleted && isFull && !training.is_booked && !training.is_in_waitlist && (
           <span className="shrink-0 text-[12px] font-medium text-[#6B7280] bg-gray-100 px-2.5 py-1 rounded-full">
             {t('schedule.full')}
           </span>
@@ -194,7 +219,22 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
       )}
 
       {/* ── Actions ───────────────────────────────────── */}
-      {(training.is_booked || training.is_in_waitlist) ? (
+      {isCompleted ? null : isActive ? (
+        <div className="flex items-center gap-3 pt-1">
+          {training.is_booked && (
+            <>
+              <div className="flex-1" />
+              <button
+                onClick={onShowParticipants}
+                className="flex items-center gap-1 text-[13px] text-[#6B7280] hover:text-[#111] transition-colors"
+              >
+                <Eye size={14} />
+                <span>{t('schedule.participants.title')}</span>
+              </button>
+            </>
+          )}
+        </div>
+      ) : (training.is_booked || training.is_in_waitlist) ? (
         <div className="flex items-center gap-3 pt-1">
           {training.is_booked ? (
             <>
