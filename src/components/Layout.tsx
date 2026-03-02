@@ -1,5 +1,5 @@
 // src/components/Layout.tsx
-import React, { useState, useEffect } from "react";
+import React from "react";
 import clsx from "clsx";
 import { useI18n } from "@/i18n/i18n";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -42,32 +42,15 @@ export const Layout: React.FC<LayoutProps> = ({
     { icon: User, label: t('nav.profile'), path: "/student/profile" },
   ];
 
-  const [isScrolled, setIsScrolled] = useState(false);
-
-  useEffect(() => {
-    if (!title) return;
-
-    const handleScroll = () => {
-      const scrollY = window.scrollY || document.documentElement.scrollTop;
-      setIsScrolled(scrollY > 0);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [title]);
-
   return (
     <div className="min-h-screen bg-[#FAFBFF] flex flex-col">
-      {/* Header — sticky at top, starts with padding, shrinks on scroll */}
+      {/* Header — fixed at top with constant padding */}
       {title && (
         <header
           className={clsx(
-            "sticky top-0 z-20 overflow-hidden",
+            "fixed top-0 left-0 right-0 z-20",
             "bg-white/95 backdrop-blur-sm border-b border-gray-100",
-            "transition-all duration-300 ease-out will-change-[padding-top]",
-            isScrolled ? "pt-0" : "pt-[92px]"
+            "pt-23"
           )}
           style={{
             WebkitBackdropFilter: 'blur(12px) saturate(180%)',
@@ -94,8 +77,8 @@ export const Layout: React.FC<LayoutProps> = ({
         </header>
       )}
 
-      {/* Main Content */}
-      <main className="flex-1 pb-20">
+      {/* Main Content — padding-top to account for fixed header */}
+      <main className={clsx("flex-1 pb-20", title && "pt-[148px]")}>
         {children}
       </main>
 

@@ -62,7 +62,7 @@ export default function StudentMainPage() {
     <Layout title="">
       <PageContainer className="bg-gray-50 min-h-dvh">
         {/* Tech Vibe Header */}
-        <div className="px-4 pt-6 pb-6">
+        <div className="px-4 pt-23 pb-6">
           <p className="text-[12px] font-bold text-gray-500 uppercase tracking-widest mb-1">
             {todayDateStr}
           </p>
