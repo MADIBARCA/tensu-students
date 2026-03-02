@@ -335,6 +335,16 @@ export const NextSessionsSection: React.FC = () => {
                           <Users size={18} />
                         </button>
                       </div>
+                    ) : canBook ? (
+                      <button
+                        onClick={() => handleBookSession(session.id)}
+                        disabled={actionInProgress === session.id}
+                        className="w-full py-3.5 bg-[#1E3A8A] text-white rounded-[16px] font-semibold text-[15px] hover:bg-blue-900 active:scale-[0.98] transition-all shadow-sm shadow-blue-900/20 disabled:opacity-60"
+                      >
+                        {actionInProgress === session.id
+                          ? <Loader2 size={18} className="animate-spin mx-auto" />
+                          : t('home.sessions.book')}
+                      </button>
                     ) : null
                   ) : session.is_booked ? (
                     <div className="flex items-center justify-end gap-3">

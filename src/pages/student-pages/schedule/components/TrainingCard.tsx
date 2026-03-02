@@ -221,7 +221,7 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
       {/* ── Actions ───────────────────────────────────── */}
       {isCompleted ? null : isActive ? (
         <div className="flex items-center gap-3 pt-1">
-          {training.is_booked && (
+          {training.is_booked ? (
             <>
               <div className="flex-1" />
               <button
@@ -232,7 +232,17 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
                 <span>{t('schedule.participants.title')}</span>
               </button>
             </>
-          )}
+          ) : !isFull ? (
+            <button
+              onClick={onBook}
+              disabled={isActionInProgress}
+              className="w-full py-3.5 bg-[#1E3A8A] text-white rounded-[16px] font-semibold text-[15px] hover:bg-blue-900 active:scale-[0.98] transition-all shadow-sm shadow-blue-900/20 disabled:opacity-60"
+            >
+              {isActionInProgress
+                ? <Loader2 size={18} className="animate-spin mx-auto" />
+                : t('schedule.book')}
+            </button>
+          ) : null}
         </div>
       ) : (training.is_booked || training.is_in_waitlist) ? (
         <div className="flex items-center gap-3 pt-1">
