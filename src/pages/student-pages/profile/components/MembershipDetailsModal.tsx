@@ -1,6 +1,7 @@
 import React from 'react';
 import { X, Calendar, MapPin, Users, ChevronRight, Snowflake, Crown } from 'lucide-react';
 import { useI18n } from '@/i18n/i18n';
+import { getLevelLabel } from '@/lib/utils/levelLabel';
 import type { MembershipStatus } from '@/functions/axios/responses';
 
 export interface MembershipDetail {
@@ -127,7 +128,7 @@ export const MembershipDetailsModal: React.FC<MembershipDetailsModalProps> = ({
                 <span className="text-gray-500 flex items-center gap-1.5"><Users size={14}/> {t('membership.type')}</span>
                 <span className="font-medium text-gray-900">
                   {membership.training_type === 'Group' ? t('membership.type.group') : membership.training_type === 'Personal' ? t('membership.type.personal') : membership.training_type}
-                  {membership.level && ` • ${membership.level}`}
+                  {membership.level && ` • ${getLevelLabel(membership.level, t)}`}
                 </span>
               </div>
             </div>

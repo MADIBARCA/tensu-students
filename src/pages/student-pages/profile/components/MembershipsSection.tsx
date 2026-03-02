@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getLevelLabel } from '@/lib/utils/levelLabel';
 import { SectionHeader } from '@/components/Layout';
 import { useI18n } from '@/i18n/i18n';
 import { useNavigate } from 'react-router-dom';
@@ -162,7 +163,7 @@ export const MembershipsSection: React.FC<MembershipsSectionProps> = ({
                 <div className="flex items-center gap-1.5 text-sm text-gray-500">
                   <Users size={14} className="text-gray-400" />
                   <span>{membership.training_type === 'Group' ? t('membership.type.group') : membership.training_type === 'Personal' ? t('membership.type.personal') : membership.training_type}</span>
-                  {membership.level && <span>• {membership.level}</span>}
+                  {membership.level && <span>• {getLevelLabel(membership.level, t)}</span>}
                 </div>
               </div>
               
