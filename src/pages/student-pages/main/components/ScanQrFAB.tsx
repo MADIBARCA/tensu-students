@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useI18n } from '@/i18n/i18n';
 import { ScanLine, Loader2 } from 'lucide-react';
 import { attendanceApi, scheduleApi } from '@/functions/axios/axiosFunctions';
+import { toLocalDateString } from '@/lib/utils/dateUtils';
 import { toast } from 'react-toastify';
 import type { SessionResponse } from '@/functions/axios/responses';
 
@@ -18,7 +19,7 @@ export const ScanQrFAB: React.FC = () => {
         
         // Fetch a few upcoming sessions to see if any are today
         const response = await scheduleApi.getNext(token, 10);
-        const todayStr = new Date().toISOString().split('T')[0];
+        const todayStr = toLocalDateString();
         
         const hasToday = response.data.some((s: SessionResponse) => s.date === todayStr);
         setHasTrainingToday(hasToday);

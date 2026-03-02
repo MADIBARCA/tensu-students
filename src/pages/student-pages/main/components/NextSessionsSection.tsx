@@ -5,6 +5,7 @@ import { Ban, CheckCircle, Loader2, Users } from 'lucide-react';
 import { scheduleApi } from '@/functions/axios/axiosFunctions';
 import type { SessionResponse, SessionStatus } from '@/functions/axios/responses';
 import { getTrainingLiveStatus, type LiveTrainingStatus } from '@/lib/utils/trainingStatus';
+import { toLocalDateString } from '@/lib/utils/dateUtils';
 import { ParticipantsModal } from '../../schedule/components/ParticipantsModal';
 import type { Training } from '../../schedule/SchedulePage';
 
@@ -45,7 +46,7 @@ export const NextSessionsSection: React.FC = () => {
       const response = await scheduleApi.getNext(token, 30);
 
       const now = new Date();
-      const todayStr = now.toISOString().split('T')[0];
+      const todayStr = toLocalDateString(now);
 
       const allMapped: Session[] = response.data.map((s: SessionResponse) => ({
         ...s,
@@ -250,7 +251,7 @@ export const NextSessionsSection: React.FC = () => {
           const isActive = liveStatus === 'in_progress';
           const isCompleted = liveStatus === 'completed';
 
-          const todayStr = new Date().toISOString().split('T')[0];
+          const todayStr = toLocalDateString();
           const isToday = session.date === todayStr;
 
           const getDateLabel = () => {
