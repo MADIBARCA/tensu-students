@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Edit2, Camera } from 'lucide-react';
 import { useTelegram } from '@/hooks/useTelegram';
+import { useI18n } from '@/i18n/i18n';
 import type { StudentResponse } from '@/functions/axios/responses';
 import { formatPhone, makeCall } from '@/utils/formatPhone';
 
@@ -11,23 +12,7 @@ interface UserInfoSectionProps {
 
 export const UserInfoSection: React.FC<UserInfoSectionProps> = ({ student, onEdit }) => {
   const { user } = useTelegram();
-  const [uploadingPhoto, setUploadingPhoto] = useState(false);
-
-  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUploadingPhoto(true);
-    try {
-      // TODO: Implement photo upload API
-      console.log('Uploading photo:', file);
-      // await studentsApi.uploadPhoto(file, token);
-    } catch (error) {
-      console.error('Failed to upload photo:', error);
-    } finally {
-      setUploadingPhoto(false);
-    }
-  };
+  const { t } = useI18n();
 
   const displayName = student
     ? `${student.first_name} ${student.last_name || ''}`.trim()
@@ -56,25 +41,14 @@ export const UserInfoSection: React.FC<UserInfoSectionProps> = ({ student, onEdi
                 </div>
               )}
             </div>
-            <div className="absolute bottom-0 right-0 bg-white rounded-full p-2 border border-gray-100 shadow-sm text-gray-500 group-hover:text-[#1E3A8A] transition-colors">
-              <Camera size={16} />
-            </div>
           </label>
-          <input
-            id="photo-upload"
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handlePhotoUpload}
-            disabled={uploadingPhoto}
-          />
         </div>
 
         {/* Info */}
         <div className="flex-1">
           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-green-50 text-green-700 rounded-full text-[11px] font-semibold mb-2">
             <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-            Active member
+            {t('profile.activeMember')}
           </div>
           
           <div className="flex items-center gap-2 mb-1">
