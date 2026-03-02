@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useI18n } from '@/i18n/i18n';
-import { CheckCircle, Loader2, Trash2, Users } from 'lucide-react';
+import { Ban, CheckCircle, Loader2, Users } from 'lucide-react';
 import { scheduleApi } from '@/functions/axios/axiosFunctions';
 import type { SessionResponse, SessionStatus } from '@/functions/axios/responses';
 import { ParticipantsModal } from '../../schedule/components/ParticipantsModal';
@@ -269,7 +269,7 @@ export const NextSessionsSection: React.FC = () => {
                       >
                         {actionInProgress === session.id
                           ? <Loader2 size={18} className="animate-spin" />
-                          : <Trash2 size={18} />}
+                          : <Ban size={18} />}
                       </button>
                       <button
                         onClick={() => setShowParticipantsFor(session)}
