@@ -13,14 +13,15 @@ export function useTelegramBackButton(onBack: () => void, isActive: boolean = tr
 
   useEffect(() => {
     const tg = window.Telegram?.WebApp;
-    if (!tg?.BackButton || !isActive) return;
+    const backButton = tg?.BackButton;
+    if (!backButton || !isActive) return;
 
-    tg.BackButton.show();
-    tg.BackButton.onClick(handleBack);
+    backButton.show();
+    backButton.onClick(handleBack);
 
     return () => {
-      tg.BackButton.offClick(handleBack);
-      tg.BackButton.hide();
+      backButton.offClick(handleBack);
+      backButton.hide();
     };
   }, [handleBack, isActive]);
 }
