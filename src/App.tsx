@@ -138,6 +138,7 @@ export default function App() {
     if (!tg) return;
   
     tg.ready();
+    tg.enableClosingConfirmation?.();
   
     setTimeout(() => {
       tg.requestFullscreen?.();
