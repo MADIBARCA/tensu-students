@@ -372,7 +372,7 @@ export interface NearestClubResponse {
 
 // Kaspi Order responses
 export interface KaspiOrderResponse {
-  order_id: number;
+  order_code: string;
   amount: number;
   tariff_name: string;
   club_name: string;

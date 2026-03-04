@@ -61,9 +61,9 @@ export const PaymentMethodModal: React.FC<PaymentMethodModalProps> = ({
     }
   }, [plan, clubId, token, isLoading, t]);
 
-  const handleCopyOrderId = useCallback(() => {
+  const handleCopyOrderCode = useCallback(() => {
     if (!kaspiOrder) return;
-    navigator.clipboard.writeText(String(kaspiOrder.order_id)).then(() => {
+    navigator.clipboard.writeText(kaspiOrder.order_code).then(() => {
       setCopied(true);
       window.Telegram?.WebApp?.HapticFeedback?.impactOccurred?.('light');
       setTimeout(() => setCopied(false), 2000);
@@ -77,7 +77,7 @@ export const PaymentMethodModal: React.FC<PaymentMethodModalProps> = ({
 
   if (!isOpen) return null;
 
-  // Kaspi order created — show order_id with instructions
+  // Kaspi order created — show order_code with instructions
   if (kaspiOrder) {
     return (
       <div className="fixed inset-0 z-[120] flex flex-col bg-white">
@@ -105,11 +105,11 @@ export const PaymentMethodModal: React.FC<PaymentMethodModalProps> = ({
               {t('kaspi.order.yourOrderId')}
             </p>
             <button
-              onClick={handleCopyOrderId}
+              onClick={handleCopyOrderCode}
               className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-gray-50 border-2 border-dashed border-gray-300 active:bg-gray-100 transition-colors mb-2"
             >
               <span className="text-4xl font-bold text-gray-900 tracking-wider">
-                {kaspiOrder.order_id}
+                {kaspiOrder.order_code}
               </span>
               {copied ? (
                 <Check className="w-5 h-5 text-green-500" />
