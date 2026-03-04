@@ -157,7 +157,6 @@ export default function ProfilePage() {
         {/* Payment History Section */}
         <PaymentHistorySection />
 
-
         {/* Settings Section */}
         <SettingsSection />
 

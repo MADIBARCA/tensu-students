@@ -1059,20 +1059,8 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, initia
 
                         {/* Action buttons - hide if tariff is deleted */}
                         {!membership.isTariffDeleted && (
-                          <div className="grid grid-cols-2 gap-2">
-                            {membership.status !== 'frozen' ? (
-                              <button
-                                onClick={() => {
-                                  setActiveMembershipForClub(membership);
-                                  handleFreeze();
-                                }}
-                                disabled={membership.freezeDaysAvailable <= 0}
-                                className="px-3 py-2.5 bg-blue-50 text-[#1E3A8A] rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                              >
-                                <Snowflake size={16} />
-                                {t('clubs.membership.freeze')}
-                              </button>
-                            ) : (
+                          <div className={`grid ${membership.status === 'frozen' ? 'grid-cols-2' : ''} gap-2`}>
+                            {membership.status === 'frozen' && (
                               <button
                                 onClick={() => {
                                   setActiveMembershipForClub(membership);
@@ -1108,12 +1096,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, initia
                           </button>
                         )}
                         
-                        {/* Freeze days info */}
-                        {!membership.isTariffDeleted && membership.status !== 'frozen' && membership.freezeDaysAvailable > 0 && (
-                          <p className="text-xs text-gray-400 mt-2 text-center">
-                            {t('clubs.membership.freezeDaysLeft', { days: membership.freezeDaysAvailable })}
-                          </p>
-                        )}
+
                       </Card>
                     );
                   })}
