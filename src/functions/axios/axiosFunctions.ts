@@ -272,7 +272,7 @@ export const clubsApi = {
 
   getNearest: (latitude: number, longitude: number, token: string | null) =>
     axiosRequest<NearestClubResponse>(
-      `${ENDPOINTS.CLUBS.NEAREST}?latitude=${latitude}&longitude=${longitude}`,
+      `${ENDPOINTS.CLUBS.NEAREST}?lat=${latitude}&lon=${longitude}`,
       'GET',
       token
     ),
