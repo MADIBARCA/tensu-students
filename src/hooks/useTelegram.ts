@@ -45,6 +45,12 @@ declare global {
         openLink?: (url: string, options?: { try_instant_view?: boolean }) => void;
         openTelegramLink?: (url: string) => void;
         requestContact: (callback: (granted: boolean, result: TelegramContactResult) => void) => void;
+        BackButton?: {
+          show: () => void;
+          hide: () => void;
+          onClick: (callback: () => void) => void;
+          offClick: (callback: () => void) => void;
+        };
       };
     };
   }

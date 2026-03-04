@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { useI18n } from '@/i18n/i18n';
-import { X, QrCode, Banknote, ChevronRight, ArrowLeft, Loader2, Copy, Check } from 'lucide-react';
+import { useTelegramBackButton } from '@/hooks/useTelegramBackButton';
+import { QrCode, Banknote, ChevronRight, Loader2, Copy, Check } from 'lucide-react';
 import { kaspiOrdersApi } from '@/functions/axios/axiosFunctions';
 import type { KaspiOrderResponse } from '@/functions/axios/responses';
 
@@ -27,6 +28,17 @@ export const PaymentMethodModal: React.FC<PaymentMethodModalProps> = ({
 }) => {
   const { t } = useI18n();
   const [kaspiOrder, setKaspiOrder] = useState<KaspiOrderResponse | null>(null);
+
+  const handleBackButtonClick = useCallback(() => {
+    if (kaspiOrder) {
+      setKaspiOrder(null);
+      setErrorMsg('');
+    } else {
+      onClose();
+    }
+  }, [kaspiOrder, onClose]);
+
+  useTelegramBackButton(handleBackButtonClick, isOpen);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [copied, setCopied] = useState(false);
@@ -70,11 +82,6 @@ export const PaymentMethodModal: React.FC<PaymentMethodModalProps> = ({
     });
   }, [kaspiOrder]);
 
-  const handleBack = () => {
-    setKaspiOrder(null);
-    setErrorMsg('');
-  };
-
   if (!isOpen) return null;
 
   // Kaspi order created — show order_code with instructions
@@ -83,12 +90,6 @@ export const PaymentMethodModal: React.FC<PaymentMethodModalProps> = ({
       <div className="fixed inset-0 z-[120] flex flex-col bg-white">
         {/* Header */}
         <div className="flex items-center px-4 pb-3 border-b border-gray-100 pt-25">
-          <button
-            onClick={handleBack}
-            className="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-50 active:bg-gray-100 transition-colors mr-3"
-          >
-            <ArrowLeft className="w-5 h-5 text-gray-600" />
-          </button>
           <h2 className="text-base font-semibold text-gray-900">{t('kaspi.order.title')}</h2>
         </div>
 
@@ -182,12 +183,6 @@ export const PaymentMethodModal: React.FC<PaymentMethodModalProps> = ({
     <div className="fixed inset-0 z-[120] flex flex-col bg-white">
       {/* Header */}
       <div className="flex items-center px-4 pb-3 border-b border-gray-100 pt-25">
-        <button
-          onClick={onClose}
-          className="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-50 active:bg-gray-100 transition-colors mr-3"
-        >
-          <X className="w-5 h-5 text-gray-600" />
-        </button>
         <h2 className="text-base font-semibold text-gray-900">{t('payment.method.title')}</h2>
       </div>
 
