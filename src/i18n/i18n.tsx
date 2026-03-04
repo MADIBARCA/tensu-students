@@ -364,6 +364,8 @@ const RU: Dict = {
 
   // Payment Request flow
   'payment.method.title': 'Способ оплаты',
+  'payment.method.kaspi': 'Оплата через Kaspi',
+  'payment.method.kaspi.desc': 'Получите номер заказа и оплатите в Kaspi',
   'payment.method.kaspi_qr': 'Kaspi QR',
   'payment.method.kaspi_qr.desc': 'Оплатите через Kaspi приложение',
   'payment.method.kaspi_qr.soon': 'Скоро',
@@ -371,6 +373,24 @@ const RU: Dict = {
   'payment.method.already_paid.desc': 'Наличные или перевод',
   'payment.method.coming_soon': 'Kaspi QR скоро будет доступен',
   'payment.method.coming_soon.text': 'Мы работаем над интеграцией Kaspi QR. Пока вы можете оплатить наличными или переводом и подтвердить в приложении.',
+
+  // Kaspi order flow
+  'kaspi.order.title': 'Оплата через Kaspi',
+  'kaspi.order.yourOrderId': 'Номер заказа',
+  'kaspi.order.tapToCopy': 'Нажмите, чтобы скопировать',
+  'kaspi.order.copied': 'Скопировано!',
+  'kaspi.order.student': 'Ученик',
+  'kaspi.order.club': 'Клуб',
+  'kaspi.order.tariff': 'Тариф',
+  'kaspi.order.amount': 'К оплате',
+  'kaspi.order.howToPay': 'Как оплатить?',
+  'kaspi.order.step1': 'Откройте приложение Kaspi.kz или Kaspi терминал',
+  'kaspi.order.step2': 'Найдите нашу компанию и введите номер заказа',
+  'kaspi.order.step3': 'Оплатите — абонемент активируется автоматически',
+  'kaspi.order.done': 'Понятно',
+  'kaspi.order.error.alreadyActive': 'У вас уже есть активный абонемент с данным тарифом',
+  'kaspi.order.error.noBin': 'Клуб не настроен для оплаты через Kaspi',
+  'kaspi.order.error.generic': 'Не удалось создать заказ. Попробуйте позже',
 
   'payment.request.title': 'Подтверждение оплаты',
   'payment.request.amount': 'Сумма оплаты',
@@ -787,6 +807,8 @@ const KK: Dict = {
 
   // Payment Request flow
   'payment.method.title': 'Төлем тәсілі',
+  'payment.method.kaspi': 'Kaspi арқылы төлеу',
+  'payment.method.kaspi.desc': 'Тапсырыс нөмірін алып, Kaspi-де төлеңіз',
   'payment.method.kaspi_qr': 'Kaspi QR',
   'payment.method.kaspi_qr.desc': 'Kaspi арқылы төлеңіз',
   'payment.method.kaspi_qr.soon': 'Жуырда',
@@ -794,6 +816,24 @@ const KK: Dict = {
   'payment.method.already_paid.desc': 'Қолма-қол немесе аударым',
   'payment.method.coming_soon': 'Kaspi QR жуырда қолжетімді болады',
   'payment.method.coming_soon.text': 'Біз Kaspi QR интеграциясын жасап жатырмыз. Әзірше қолма-қол ақшамен немесе аударыммен төлеп, қолданбада растай аласыз.',
+
+  // Kaspi order flow
+  'kaspi.order.title': 'Kaspi арқылы төлеу',
+  'kaspi.order.yourOrderId': 'Тапсырыс нөмірі',
+  'kaspi.order.tapToCopy': 'Көшіру үшін басыңыз',
+  'kaspi.order.copied': 'Көшірілді!',
+  'kaspi.order.student': 'Оқушы',
+  'kaspi.order.club': 'Клуб',
+  'kaspi.order.tariff': 'Тариф',
+  'kaspi.order.amount': 'Төлем сомасы',
+  'kaspi.order.howToPay': 'Қалай төлеуге болады?',
+  'kaspi.order.step1': 'Kaspi.kz қосымшасын немесе Kaspi терминалын ашыңыз',
+  'kaspi.order.step2': 'Біздің компанияны тауып, тапсырыс нөмірін енгізіңіз',
+  'kaspi.order.step3': 'Төлеңіз — абонемент автоматты түрде белсендіріледі',
+  'kaspi.order.done': 'Түсінікті',
+  'kaspi.order.error.alreadyActive': 'Сізде бұл тарифпен белсенді абонемент бар',
+  'kaspi.order.error.noBin': 'Клуб Kaspi арқылы төлеуге баптаулы емес',
+  'kaspi.order.error.generic': 'Тапсырыс жасау мүмкін болмады. Кейінірек қайталаңыз',
 
   'payment.request.title': 'Төлемді растау',
   'payment.request.amount': 'Төлем сомасы',

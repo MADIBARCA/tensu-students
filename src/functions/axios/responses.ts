@@ -370,6 +370,17 @@ export interface NearestClubResponse {
   distance_meters: number | null;
 }
 
+// Kaspi Order responses
+export interface KaspiOrderResponse {
+  order_id: number;
+  amount: number;
+  tariff_name: string;
+  club_name: string;
+  student_name: string;
+  status: string;
+  expires_at: string;
+}
+
 // Payment Request responses
 export type PaymentRequestStatus = 'pending_approval' | 'approved' | 'denied';
 export type PaymentRequestMethod = 'cash' | 'transfer' | 'kaspi_qr';

@@ -67,6 +67,12 @@ export interface CreatePriceRequestRequest {
   message?: string;
 }
 
+// Kaspi Order
+export interface CreateKaspiOrderRequest {
+  tariff_id: number;
+  club_id: number;
+}
+
 // Payment Request (cash / transfer declaration)
 export type PaymentRequestMethodType = 'cash' | 'transfer' | 'kaspi_qr';
 

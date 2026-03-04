@@ -10,6 +10,7 @@ import type {
   ScheduleFiltersRequest,
   CreatePriceRequestRequest,
   CreatePaymentRequestRequest,
+  CreateKaspiOrderRequest,
 } from './requests';
 import type { 
   StudentResponse, 
@@ -40,6 +41,7 @@ import type {
   PaymentRequestResponse,
   PaymentRequestListResponse,
   PendingCountResponse,
+  KaspiOrderResponse,
 } from './responses';
 
 // Student Profile API
@@ -336,4 +338,10 @@ export const paymentRequestsApi = {
       token
     );
   },
+};
+
+// Kaspi Orders API
+export const kaspiOrdersApi = {
+  create: (data: CreateKaspiOrderRequest, token: string | null) =>
+    axiosRequest<KaspiOrderResponse>(ENDPOINTS.KASPI_ORDERS.BASE, 'POST', token, data),
 };

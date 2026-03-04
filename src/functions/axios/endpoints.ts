@@ -63,4 +63,8 @@ export const ENDPOINTS = {
     BASE: '/students/payment-requests/',
     PENDING_COUNT: '/students/payment-requests/pending-count',
   },
+
+  KASPI_ORDERS: {
+    BASE: '/students/kaspi-orders/',
+  },
 } as const;
