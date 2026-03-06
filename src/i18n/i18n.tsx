@@ -95,6 +95,17 @@ const RU: Dict = {
   'freeze.daysUsed': 'Использовано',
   'freeze.daysElapsed': 'Прошло дней',
   'freeze.days': 'дн.',
+  'freeze.minDateHint': 'Минимальная дата: завтра ({date})',
+  'freeze.daysSelectedCount': 'Выбрано дней: {count}',
+  'freeze.startDateMustBeTomorrow': 'Дата начала заморозки должна быть не раньше завтрашнего дня',
+  'freeze.onlyAvailableDays': 'Доступно только {days} дней',
+  'freeze.minDaysLabel': 'Минимальный срок заморозки: {days} {daysWord}',
+  'freeze.trainerHint': 'Ваш тренер получит уведомление о заморозке абонемента.',
+  'freeze.processing': 'Обработка...',
+  'freeze.success': 'Абонемент успешно заморожен. Тренер уведомлен.',
+  'freeze.errorGeneric': 'Ошибка при заморозке абонемента',
+  'common.day': 'день',
+  'common.days': 'дней',
   'attendance.no.visits': 'Посещений нет',
   'attendance.visits.month': 'Посещений за месяц',
   'attendance.missed.month': 'Пропусков за месяц',
@@ -539,6 +550,17 @@ const KK: Dict = {
   'freeze.daysUsed': 'Қолданылды',
   'freeze.daysElapsed': 'Өткен күндер',
   'freeze.days': 'күн',
+  'freeze.minDateHint': 'Ең аз күн: ертең ({date})',
+  'freeze.daysSelectedCount': 'Таңдалған күндер: {count}',
+  'freeze.startDateMustBeTomorrow': 'Қатып қалдыру басталу күні ертеңнен кеш болуы керек',
+  'freeze.onlyAvailableDays': 'Тек {days} күн қолжетімді',
+  'freeze.minDaysLabel': 'Ең аз мерзім: {days} {daysWord}',
+  'freeze.trainerHint': 'Жаттықтырушыңыз абонементті қатыру туралы хабарлама алады.',
+  'freeze.processing': 'Өңделуде...',
+  'freeze.success': 'Абонемент сәтті қатырылды. Жаттықтырушы хабарланды.',
+  'freeze.errorGeneric': 'Қатып қалдыру қатесі',
+  'common.day': 'күн',
+  'common.days': 'күн',
   'attendance.no.visits': 'Барулар жоқ',
   'attendance.visits.month': 'Айына барулар',
   'attendance.missed.month': 'Айына жіберілгендер',
@@ -983,6 +1005,17 @@ const EN: Dict = {
   'freeze.daysUsed': 'Used',
   'freeze.daysElapsed': 'Days elapsed',
   'freeze.days': 'days',
+  'freeze.minDateHint': 'Minimum date: tomorrow ({date})',
+  'freeze.daysSelectedCount': 'Days selected: {count}',
+  'freeze.startDateMustBeTomorrow': 'Freeze start date must be tomorrow or later',
+  'freeze.onlyAvailableDays': 'Only {days} days available',
+  'freeze.minDaysLabel': 'Minimum freeze period: {days} {daysWord}',
+  'freeze.trainerHint': 'Your trainer will be notified about the membership freeze.',
+  'freeze.processing': 'Processing...',
+  'freeze.success': 'Membership frozen successfully. Trainer has been notified.',
+  'freeze.errorGeneric': 'Failed to freeze membership',
+  'common.day': 'day',
+  'common.days': 'days',
   'attendance.no.visits': 'No visits',
   'attendance.visits.month': 'Visits per month',
   'attendance.missed.month': 'Missed per month',
@@ -1329,10 +1362,16 @@ const EN: Dict = {
 
 const dictionaries: Record<Lang, Dict> = { ru: RU, kk: KK, en: EN };
 
+/** Locale for Intl (dates, numbers). ru->ru-RU, kk->kk-KZ, en->en */
+export function getLocaleForLang(lang: Lang): string {
+  return lang === 'kk' ? 'kk-KZ' : lang === 'en' ? 'en' : 'ru-RU';
+}
+
 type I18nContextType = {
   lang: Lang;
   setLang: (l: Lang) => void;
   t: (key: string, params?: Record<string, string | number>) => string;
+  locale: string;
 };
 
 const I18nContext = createContext<I18nContextType | undefined>(undefined);
@@ -1378,7 +1417,8 @@ export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children
     html.setAttribute('lang', lang === 'kk' ? 'kk-KZ' : lang === 'en' ? 'en' : 'ru-RU');
   }, [lang]);
 
-  const value = useMemo(() => ({ lang, setLang, t }), [lang, t]);
+  const locale = getLocaleForLang(lang);
+  const value = useMemo(() => ({ lang, setLang, t, locale }), [lang, t, locale]);
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 };

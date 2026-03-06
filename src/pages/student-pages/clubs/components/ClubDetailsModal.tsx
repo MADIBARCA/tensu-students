@@ -102,7 +102,7 @@ interface ActiveMembershipInfo {
 }
 
 export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, initialTab = 'info', onClose }) => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [sections, setSections] = useState<Section[]>([]);
   const [membershipPlans, setMembershipPlans] = useState<MembershipPlan[]>([]);
   const [coaches, setCoaches] = useState<Coach[]>([]);
@@ -370,7 +370,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, initia
   };
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('ru-RU', {
+    return new Intl.NumberFormat(locale, {
       style: 'currency',
       currency: 'KZT',
       minimumFractionDigits: 0,
@@ -400,7 +400,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, initia
   // Format date for display
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    return date.toLocaleDateString('ru-RU', { 
+    return date.toLocaleDateString(locale, { 
       day: 'numeric', 
       month: 'short',
       year: 'numeric'

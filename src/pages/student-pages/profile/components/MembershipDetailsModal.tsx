@@ -36,7 +36,7 @@ export const MembershipDetailsModal: React.FC<MembershipDetailsModalProps> = ({
   onFreeze,
   onRenew,
 }) => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
 
   const getStatusLabel = (status: string) => {
     return t(`membership.status.${status.toLowerCase()}`) || status;
@@ -55,7 +55,7 @@ export const MembershipDetailsModal: React.FC<MembershipDetailsModalProps> = ({
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    return date.toLocaleDateString(locale, { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
 
   const canRenew = !membership.is_tariff_deleted;

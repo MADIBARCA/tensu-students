@@ -21,7 +21,7 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
   onShowParticipants,
   isActionInProgress = false,
 }) => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
 
   // ── Helpers ──────────────────────────────────────────────
 
@@ -50,7 +50,7 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
       ];
       return `${wd[trainingDate.getDay()]}, ${timeStr}`;
     }
-    return `${trainingDate.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' })}, ${timeStr}`;
+    return `${trainingDate.toLocaleDateString(locale, { day: '2-digit', month: '2-digit' })}, ${timeStr}`;
   };
 
   const initials = (name: string | null): string => {

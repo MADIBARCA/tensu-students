@@ -28,7 +28,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   onShowParticipants,
   actionInProgress = null,
 }) => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
   const weekDays = [
@@ -192,7 +192,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
         <div className="mt-4 pt-4 border-t border-gray-200">
           <div className="flex items-center justify-between mb-3">
             <h4 className="font-semibold text-gray-900">
-              {selectedDate.toLocaleDateString('ru-RU', {
+              {selectedDate.toLocaleDateString(locale, {
                 weekday: 'long',
                 day: 'numeric',
                 month: 'long',

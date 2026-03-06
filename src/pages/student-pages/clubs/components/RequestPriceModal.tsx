@@ -37,7 +37,7 @@ export const RequestPriceModal: React.FC<RequestPriceModalProps> = ({
   onClose,
   onSuccess,
 }) => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   
   const [customReason, setCustomReason] = useState('');
   const [suggestPrice, setSuggestPrice] = useState(false);
@@ -48,7 +48,7 @@ export const RequestPriceModal: React.FC<RequestPriceModalProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('ru-RU', {
+    return new Intl.NumberFormat(locale, {
       style: 'currency',
       currency: 'KZT',
       minimumFractionDigits: 0,

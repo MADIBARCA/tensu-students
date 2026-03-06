@@ -23,7 +23,7 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
   onClose,
   onSuccess,
 }) => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [processing, setProcessing] = useState(false);
@@ -59,7 +59,7 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
   const formatDate = (dateStr: string | null | undefined) => {
     if (!dateStr) return '';
     const date = new Date(dateStr);
-    return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' });
+    return date.toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' });
   };
 
   const freezeDays = calculateFreezeDays();
@@ -96,14 +96,14 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
       
       // Show success message
       if (tg) {
-        tg.showAlert('Абонемент успешно заморожен. Тренер уведомлен.');
+        tg.showAlert(t('freeze.success'));
       }
       
       onSuccess?.();
       onClose();
     } catch (err: unknown) {
       console.error('Freeze failed:', err);
-      const errorMessage = getErrorMessage(err, 'Ошибка при заморозке абонемента');
+      const errorMessage = getErrorMessage(err, t('freeze.errorGeneric'));
       setError(errorMessage);
     } finally {
       setProcessing(false);
@@ -272,20 +272,20 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
             <div className="p-4 bg-gray-50 rounded-lg">
               <div className="flex items-center gap-2 mb-2">
                 <Calendar size={16} className="text-gray-600" />
-                <p className="text-sm font-medium text-gray-900">Доступно дней для заморозки</p>
+                <p className="text-sm font-medium text-gray-900">{t('freeze.days.available')}</p>
               </div>
               <p className="text-2xl font-bold text-[#1E3A8A]">{freezeDaysAvailable}</p>
               <div className="text-xs text-gray-500 mt-2 space-y-1">
-                <p>Максимальный срок заморозки: 30 дней</p>
+                <p>{t('freeze.max.days')}</p>
                 {membership.freeze_days_min ? (
-                  <p>Минимальный срок заморозки: {membership.freeze_days_min} дней</p>
+                  <p>{t('freeze.minDaysLabel', { days: membership.freeze_days_min, daysWord: t('common.days') })}</p>
                 ) : null}
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Дата начала заморозки
+                {t('freeze.start.date')}
               </label>
               <input
                 type="date"
@@ -295,13 +295,13 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
                 className="w-full border border-gray-200 rounded-lg p-2"
               />
               <p className="text-xs text-gray-500 mt-1">
-                Минимальная дата: завтра ({tomorrow.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })})
+                {t('freeze.minDateHint', { date: tomorrow.toLocaleDateString(locale, { day: 'numeric', month: 'long' }) })}
               </p>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Дата окончания заморозки
+                {t('freeze.end.date')}
               </label>
               <input
                 type="date"
@@ -318,21 +318,21 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
               }`}>
                 <p className={`text-sm ${isValid ? 'text-[#065F46]' : 'text-red-800'}`}>
                   {isValid
-                    ? `Выбрано дней: ${freezeDays}`
+                    ? t('freeze.daysSelectedCount', { count: freezeDays })
                     : !isStartDateValid
-                    ? 'Дата начала заморозки должна быть не раньше завтрашнего дня'
+                    ? t('freeze.startDateMustBeTomorrow')
                     : freezeDays > 30
-                    ? 'Максимальный срок заморозки: 30 дней'
+                    ? t('freeze.max.days')
                     : freezeDays > freezeDaysAvailable
-                    ? `Доступно только ${freezeDaysAvailable} дней`
-                    : `Минимальный срок заморозки: ${minFreeze} ${minFreeze === 1 ? 'день' : 'дней'}`}
+                    ? t('freeze.onlyAvailableDays', { days: freezeDaysAvailable })
+                    : t('freeze.minDaysLabel', { days: minFreeze, daysWord: minFreeze === 1 ? t('common.day') : t('common.days') })}
                 </p>
               </div>
             )}
 
             <div className="flex items-start gap-2 p-3 bg-blue-50 text-[#1E3A8A] rounded-lg text-sm">
               <div className="mt-0.5">ℹ️</div>
-              <p>Ваш тренер получит уведомление о заморозке абонемента.</p>
+              <p>{t('freeze.trainerHint')}</p>
             </div>
 
             <div className="flex gap-3">
@@ -340,15 +340,14 @@ export const FreezeMembershipModal: React.FC<FreezeMembershipModalProps> = ({
                 onClick={onClose}
                 className="flex-1 px-4 py-2 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
               >
-                Отмена
+                {t('common.cancel')}
               </button>
               <button
                 onClick={handleFreeze}
                 disabled={!isValid || processing}
                 className="btn-primary flex-1 px-4 py-2 text-white rounded-lg hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              
               >
-                {processing ? 'Обработка...' : 'Заморозить'}
+                {processing ? t('freeze.processing') : t('freeze.process')}
               </button>
             </div>
           </div>

@@ -18,7 +18,7 @@ interface Payment {
 }
 
 export const PaymentHistorySection: React.FC = () => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAll, setShowAll] = useState(false);
@@ -55,11 +55,11 @@ export const PaymentHistorySection: React.FC = () => {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    return date.toLocaleDateString(locale, { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
 
   const formatAmount = (amount: number) => {
-    return new Intl.NumberFormat('ru-RU', {
+    return new Intl.NumberFormat(locale, {
       style: 'currency',
       currency: 'KZT',
       minimumFractionDigits: 0,

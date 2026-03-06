@@ -8,7 +8,7 @@ import { NoMembershipBanner } from './components/NoMembershipBanner';
 import { membershipsApi } from '@/functions/axios/axiosFunctions';
 
 export default function StudentMainPage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [hasActiveMembership, setHasActiveMembership] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -63,7 +63,7 @@ export default function StudentMainPage() {
 
   // Current Date display like iOS
   const dateOptions: Intl.DateTimeFormatOptions = { weekday: 'long', day: 'numeric', month: 'short' };
-  const todayDateStr = new Date().toLocaleDateString('ru-RU', dateOptions).toUpperCase();
+  const todayDateStr = new Date().toLocaleDateString(locale, dateOptions).toUpperCase();
 
   return (
     <Layout title="" noScroll={true}>

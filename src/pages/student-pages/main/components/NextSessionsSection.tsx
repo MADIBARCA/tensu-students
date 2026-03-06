@@ -29,7 +29,7 @@ interface Session {
 }
 
 export const NextSessionsSection: React.FC = () => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const navigate = useNavigate();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
@@ -294,7 +294,7 @@ export const NextSessionsSection: React.FC = () => {
             tomorrow.setDate(tomorrow.getDate() + 1);
             tomorrow.setHours(0, 0, 0, 0);
             if (date.getTime() === tomorrow.getTime()) return t('schedule.tomorrow');
-            return date.toLocaleDateString('ru-RU', { weekday: 'short', day: 'numeric', month: 'short' });
+            return date.toLocaleDateString(locale, { weekday: 'short', day: 'numeric', month: 'short' });
           };
 
           return (

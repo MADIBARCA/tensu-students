@@ -17,7 +17,7 @@ interface MembershipHistory {
 }
 
 export const MembershipHistorySection: React.FC = () => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [isExpanded, setIsExpanded] = useState(false);
   const [history, setHistory] = useState<MembershipHistory[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,7 +55,7 @@ export const MembershipHistorySection: React.FC = () => {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    return date.toLocaleDateString(locale, { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
 
   const getReasonLabel = (reason: string) => {

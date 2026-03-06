@@ -42,7 +42,7 @@ function getDateRange(tab: PeriodTab, customFrom?: string, customTo?: string) {
 }
 
 export default function AttendancePage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
 
   const [activeTab, setActiveTab] = useState<PeriodTab>('month');
   const [customFrom, setCustomFrom] = useState('');
@@ -145,7 +145,7 @@ export default function AttendancePage() {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('ru-RU', {
+    return date.toLocaleDateString(locale, {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
@@ -155,7 +155,7 @@ export default function AttendancePage() {
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
     if (isNaN(date.getTime()) || !dateString.includes('T')) return '';
-    return date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
   };
 
   const tabLabels: Record<PeriodTab, string> = {

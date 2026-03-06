@@ -34,7 +34,7 @@ interface MembershipsSectionProps {
 export const MembershipsSection: React.FC<MembershipsSectionProps> = ({
   onManage,
 }) => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const navigate = useNavigate();
   const [memberships, setMemberships] = useState<Membership[]>([]);
   const [loading, setLoading] = useState(true);
@@ -96,7 +96,7 @@ export const MembershipsSection: React.FC<MembershipsSectionProps> = ({
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    return date.toLocaleDateString(locale, { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
 
   const calculateProgress = (start: string, end: string) => {

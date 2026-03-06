@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, MapPin, Phone, Users, DollarSign } from 'lucide-react';
 import { TelegramIcon, InstagramIcon } from '@/components/SocialIcons';
 import { Card } from '@/components/ui';
-
+import { useI18n } from '@/i18n/i18n';
 import { useTelegram } from '@/hooks/useTelegram';
 
 interface ClubDetailsModalProps {
@@ -37,6 +37,7 @@ interface ClubData {
 }
 
 export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ onClose }) => {
+  const { locale } = useI18n();
   const [clubData, setClubData] = useState<ClubData | null>(null);
   const [loading, setLoading] = useState(true);
   const { openTgLink } = useTelegram();
@@ -188,7 +189,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ onClose }) =
                 <div className="flex items-center justify-between">
                   <p className="font-medium text-gray-900">{item.name}</p>
                   <p className="font-semibold text-[#1E3A8A]">
-                    {new Intl.NumberFormat('ru-RU', {
+                    {new Intl.NumberFormat(locale, {
                       style: 'currency',
                       currency: 'KZT',
                       minimumFractionDigits: 0,
