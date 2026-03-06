@@ -21,12 +21,24 @@ export const LocationDistance: React.FC = () => {
         }
 
         // Check permission status
-        const permissionStatus = await navigator.permissions.query({ name: 'geolocation' });
-        setHasPermission(permissionStatus.state !== 'denied');
+        // On Android WebView, permissions.query often returns 'prompt' every time
+        // since WebView doesn't persist geolocation permission across sessions.
+        // Only request position when permission is already 'granted' to avoid
+        // showing the permission dialog on every app open.
+        let permissionState: PermissionState = 'prompt';
+        try {
+          const permissionStatus = await navigator.permissions.query({ name: 'geolocation' });
+          permissionState = permissionStatus.state;
+        } catch {
+          // permissions.query may not be supported in some WebViews
+          // Fall through — we'll just skip geolocation silently
+        }
 
-        if (permissionStatus.state === 'granted' || permissionStatus.state === 'prompt') {
+        if (permissionState === 'granted') {
+          setHasPermission(true);
           calculateDistance();
         } else {
+          // 'prompt' or 'denied' — don't trigger the system dialog
           setHasPermission(false);
           setLoading(false);
         }
@@ -80,7 +92,7 @@ export const LocationDistance: React.FC = () => {
       {
         enableHighAccuracy: true,
         timeout: 5000,
-        maximumAge: 0,
+        maximumAge: 300000, // Cache position for 5 minutes
       }
     );
   };
