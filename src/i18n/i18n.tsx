@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useMemo, useState, useEffect } from 'react';
 
-type Lang = 'ru' | 'kk';
+type Lang = 'ru' | 'kk' | 'en';
 
 type Dict = Record<string, string>;
 
@@ -23,6 +23,7 @@ const RU: Dict = {
   'language.change': 'Сменить язык',
   'language.russian': 'Русский',
   'language.kazakh': 'Қазақша',
+  'language.english': 'Английский',
   'profile.edit': 'Редактировать',
   'profile.activeMember': 'Активный участник',
   'profile.saved': 'Профиль сохранен',
@@ -385,7 +386,7 @@ const RU: Dict = {
   'kaspi.order.amount': 'К оплате',
   'kaspi.order.howToPay': 'Как оплатить?',
   'kaspi.order.step1': 'Откройте приложение Kaspi.kz или Kaspi терминал',
-  'kaspi.order.step2': 'Найдите нашу компанию и введите номер заказа',
+  'kaspi.order.step2': 'Найдите "Tensu" в платежах и введите номер заказа',
   'kaspi.order.step3': 'Оплатите — абонемент активируется автоматически',
   'kaspi.order.done': 'Понятно',
   'kaspi.order.error.alreadyActive': 'У вас уже есть активный абонемент с данным тарифом',
@@ -466,6 +467,7 @@ const KK: Dict = {
   'language.change': 'Тілді өзгерту',
   'language.russian': 'Орысша',
   'language.kazakh': 'Қазақша',
+  'language.english': 'Ағылшын',
   'profile.edit': 'Өңдеу',
   'profile.activeMember': 'Белсенді қатысушы',
   'profile.saved': 'Профиль сақталды',
@@ -828,7 +830,7 @@ const KK: Dict = {
   'kaspi.order.amount': 'Төлем сомасы',
   'kaspi.order.howToPay': 'Қалай төлеуге болады?',
   'kaspi.order.step1': 'Kaspi.kz қосымшасын немесе Kaspi терминалын ашыңыз',
-  'kaspi.order.step2': 'Біздің компанияны тауып, тапсырыс нөмірін енгізіңіз',
+  'kaspi.order.step2': 'Төлемдерден "Tensu" тауып, тапсырыс нөмірін енгізіңіз',
   'kaspi.order.step3': 'Төлеңіз — абонемент автоматты түрде белсендіріледі',
   'kaspi.order.done': 'Түсінікті',
   'kaspi.order.error.alreadyActive': 'Сізде бұл тарифпен белсенді абонемент бар',
@@ -890,7 +892,19 @@ const KK: Dict = {
     'Егер саясаттың жекелеген ережелері міндетті құқық нормаларына қайшы келсе, тиісті нормалар қолданылады. Бұл мәтін ақпараттық құжат болып табылады және заңгерлік кеңесті алмастырмайды.',
 };
 
-const dictionaries: Record<Lang, Dict> = { ru: RU, kk: KK };
+const EN: Dict = {
+  'nav.home': 'Home',
+  'nav.schedule': 'Schedule',
+  'nav.clubs': 'Clubs',
+  'nav.profile': 'Profile',
+  'common.loading': 'Loading...',
+  'common.error': 'Error',
+  'language.english': 'English',
+  'kaspi.order.step2': 'Find "Tensu" in payments and enter the order number',
+  // Fallback to RU for others via t function update
+};
+
+const dictionaries: Record<Lang, Dict> = { ru: RU, kk: KK, en: EN };
 
 type I18nContextType = {
   lang: Lang;
@@ -925,7 +939,7 @@ export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const t = useMemo(() => {
     return (key: string, params?: Record<string, string | number>) => {
       const dict = dictionaries[lang] || RU;
-      let result = dict[key] || key;
+      let result = dict[key] || RU[key] || key;
       if (params) {
         Object.entries(params).forEach(([k, v]) => {
           result = result.replace(new RegExp(`\\{${k}\\}`, 'g'), String(v));

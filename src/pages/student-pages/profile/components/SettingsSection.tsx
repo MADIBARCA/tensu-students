@@ -29,7 +29,7 @@ export const SettingsSection: React.FC = () => {
     // await studentsApi.updatePreferences({ location_access: enabled }, token);
   };
 
-  const handleLanguageChange = async (newLang: 'ru' | 'kk') => {
+  const handleLanguageChange = async (newLang: 'ru' | 'kk' | 'en') => {
     setLang(newLang);
     setShowLangModal(false);
     // Sync language to backend so notifications arrive in the correct language
@@ -87,7 +87,7 @@ export const SettingsSection: React.FC = () => {
               <div>
                 <p className="font-semibold text-gray-900 text-sm leading-tight mb-0.5">{t('settings.language')}</p>
                 <p className="text-xs text-gray-500">
-                  {lang === 'ru' ? t('language.russian') : t('language.kazakh')}
+                  {lang === 'ru' ? t('language.russian') : lang === 'kk' ? t('language.kazakh') : t('language.english')}
                 </p>
               </div>
             </div>
@@ -171,6 +171,16 @@ export const SettingsSection: React.FC = () => {
                 }`}
               >
                 <p className="font-medium">{t('language.kazakh')}</p>
+              </button>
+              <button
+                onClick={() => handleLanguageChange('en')}
+                className={`w-full text-left px-4 py-3 rounded-lg border-2 transition-colors ${
+                  lang === 'en'
+                    ? 'border-[#2563EB] bg-blue-50'
+                    : 'border-gray-200 hover:bg-gray-50'
+                }`}
+              >
+                <p className="font-medium">{t('language.english')}</p>
               </button>
             </div>
             <button
