@@ -28,7 +28,7 @@ export const ClubCard: React.FC<ClubCardProps> = ({ club, isMember, onClick }) =
   return (
     <div 
       onClick={onClick}
-      className="bg-white rounded-[24px] border border-gray-100 overflow-hidden cursor-pointer hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] active:scale-[0.98] transition-all duration-300 group"
+      className="bg-white rounded-[24px] border border-black/[0.04] overflow-hidden cursor-pointer shadow-[0_4px_24px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-300 group"
     >
       {/* Cover Image Section with Logo */}
       <div className="relative">
@@ -64,8 +64,8 @@ export const ClubCard: React.FC<ClubCardProps> = ({ club, isMember, onClick }) =
         )}
         
         {/* Logo - positioned to overlap cover and content */}
-        <div className="absolute -bottom-7 left-4 z-10">
-          <div className="w-14 h-14 rounded-full ring-4 ring-white shadow-xl overflow-hidden bg-white">
+        <div className="absolute -bottom-7 left-5 z-10">
+          <div className="w-14 h-14 rounded-full ring-[3px] ring-white shadow-sm overflow-hidden bg-white">
             {club.logo_url ? (
               <img 
                 src={club.logo_url} 
@@ -86,48 +86,49 @@ export const ClubCard: React.FC<ClubCardProps> = ({ club, isMember, onClick }) =
       {/* Content Section */}
       <div className="pt-9 pb-5 px-5">
         {/* Club Name & Address */}
-        <div className="mb-4 flex items-start justify-between gap-4">
+        <div className="mb-3.5 flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <h3 className="font-semibold text-gray-900 text-[17px] leading-tight mb-1.5 group-hover:text-[#1E3A8A] transition-colors truncate">
+            <h3 className="font-semibold text-gray-900 text-[17px] leading-tight mb-1 group-hover:text-[#1E3A8A] transition-colors truncate">
               {club.name}
             </h3>
             {club.address && (
               <div className="flex items-center gap-1.5 text-gray-500">
                 <MapPin size={14} className="shrink-0 text-gray-400" />
-                <span className="text-[13px] truncate">{club.address}</span>
+                <span className="text-[13px] truncate leading-none pt-0.5">{club.address}</span>
               </div>
             )}
           </div>
-          <div className="shrink-0 pt-1 text-gray-400 group-hover:text-[#2563EB] group-hover:translate-x-1 transition-all duration-300">
+          <div className="shrink-0 text-gray-300 group-hover:text-[#2563EB] group-hover:translate-x-1 transition-all duration-300">
             <ChevronRight size={20} />
           </div>
         </div>
 
         {/* Stats */}
-        <div className="flex items-center gap-4 mb-3.5">
+        <div className="flex items-center gap-3 mb-4 text-gray-500">
           <div className="flex items-center gap-1.5">
-            <Layers size={15} className="text-gray-400" />
-            <span className="text-[13px] font-medium text-gray-600">{club.sections_count} {t('clubs.card.sections')}</span>
+            <Layers size={14} className="text-gray-400" />
+            <span className="text-[13px] font-medium">{club.sections_count} {t('clubs.card.sections')}</span>
           </div>
+          <div className="w-1 h-1 rounded-full bg-gray-300" />
           <div className="flex items-center gap-1.5">
-            <Users size={15} className="text-gray-400" />
-            <span className="text-[13px] font-medium text-gray-600">{club.students_count} {t('schedule.participants')}</span>
+            <Users size={14} className="text-gray-400" />
+            <span className="text-[13px] font-medium">{club.students_count} {t('schedule.participants')}</span>
           </div>
         </div>
 
         {/* Tags */}
         {club.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-1.5 pt-1 border-t border-gray-100/60 mt-1">
             {club.tags.slice(0, 3).map((tag, index) => (
               <span
                 key={index}
-                className="px-2.5 py-1 bg-gray-50/80 text-gray-500 border border-gray-100/80 text-[11px] font-medium rounded-lg"
+                className="px-2 py-0.5 bg-gray-100/80 text-gray-500 text-[10px] font-semibold uppercase tracking-wider rounded border border-transparent"
               >
                 {tag}
               </span>
             ))}
             {club.tags.length > 3 && (
-              <span className="px-2.5 py-1 text-gray-400 bg-gray-50/80 border border-gray-100/80 rounded-lg text-[11px] font-medium">
+              <span className="px-2 py-0.5 text-gray-400 bg-gray-50 border border-gray-100/80 rounded text-[10px] font-semibold uppercase tracking-wider">
                 +{club.tags.length - 3}
               </span>
             )}

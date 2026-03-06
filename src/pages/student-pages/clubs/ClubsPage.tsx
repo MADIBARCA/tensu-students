@@ -127,7 +127,7 @@ export default function ClubsPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={t('clubs.search.placeholder')}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]"
+              className="w-full h-[44px] pl-10 pr-4 bg-gray-50/80 border border-gray-200/60 rounded-[14px] text-[15px] focus:outline-none focus:bg-white focus:ring-[3px] focus:ring-blue-500/10 focus:border-blue-500/30 transition-all duration-200"
             />
           </div>
 
@@ -135,7 +135,7 @@ export default function ClubsPage() {
           <div className="relative">
             <button
               onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-              className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-2 h-[44px] px-4 border border-gray-200/60 rounded-[14px] bg-white hover:bg-gray-50/80 transition-all duration-200 shadow-sm"
             >
               <Filter size={18} className="text-gray-600" />
               <span className="text-sm text-gray-700">
@@ -145,14 +145,14 @@ export default function ClubsPage() {
             </button>
 
             {showFilterDropdown && (
-              <div className="absolute right-0 top-full mt-1 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-30">
+              <div className="absolute right-0 top-full mt-2 w-44 bg-white border border-gray-100 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] z-30 overflow-hidden py-1">
                 <button
                   onClick={() => {
                     setFilterType('all');
                     setShowFilterDropdown(false);
                   }}
-                  className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 transition-colors ${
-                    filterType === 'all' ? 'text-[#1E3A8A] font-medium' : 'text-gray-700'
+                  className={`w-full text-left px-4 py-3 text-[14px] hover:bg-gray-50 transition-colors ${
+                    filterType === 'all' ? 'text-[#1E3A8A] font-medium bg-blue-50/50' : 'text-gray-700'
                   }`}
                 >
                   {t('clubs.filter.all')}
@@ -162,8 +162,8 @@ export default function ClubsPage() {
                     setFilterType('my');
                     setShowFilterDropdown(false);
                   }}
-                  className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 transition-colors ${
-                    filterType === 'my' ? 'text-[#1E3A8A] font-medium' : 'text-gray-700'
+                  className={`w-full text-left px-4 py-3 text-[14px] hover:bg-gray-50 transition-colors ${
+                    filterType === 'my' ? 'text-[#1E3A8A] font-medium bg-blue-50/50' : 'text-gray-700'
                   }`}
                 >
                   {t('clubs.filter.my')}
