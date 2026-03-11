@@ -87,7 +87,7 @@ export const MembershipsSection: React.FC<MembershipsSectionProps> = ({
     const colors: Record<string, string> = {
       active: 'bg-[#D1FAE5] text-[#065F46]',
       frozen: 'bg-blue-100 text-blue-800',
-      expired: 'bg-gray-100 text-gray-800',
+      expired: 'bg-red-50 text-red-600 border-red-100',
       cancelled: 'bg-[#FEE2E2] text-red-800',
       new: 'bg-yellow-100 text-yellow-800',
     };
@@ -141,11 +141,20 @@ export const MembershipsSection: React.FC<MembershipsSectionProps> = ({
     <div className="mb-4">
       <SectionHeader title={t('profile.memberships')} />
       <div className="space-y-3">
-        {memberships.map((membership) => (
+        {memberships.map((membership) => {
+          // Check if naturally expired despite DB status
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const endDate = new Date(membership.end_date);
+          endDate.setHours(0, 0, 0, 0);
+          const isExpired = endDate < today;
+          const displayStatus = isExpired ? 'expired' : membership.status;
+
+          return (
           <Card
             key={membership.id}
             onClick={() => onManage(membership)}
-            className="cursor-pointer group relative overflow-hidden transition-all hover:shadow-md border border-gray-100 p-4"
+            className={`cursor-pointer group relative overflow-hidden transition-all hover:shadow-md border p-4 ${isExpired ? 'border-red-100/50 bg-red-50/10' : 'border-gray-100'}`}
           >
             <div className="flex items-start justify-between mb-4">
               <div className="flex-1 pr-4">
@@ -168,14 +177,14 @@ export const MembershipsSection: React.FC<MembershipsSectionProps> = ({
               </div>
               
               <div className="shrink-0 flex flex-col items-end">
-                <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold shadow-sm border border-black/5 ${getStatusColor(membership.status)}`}>
-                  {getStatusLabel(membership.status)}
+                <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold shadow-sm border ${getStatusColor(displayStatus)}`}>
+                  {getStatusLabel(displayStatus)}
                 </span>
               </div>
             </div>
 
             {/* Dynamic element (Progress bar for active members) */}
-            {(membership.status === 'active' || membership.status === 'frozen') && (
+            {(displayStatus === 'active' || displayStatus === 'frozen') && (
               <div className="mb-4 bg-gray-50 rounded-xl p-3 border border-gray-100">
                 <div className="flex items-center justify-between text-xs mb-1.5">
                   <span className="font-medium text-gray-500 flex items-center gap-1.5">
@@ -193,6 +202,19 @@ export const MembershipsSection: React.FC<MembershipsSectionProps> = ({
                 </div>
               </div>
             )}
+            
+            {/* Warning banner for expired */}
+            {displayStatus === 'expired' && (
+              <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-100 rounded-xl mt-4">
+                <AlertTriangle size={18} className="text-red-500 mt-0.5 flex-shrink-0" />
+                <div className="text-sm text-red-800">
+                  <p className="font-medium text-[13px]">{t('membership.expiredBanner.title') || 'Абонемент просрочен'}</p>
+                  <p className="text-red-600/90 text-[12px] mt-0.5 leading-snug">
+                    {t('membership.expiredBanner.hint') || 'Продлите абонемент, чтобы продолжить тренировки и записываться на занятия.'}
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* Warning banner for discontinued tariffs */}
             {membership.is_tariff_deleted && (
@@ -205,7 +227,7 @@ export const MembershipsSection: React.FC<MembershipsSectionProps> = ({
               </div>
             )}
           </Card>
-        ))}
+        )})}
       </div>
     </div>
   );

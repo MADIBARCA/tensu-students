@@ -233,15 +233,24 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
               </button>
             </>
           ) : !isFull ? (
-            <button
-              onClick={onBook}
-              disabled={isActionInProgress}
-              className="w-full py-3.5 bg-[#1E3A8A] text-white rounded-[16px] font-semibold text-[15px] hover:bg-blue-900 active:scale-[0.98] transition-all shadow-sm shadow-blue-900/20 disabled:opacity-60"
-            >
-              {isActionInProgress
-                ? <Loader2 size={18} className="animate-spin mx-auto" />
-                : t('schedule.book')}
-            </button>
+            training.is_membership_expired ? (
+              <button
+                disabled={true}
+                className="w-full py-3.5 bg-gray-100 text-gray-400 rounded-[16px] font-semibold text-[15px] cursor-not-allowed"
+              >
+                {t('membership.status.expired')}
+              </button>
+            ) : (
+              <button
+                onClick={onBook}
+                disabled={isActionInProgress}
+                className="w-full py-3.5 bg-[#1E3A8A] text-white rounded-[16px] font-semibold text-[15px] hover:bg-blue-900 active:scale-[0.98] transition-all shadow-sm shadow-blue-900/20 disabled:opacity-60"
+              >
+                {isActionInProgress
+                  ? <Loader2 size={18} className="animate-spin mx-auto" />
+                  : t('schedule.book')}
+              </button>
+            )
           ) : null}
         </div>
       ) : (training.is_booked || training.is_in_waitlist) ? (
@@ -283,7 +292,14 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
         </div>
       ) : isWithinBookingWindow ? (
         <div className="flex items-center gap-3 pt-1">
-          {isFull ? (
+          {training.is_membership_expired ? (
+             <button
+               disabled={true}
+               className="w-full py-3.5 bg-gray-100 text-gray-400 rounded-[16px] font-semibold text-[15px] cursor-not-allowed"
+             >
+               {t('membership.status.expired')}
+             </button>
+          ) : isFull ? (
             <button
               onClick={onWaitlist}
               disabled={isActionInProgress}

@@ -36,6 +36,7 @@ export interface Training {
   notes?: string | null;
   is_booked: boolean;
   is_in_waitlist: boolean;
+  is_membership_expired?: boolean;
 }
 
 export interface Club {
@@ -96,6 +97,22 @@ export default function SchedulePage() {
       const activeMembershipClubIds = new Set<number>(
         membershipsResponse.data.memberships.map((m: MembershipResponse) => m.club_id)
       );
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const membershipExpiryByClub = new Map<number, boolean>();
+      membershipsResponse.data.memberships.forEach((m: MembershipResponse) => {
+        const endDate = new Date(m.end_date);
+        endDate.setHours(0, 0, 0, 0);
+        const isExpired = endDate < today;
+        if (membershipExpiryByClub.has(m.club_id)) {
+          const currentlyExpired = membershipExpiryByClub.get(m.club_id);
+          membershipExpiryByClub.set(m.club_id, (currentlyExpired ?? true) && isExpired);
+        } else {
+          membershipExpiryByClub.set(m.club_id, isExpired);
+        }
+      });
+
       const mappedTrainings: Training[] = sessionsResponse.data.sessions
         .filter((s: SessionResponse) => activeMembershipClubIds.has(s.club_id))
         .map((s: SessionResponse) => ({
@@ -118,6 +135,7 @@ export default function SchedulePage() {
           notes: s.notes,
           is_booked: s.is_booked,
           is_in_waitlist: s.is_in_waitlist,
+          is_membership_expired: membershipExpiryByClub.get(s.club_id) ?? false,
         }));
       setTrainings(mappedTrainings);
     } catch (err) {
@@ -144,6 +162,21 @@ export default function SchedulePage() {
       );
       setHasActiveMembership(activeMembershipClubIds.size > 0);
 
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const membershipExpiryByClub = new Map<number, boolean>();
+      membershipsResponse.data.memberships.forEach((m: MembershipResponse) => {
+        const endDate = new Date(m.end_date);
+        endDate.setHours(0, 0, 0, 0);
+        const isExpired = endDate < today;
+        if (membershipExpiryByClub.has(m.club_id)) {
+          const currentlyExpired = membershipExpiryByClub.get(m.club_id);
+          membershipExpiryByClub.set(m.club_id, (currentlyExpired ?? true) && isExpired);
+        } else {
+          membershipExpiryByClub.set(m.club_id, isExpired);
+        }
+      });
+
       const mappedTrainings: Training[] = sessionsResponse.data.sessions
         .filter((s: SessionResponse) => activeMembershipClubIds.has(s.club_id))
         .map((s: SessionResponse) => ({
@@ -166,6 +199,7 @@ export default function SchedulePage() {
           notes: s.notes,
           is_booked: s.is_booked,
           is_in_waitlist: s.is_in_waitlist,
+          is_membership_expired: membershipExpiryByClub.get(s.club_id) ?? false,
         }));
 
       const mappedClubs: Club[] = clubsResponse.data.clubs
