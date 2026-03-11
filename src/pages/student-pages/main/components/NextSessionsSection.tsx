@@ -7,7 +7,9 @@ import type { SessionResponse, SessionStatus } from '@/functions/axios/responses
 import { getTrainingLiveStatus, type LiveTrainingStatus } from '@/lib/utils/trainingStatus';
 import { toLocalDateString } from '@/lib/utils/dateUtils';
 import { ParticipantsModal } from '../../schedule/components/ParticipantsModal';
+import { AvatarGroup } from '@/components/ui/AvatarGroup';
 import type { Training } from '../../schedule/SchedulePage';
+import type { ParticipantResponse } from '@/functions/axios/responses';
 
 const POLL_INTERVAL = 15_000;
 
@@ -23,6 +25,7 @@ interface Session {
   club_address: string | null;
   participants_count: number;
   max_participants?: number | null;
+  participants_preview?: ParticipantResponse[];
   notes?: string | null;
   status: SessionStatus;
   is_booked: boolean;
@@ -213,6 +216,7 @@ export const NextSessionsSection: React.FC = () => {
     max_participants: session.max_participants || null,
     current_participants: session.participants_count,
     participants: [],
+    participants_preview: session.participants_preview,
     notes: session.notes || null,
     is_booked: session.is_booked,
     is_in_waitlist: false,
@@ -359,7 +363,10 @@ export const NextSessionsSection: React.FC = () => {
                 <div className="mt-auto pt-2">
                   {isActive ? (
                     session.is_booked ? (
-                      <div className="flex items-center justify-end gap-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center" onClick={(e) => { e.stopPropagation(); setShowParticipantsFor(session); }}>
+                          <AvatarGroup participants={session.participants_preview || []} totalCount={session.participants_count} />
+                        </div>
                         <button
                           onClick={() => setShowParticipantsFor(session)}
                           className="p-2.5 rounded-full bg-gray-50 text-gray-500 hover:bg-gray-100 active:bg-gray-200 transition-colors"
@@ -368,6 +375,69 @@ export const NextSessionsSection: React.FC = () => {
                         </button>
                       </div>
                     ) : canBook ? (
+                      <div className="flex flex-col gap-3">
+                        {session.participants_count > 0 && (
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center" onClick={(e) => { e.stopPropagation(); setShowParticipantsFor(session); }}>
+                              <AvatarGroup participants={session.participants_preview || []} totalCount={session.participants_count} />
+                            </div>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setShowParticipantsFor(session); }}
+                              className="p-2.5 rounded-full bg-gray-50 text-gray-500 hover:bg-gray-100 active:bg-gray-200 transition-colors"
+                            >
+                              <Users size={18} />
+                            </button>
+                          </div>
+                        )}
+                        <button
+                          onClick={() => handleBookSession(session.id)}
+                          disabled={actionInProgress === session.id}
+                          className="w-full py-3.5 bg-[#1E3A8A] text-white rounded-[16px] font-semibold text-[15px] hover:bg-blue-900 active:scale-[0.98] transition-all shadow-sm shadow-blue-900/20 disabled:opacity-60"
+                        >
+                          {actionInProgress === session.id
+                            ? <Loader2 size={18} className="animate-spin mx-auto" />
+                            : t('home.sessions.book')}
+                        </button>
+                      </div>
+                    ) : null
+                  ) : session.is_booked ? (
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center" onClick={(e) => { e.stopPropagation(); setShowParticipantsFor(session); }}>
+                        <AvatarGroup participants={session.participants_preview || []} totalCount={session.participants_count} />
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => handleCancelBooking(session.id)}
+                          disabled={actionInProgress === session.id}
+                          className="p-2.5 rounded-full bg-red-50 text-red-500 hover:bg-red-100 active:bg-red-200 transition-colors disabled:opacity-50"
+                        >
+                          {actionInProgress === session.id
+                            ? <Loader2 size={18} className="animate-spin" />
+                            : <Ban size={18} />}
+                        </button>
+                        <button
+                          onClick={() => setShowParticipantsFor(session)}
+                          className="p-2.5 rounded-full bg-gray-50 text-gray-500 hover:bg-gray-100 active:bg-gray-200 transition-colors"
+                        >
+                          <Users size={18} />
+                        </button>
+                      </div>
+                    </div>
+                  ) : canBook ? (
+                    <div className="flex flex-col gap-3">
+                      {session.participants_count > 0 && (
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center" onClick={(e) => { e.stopPropagation(); setShowParticipantsFor(session); }}>
+                            <AvatarGroup participants={session.participants_preview || []} totalCount={session.participants_count} />
+                          </div>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setShowParticipantsFor(session); }}
+                            className="p-2.5 rounded-full bg-gray-50 text-gray-500 hover:bg-gray-100 active:bg-gray-200 transition-colors"
+                          >
+                            <Users size={18} />
+                          </button>
+                        </div>
+                      )}
                       <button
                         onClick={() => handleBookSession(session.id)}
                         disabled={actionInProgress === session.id}
@@ -377,38 +447,25 @@ export const NextSessionsSection: React.FC = () => {
                           ? <Loader2 size={18} className="animate-spin mx-auto" />
                           : t('home.sessions.book')}
                       </button>
-                    ) : null
-                  ) : session.is_booked ? (
-                    <div className="flex items-center justify-end gap-3">
-                      <button
-                        onClick={() => handleCancelBooking(session.id)}
-                        disabled={actionInProgress === session.id}
-                        className="p-2.5 rounded-full bg-red-50 text-red-500 hover:bg-red-100 active:bg-red-200 transition-colors disabled:opacity-50"
-                      >
-                        {actionInProgress === session.id
-                          ? <Loader2 size={18} className="animate-spin" />
-                          : <Ban size={18} />}
-                      </button>
-                      <button
-                        onClick={() => setShowParticipantsFor(session)}
-                        className="p-2.5 rounded-full bg-gray-50 text-gray-500 hover:bg-gray-100 active:bg-gray-200 transition-colors"
-                      >
-                        <Users size={18} />
-                      </button>
                     </div>
-                  ) : canBook ? (
-                    <button
-                      onClick={() => handleBookSession(session.id)}
-                      disabled={actionInProgress === session.id}
-                      className="w-full py-3.5 bg-[#1E3A8A] text-white rounded-[16px] font-semibold text-[15px] hover:bg-blue-900 active:scale-[0.98] transition-all shadow-sm shadow-blue-900/20 disabled:opacity-60"
-                    >
-                      {actionInProgress === session.id
-                        ? <Loader2 size={18} className="animate-spin mx-auto" />
-                        : t('home.sessions.book')}
-                    </button>
                   ) : (
-                    <div className="w-full py-3.5 bg-gray-50 text-gray-400 rounded-[16px] font-semibold text-[15px] text-center">
-                      {t('schedule.full')}
+                    <div className="flex flex-col gap-3">
+                      {session.participants_count > 0 && (
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center" onClick={(e) => { e.stopPropagation(); setShowParticipantsFor(session); }}>
+                            <AvatarGroup participants={session.participants_preview || []} totalCount={session.participants_count} />
+                          </div>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setShowParticipantsFor(session); }}
+                            className="p-2.5 rounded-full bg-gray-50 text-gray-500 hover:bg-gray-100 active:bg-gray-200 transition-colors"
+                          >
+                            <Users size={18} />
+                          </button>
+                        </div>
+                      )}
+                      <div className="w-full py-3.5 bg-gray-50 text-gray-400 rounded-[16px] font-semibold text-[15px] text-center">
+                        {t('schedule.full')}
+                      </div>
                     </div>
                   )}
                 </div>

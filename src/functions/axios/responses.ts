@@ -248,6 +248,7 @@ export interface SessionResponse {
   status: SessionStatus;
   is_booked: boolean;
   is_in_waitlist: boolean;
+  participants_preview?: ParticipantResponse[];
   notes: string | null;
 }
 

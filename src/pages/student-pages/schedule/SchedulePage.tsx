@@ -12,7 +12,7 @@ import { Card } from '@/components/ui';
 import { scheduleApi, membershipsApi, clubsApi } from '@/functions/axios/axiosFunctions';
 import { getErrorMessage } from '@/lib/utils/errorHandler';
 import { isSessionCompleted } from '@/lib/utils/trainingStatus';
-import type { SessionResponse, TrainerResponse, ClubResponse, MembershipResponse } from '@/functions/axios/responses';
+import type { SessionResponse, TrainerResponse, ClubResponse, MembershipResponse, ParticipantResponse } from '@/functions/axios/responses';
 
 const POLL_INTERVAL = 15_000;
 
@@ -33,6 +33,7 @@ export interface Training {
   max_participants: number | null;
   current_participants: number;
   participants?: string[];
+  participants_preview?: ParticipantResponse[];
   notes?: string | null;
   is_booked: boolean;
   is_in_waitlist: boolean;
@@ -132,6 +133,7 @@ export default function SchedulePage() {
           max_participants: s.max_participants,
           current_participants: s.participants_count,
           participants: [],
+          participants_preview: s.participants_preview,
           notes: s.notes,
           is_booked: s.is_booked,
           is_in_waitlist: s.is_in_waitlist,
@@ -196,6 +198,7 @@ export default function SchedulePage() {
           max_participants: s.max_participants,
           current_participants: s.participants_count,
           participants: [],
+          participants_preview: s.participants_preview,
           notes: s.notes,
           is_booked: s.is_booked,
           is_in_waitlist: s.is_in_waitlist,

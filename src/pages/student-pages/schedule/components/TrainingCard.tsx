@@ -2,6 +2,7 @@ import React from 'react';
 import { useI18n } from '@/i18n/i18n';
 import { Bell, Eye, Loader2 } from 'lucide-react';
 import { getTrainingLiveStatus, type LiveTrainingStatus } from '@/lib/utils/trainingStatus';
+import { AvatarGroup } from '@/components/ui/AvatarGroup';
 import type { Training } from '../SchedulePage';
 
 interface TrainingCardProps {
@@ -220,10 +221,14 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
 
       {/* ── Actions ───────────────────────────────────── */}
       {isCompleted ? null : isActive ? (
-        <div className="flex items-center gap-3 pt-1">
+        <div className="flex flex-col gap-3 pt-1">
           {training.is_booked ? (
-            <>
-              <div className="flex-1" />
+            <div className="flex items-center justify-between w-full">
+              <div className="flex-1 cursor-pointer" onClick={onShowParticipants}>
+                {training.participants_preview && training.participants_preview.length > 0 && (
+                  <AvatarGroup participants={training.participants_preview} totalCount={training.current_participants} />
+                )}
+              </div>
               <button
                 onClick={onShowParticipants}
                 className="flex items-center gap-1 text-[13px] text-[#6B7280] hover:text-[#111] transition-colors"
@@ -231,7 +236,7 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
                 <Eye size={14} />
                 <span>{t('schedule.participants.title')}</span>
               </button>
-            </>
+            </div>
           ) : !isFull ? (
             training.is_membership_expired ? (
               <button
@@ -241,42 +246,62 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
                 {t('membership.status.expired')}
               </button>
             ) : (
-              <button
-                onClick={onBook}
-                disabled={isActionInProgress}
-                className="w-full py-3.5 bg-[#1E3A8A] text-white rounded-[16px] font-semibold text-[15px] hover:bg-blue-900 active:scale-[0.98] transition-all shadow-sm shadow-blue-900/20 disabled:opacity-60"
-              >
-                {isActionInProgress
-                  ? <Loader2 size={18} className="animate-spin mx-auto" />
-                  : t('schedule.book')}
-              </button>
+              <div className="flex flex-col gap-3 w-full">
+                {training.current_participants > 0 && (
+                  <div className="flex items-center justify-between w-full">
+                    <div className="cursor-pointer" onClick={onShowParticipants}>
+                      <AvatarGroup participants={training.participants_preview || []} totalCount={training.current_participants} />
+                    </div>
+                    <button
+                      onClick={onShowParticipants}
+                      className="flex items-center gap-1 text-[13px] text-[#6B7280] hover:text-[#111] transition-colors"
+                    >
+                      <Eye size={14} />
+                      <span>{t('schedule.participants.title')}</span>
+                    </button>
+                  </div>
+                )}
+                <button
+                  onClick={onBook}
+                  disabled={isActionInProgress}
+                  className="w-full py-3.5 bg-[#1E3A8A] text-white rounded-[16px] font-semibold text-[15px] hover:bg-blue-900 active:scale-[0.98] transition-all shadow-sm shadow-blue-900/20 disabled:opacity-60"
+                >
+                  {isActionInProgress
+                    ? <Loader2 size={18} className="animate-spin mx-auto" />
+                    : t('schedule.book')}
+                </button>
+              </div>
             )
           ) : null}
         </div>
       ) : (training.is_booked || training.is_in_waitlist) ? (
-        <div className="flex items-center gap-3 pt-1">
+        <div className="flex flex-col gap-3 pt-1">
           {training.is_booked ? (
-            <>
+            <div className="flex items-center justify-between w-full">
               {!isPast && (
                 <button
                   onClick={onCancelBooking}
                   disabled={isActionInProgress}
-                  className="text-[13px] font-medium text-red-500 hover:text-[#DC2626] active:text-[#7F1D1D] transition-colors disabled:opacity-50"
+                  className="text-[13px] font-medium text-red-500 hover:text-[#DC2626] active:text-[#7F1D1D] transition-colors disabled:opacity-50 whitespace-nowrap"
                 >
                   {isActionInProgress
                     ? <Loader2 size={14} className="animate-spin inline" />
                     : t('schedule.cancelBooking')}
                 </button>
               )}
-              <div className="flex-1" />
+              <div className="flex-1 flex justify-center cursor-pointer mx-2" onClick={onShowParticipants}>
+                {training.participants_preview && training.participants_preview.length > 0 && (
+                  <AvatarGroup participants={training.participants_preview} totalCount={training.current_participants} />
+                )}
+              </div>
               <button
                 onClick={onShowParticipants}
-                className="flex items-center gap-1 text-[13px] text-[#6B7280] hover:text-[#111] transition-colors"
+                className="flex items-center gap-1 text-[13px] text-[#6B7280] hover:text-[#111] transition-colors whitespace-nowrap"
               >
                 <Eye size={14} />
                 <span>{t('schedule.participants.title')}</span>
               </button>
-            </>
+            </div>
           ) : (
              <button
               onClick={onWaitlist}
@@ -291,7 +316,21 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
           )}
         </div>
       ) : isWithinBookingWindow ? (
-        <div className="flex items-center gap-3 pt-1">
+        <div className="flex flex-col gap-3 pt-1">
+          {training.current_participants > 0 && (
+            <div className="flex items-center justify-between w-full mb-1">
+              <div className="cursor-pointer" onClick={onShowParticipants}>
+                <AvatarGroup participants={training.participants_preview || []} totalCount={training.current_participants} />
+              </div>
+              <button
+                onClick={onShowParticipants}
+                className="flex items-center gap-1 text-[13px] text-[#6B7280] hover:text-[#111] transition-colors"
+              >
+                <Eye size={14} />
+                <span>{t('schedule.participants.title')}</span>
+              </button>
+            </div>
+          )}
           {training.is_membership_expired ? (
              <button
                disabled={true}
