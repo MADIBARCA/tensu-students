@@ -234,7 +234,7 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
                 className="flex items-center gap-1 text-[13px] text-[#6B7280] hover:text-[#111] transition-colors"
               >
                 <Eye size={14} />
-                <span>{t('schedule.participants.title')}</span>
+                {/* <span>{t('schedule.participants.title')}</span> */}
               </button>
             </div>
           ) : !isFull ? (
@@ -257,7 +257,7 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
                       className="flex items-center gap-1 text-[13px] text-[#6B7280] hover:text-[#111] transition-colors"
                     >
                       <Eye size={14} />
-                      <span>{t('schedule.participants.title')}</span>
+                      {/* <span>{t('schedule.participants.title')}</span> */}
                     </button>
                   </div>
                 )}
@@ -299,7 +299,7 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
                 className="flex items-center gap-1 text-[13px] text-[#6B7280] hover:text-[#111] transition-colors whitespace-nowrap"
               >
                 <Eye size={14} />
-                <span>{t('schedule.participants.title')}</span>
+                {/* <span>{t('schedule.participants.title')}</span> */}
               </button>
             </div>
           ) : (
@@ -327,7 +327,7 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
                 className="flex items-center gap-1 text-[13px] text-[#6B7280] hover:text-[#111] transition-colors"
               >
                 <Eye size={14} />
-                <span>{t('schedule.participants.title')}</span>
+                {/* <span>{t('schedule.participants.title')}</span> */}
               </button>
             </div>
           )}
