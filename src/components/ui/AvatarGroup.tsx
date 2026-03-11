@@ -12,7 +12,7 @@ interface AvatarGroupProps {
 export const AvatarGroup: React.FC<AvatarGroupProps> = ({
   participants,
   totalCount,
-  maxDisplay = 2,
+  maxDisplay = 7,
   className = '',
   avatarClassName = '',
 }) => {

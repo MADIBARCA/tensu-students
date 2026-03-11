@@ -229,13 +229,6 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
                   <AvatarGroup participants={training.participants_preview} totalCount={training.current_participants} />
                 )}
               </div>
-              <button
-                onClick={onShowParticipants}
-                className="flex items-center gap-1 text-[13px] text-[#6B7280] hover:text-[#111] transition-colors"
-              >
-                <Eye size={14} />
-                {/* <span>{t('schedule.participants.title')}</span> */}
-              </button>
             </div>
           ) : !isFull ? (
             training.is_membership_expired ? (
@@ -252,13 +245,6 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
                     <div className="cursor-pointer" onClick={onShowParticipants}>
                       <AvatarGroup participants={training.participants_preview || []} totalCount={training.current_participants} />
                     </div>
-                    <button
-                      onClick={onShowParticipants}
-                      className="flex items-center gap-1 text-[13px] text-[#6B7280] hover:text-[#111] transition-colors"
-                    >
-                      <Eye size={14} />
-                      {/* <span>{t('schedule.participants.title')}</span> */}
-                    </button>
                   </div>
                 )}
                 <button
@@ -294,13 +280,6 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
                   <AvatarGroup participants={training.participants_preview} totalCount={training.current_participants} />
                 )}
               </div>
-              <button
-                onClick={onShowParticipants}
-                className="flex items-center gap-1 text-[13px] text-[#6B7280] hover:text-[#111] transition-colors whitespace-nowrap"
-              >
-                <Eye size={14} />
-                {/* <span>{t('schedule.participants.title')}</span> */}
-              </button>
             </div>
           ) : (
              <button
@@ -322,13 +301,6 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
               <div className="cursor-pointer" onClick={onShowParticipants}>
                 <AvatarGroup participants={training.participants_preview || []} totalCount={training.current_participants} />
               </div>
-              <button
-                onClick={onShowParticipants}
-                className="flex items-center gap-1 text-[13px] text-[#6B7280] hover:text-[#111] transition-colors"
-              >
-                <Eye size={14} />
-                {/* <span>{t('schedule.participants.title')}</span> */}
-              </button>
             </div>
           )}
           {training.is_membership_expired ? (
