@@ -208,9 +208,9 @@ export const MembershipsSection: React.FC<MembershipsSectionProps> = ({
               <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-100 rounded-xl mt-4">
                 <AlertTriangle size={18} className="text-red-500 mt-0.5 flex-shrink-0" />
                 <div className="text-sm text-red-800">
-                  <p className="font-medium text-[13px]">{t('membership.expiredBanner.title') || 'Абонемент просрочен'}</p>
+                  <p className="font-medium text-[13px]">{t('membership.expiredBanner.title')}</p>
                   <p className="text-red-600/90 text-[12px] mt-0.5 leading-snug">
-                    {t('membership.expiredBanner.hint') || 'Продлите абонемент, чтобы продолжить тренировки и записываться на занятия.'}
+                    {t('membership.expiredBanner.hint')}
                   </p>
                 </div>
               </div>
