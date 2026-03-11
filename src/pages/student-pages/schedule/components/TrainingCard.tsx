@@ -223,8 +223,8 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
       {isCompleted ? null : isActive ? (
         <div className="flex flex-col gap-3 pt-1">
           {training.is_booked ? (
-            <div className="flex items-center justify-between w-full">
-              <div className="flex-1 cursor-pointer" onClick={onShowParticipants}>
+            <div className="flex items-center justify-end w-full">
+              <div className="cursor-pointer" onClick={onShowParticipants}>
                 {training.participants_preview && training.participants_preview.length > 0 && (
                   <AvatarGroup participants={training.participants_preview} totalCount={training.current_participants} />
                 )}
@@ -275,7 +275,7 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
                     : t('schedule.cancelBooking')}
                 </button>
               )}
-              <div className="flex-1 flex justify-center cursor-pointer mx-2" onClick={onShowParticipants}>
+              <div className="flex-1 flex justify-end cursor-pointer ml-2" onClick={onShowParticipants}>
                 {training.participants_preview && training.participants_preview.length > 0 && (
                   <AvatarGroup participants={training.participants_preview} totalCount={training.current_participants} />
                 )}
