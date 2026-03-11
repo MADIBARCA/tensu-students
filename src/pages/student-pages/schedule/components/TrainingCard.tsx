@@ -1,6 +1,6 @@
 import React from 'react';
 import { useI18n } from '@/i18n/i18n';
-import { Bell, Eye, Loader2 } from 'lucide-react';
+import { Bell, Loader2 } from 'lucide-react';
 import { getTrainingLiveStatus, type LiveTrainingStatus } from '@/lib/utils/trainingStatus';
 import { AvatarGroup } from '@/components/ui/AvatarGroup';
 import type { Training } from '../SchedulePage';

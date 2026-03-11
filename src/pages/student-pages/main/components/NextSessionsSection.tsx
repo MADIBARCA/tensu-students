@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useI18n } from '@/i18n/i18n';
-import { Ban, CheckCircle, Loader2, Users } from 'lucide-react';
+import { Ban, CheckCircle, Loader2 } from 'lucide-react';
 import { scheduleApi } from '@/functions/axios/axiosFunctions';
 import type { SessionResponse, SessionStatus } from '@/functions/axios/responses';
 import { getTrainingLiveStatus, type LiveTrainingStatus } from '@/lib/utils/trainingStatus';
@@ -367,12 +367,12 @@ export const NextSessionsSection: React.FC = () => {
                         <div className="flex items-center" onClick={(e) => { e.stopPropagation(); setShowParticipantsFor(session); }}>
                           <AvatarGroup participants={session.participants_preview || []} totalCount={session.participants_count} />
                         </div>
-                        <button
+                        {/* <button
                           onClick={() => setShowParticipantsFor(session)}
                           className="p-2.5 rounded-full bg-gray-50 text-gray-500 hover:bg-gray-100 active:bg-gray-200 transition-colors"
                         >
                           <Users size={18} />
-                        </button>
+                        </button> */}
                       </div>
                     ) : canBook ? (
                       <div className="flex flex-col gap-3">
@@ -381,12 +381,12 @@ export const NextSessionsSection: React.FC = () => {
                             <div className="flex items-center" onClick={(e) => { e.stopPropagation(); setShowParticipantsFor(session); }}>
                               <AvatarGroup participants={session.participants_preview || []} totalCount={session.participants_count} />
                             </div>
-                            <button
+                            {/* <button
                               onClick={(e) => { e.stopPropagation(); setShowParticipantsFor(session); }}
                               className="p-2.5 rounded-full bg-gray-50 text-gray-500 hover:bg-gray-100 active:bg-gray-200 transition-colors"
                             >
                               <Users size={18} />
-                            </button>
+                            </button> */}
                           </div>
                         )}
                         <button
@@ -415,12 +415,12 @@ export const NextSessionsSection: React.FC = () => {
                             ? <Loader2 size={18} className="animate-spin" />
                             : <Ban size={18} />}
                         </button>
-                        <button
+                        {/* <button
                           onClick={() => setShowParticipantsFor(session)}
                           className="p-2.5 rounded-full bg-gray-50 text-gray-500 hover:bg-gray-100 active:bg-gray-200 transition-colors"
                         >
                           <Users size={18} />
-                        </button>
+                        </button> */}
                       </div>
                     </div>
                   ) : canBook ? (
@@ -430,12 +430,12 @@ export const NextSessionsSection: React.FC = () => {
                           <div className="flex items-center" onClick={(e) => { e.stopPropagation(); setShowParticipantsFor(session); }}>
                             <AvatarGroup participants={session.participants_preview || []} totalCount={session.participants_count} />
                           </div>
-                          <button
+                          {/* <button
                             onClick={(e) => { e.stopPropagation(); setShowParticipantsFor(session); }}
                             className="p-2.5 rounded-full bg-gray-50 text-gray-500 hover:bg-gray-100 active:bg-gray-200 transition-colors"
                           >
                             <Users size={18} />
-                          </button>
+                          </button> */}
                         </div>
                       )}
                       <button
@@ -455,12 +455,12 @@ export const NextSessionsSection: React.FC = () => {
                           <div className="flex items-center" onClick={(e) => { e.stopPropagation(); setShowParticipantsFor(session); }}>
                             <AvatarGroup participants={session.participants_preview || []} totalCount={session.participants_count} />
                           </div>
-                          <button
+                          {/* <button
                             onClick={(e) => { e.stopPropagation(); setShowParticipantsFor(session); }}
                             className="p-2.5 rounded-full bg-gray-50 text-gray-500 hover:bg-gray-100 active:bg-gray-200 transition-colors"
                           >
                             <Users size={18} />
-                          </button>
+                          </button> */}
                         </div>
                       )}
                       <div className="w-full py-3.5 bg-gray-50 text-gray-400 rounded-[16px] font-semibold text-[15px] text-center">
