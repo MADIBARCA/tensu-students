@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useI18n } from '@/i18n/i18n';
-import { Trophy, Medal, MapPin, Award } from 'lucide-react';
+import { Trophy, Medal, Award } from 'lucide-react';
 import { clubsApi } from '@/functions/axios/axiosFunctions';
-import type { LeaderboardResponse, LeaderboardEntry } from '@/functions/axios/responses';
+import type { LeaderboardResponse } from '@/functions/axios/responses';
 
 interface ClubLeaderboardProps {
   clubId: number;
 }
 
 export const ClubLeaderboard: React.FC<ClubLeaderboardProps> = ({ clubId }) => {
-  const { t } = useI18n();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<LeaderboardResponse | null>(null);
 

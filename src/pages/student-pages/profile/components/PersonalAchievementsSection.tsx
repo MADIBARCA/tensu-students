@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useI18n } from '@/i18n/i18n';
 import { Card } from '@/components/ui';
-import { Trophy, Flame, Medal, Award, TrendingUp } from 'lucide-react';
+import { Trophy, Flame, Medal, TrendingUp } from 'lucide-react';
 import { attendanceApi, clubsApi } from '@/functions/axios/axiosFunctions';
 import type { AttendanceStatsResponse } from '@/functions/axios/responses';
 
@@ -13,7 +12,6 @@ interface PersonalRank {
 }
 
 export const PersonalAchievementsSection: React.FC = () => {
-  const { t } = useI18n();
   const [stats, setStats] = useState<AttendanceStatsResponse | null>(null);
   const [bestRank, setBestRank] = useState<PersonalRank | null>(null);
   const [loading, setLoading] = useState(true);
