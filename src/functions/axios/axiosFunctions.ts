@@ -283,9 +283,9 @@ export const clubsApi = {
   getMyClubIds: (token: string | null) =>
     axiosRequest<number[]>(ENDPOINTS.CLUBS.MY, 'GET', token),
 
-  getLeaderboard: (clubId: number | string, token: string | null, limit: number = 50) =>
+  getLeaderboard: (clubId: number | string, token: string | null, period: 'month' | 'all_time' = 'month', limit: number = 50) =>
     axiosRequest<LeaderboardResponse>(
-      `${ENDPOINTS.CLUBS.LEADERBOARD(clubId)}?limit=${limit}`,
+      `${ENDPOINTS.CLUBS.LEADERBOARD(clubId)}?limit=${limit}&period=${period}`,
       'GET',
       token
     ),

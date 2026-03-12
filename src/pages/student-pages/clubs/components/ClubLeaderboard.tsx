@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useI18n } from '@/i18n/i18n';
-import { Trophy, Medal, Award } from 'lucide-react';
+import { Trophy, Medal, Award, Clock } from 'lucide-react';
 import { clubsApi } from '@/functions/axios/axiosFunctions';
 import type { LeaderboardResponse } from '@/functions/axios/responses';
 
@@ -12,6 +12,7 @@ export const ClubLeaderboard: React.FC<ClubLeaderboardProps> = ({ clubId }) => {
   const { t } = useI18n();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<LeaderboardResponse | null>(null);
+  const [period, setPeriod] = useState<'month' | 'all_time'>('month');
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
@@ -20,7 +21,7 @@ export const ClubLeaderboard: React.FC<ClubLeaderboardProps> = ({ clubId }) => {
         const tg = window.Telegram?.WebApp;
         const token = tg?.initData || null;
         
-        const response = await clubsApi.getLeaderboard(clubId, token);
+        const response = await clubsApi.getLeaderboard(clubId, token, period);
         setData(response.data);
       } catch (error) {
         console.error('Failed to load leaderboard', error);
@@ -29,7 +30,7 @@ export const ClubLeaderboard: React.FC<ClubLeaderboardProps> = ({ clubId }) => {
       }
     };
     fetchLeaderboard();
-  }, [clubId]);
+  }, [clubId, period]);
 
   if (loading) {
     return (
@@ -46,6 +47,26 @@ export const ClubLeaderboard: React.FC<ClubLeaderboardProps> = ({ clubId }) => {
           <Trophy size={28} className="text-blue-300" />
         </div>
         <p className="text-gray-500 font-medium">{t('clubs.leaderboard.empty')}</p>
+        
+        {/* Toggle even if empty */}
+        <div className="flex bg-gray-100 p-1 rounded-xl mt-6 max-w-xs mx-auto">
+          <button
+            onClick={() => setPeriod('month')}
+            className={`flex-1 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+              period === 'month' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Месяц
+          </button>
+          <button
+            onClick={() => setPeriod('all_time')}
+            className={`flex-1 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+              period === 'all_time' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Всё время
+          </button>
+        </div>
       </div>
     );
   }
@@ -81,7 +102,33 @@ export const ClubLeaderboard: React.FC<ClubLeaderboardProps> = ({ clubId }) => {
           <Award size={20} className="text-blue-600" />
           {t('clubs.leaderboard.title')}
         </h3>
-        <p className="text-xs text-gray-500 mt-1">{t('clubs.leaderboard.subtitle')}</p>
+        
+        {/* Toggle */}
+        <div className="flex bg-gray-100 p-1 rounded-xl mt-4 mb-3 max-w-xs mx-auto">
+          <button
+            onClick={() => setPeriod('month')}
+            className={`flex-1 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+              period === 'month' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            {data?.period_name || 'Месяц'}
+          </button>
+          <button
+            onClick={() => setPeriod('all_time')}
+            className={`flex-1 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+              period === 'all_time' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Всё время
+          </button>
+        </div>
+
+        {data?.days_until_reset !== null && data?.days_until_reset !== undefined && (
+          <p className="text-xs text-amber-600 font-medium flex items-center justify-center gap-1 mt-2 mb-1 bg-amber-50 mx-auto w-max px-2.5 py-1 rounded-lg">
+            <Clock size={12} />
+            До конца рейтинга: {data.days_until_reset} {data.days_until_reset % 10 === 1 && data.days_until_reset % 100 !== 11 ? 'день' : [2, 3, 4].includes(data.days_until_reset % 10) && ![12, 13, 14].includes(data.days_until_reset % 100) ? 'дня' : 'дней'}
+          </p>
+        )}
       </div>
 
       <div className="space-y-3">

@@ -382,6 +382,9 @@ export interface LeaderboardEntry {
 
 export interface LeaderboardResponse {
   club_id: number;
+  period: 'month' | 'all_time';
+  period_name: string;
+  days_until_reset: number | null;
   entries: LeaderboardEntry[];
   current_student: LeaderboardEntry | null;
   total_participants: number;
