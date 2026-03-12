@@ -33,6 +33,7 @@ export default function ProfilePage() {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedMembership, setSelectedMembership] = useState<MembershipDetail | null>(null);
   const [selectedClub, setSelectedClub] = useState<Club | null>(null);
+  const [clubModalInitialTab, setClubModalInitialTab] = useState<'info' | 'memberships' | 'leaderboard'>('info');
   const [refreshKey, setRefreshKey] = useState(0);
 
   const loadStudentData = useCallback(async () => {
@@ -107,9 +108,22 @@ export default function ProfilePage() {
 
   const handleRenew = (membership: MembershipDetail) => {
     setShowDetailsModal(false);
+    setClubModalInitialTab('memberships');
     setSelectedClub({
       id: membership.club_id,
       name: membership.club_name,
+      address: null,
+      sections_count: 0,
+      students_count: 0,
+      tags: [],
+    });
+  };
+
+  const handleBestResultClick = (clubId: number, clubName: string) => {
+    setClubModalInitialTab('leaderboard');
+    setSelectedClub({
+      id: clubId,
+      name: clubName,
       address: null,
       sections_count: 0,
       students_count: 0,
@@ -144,7 +158,7 @@ export default function ProfilePage() {
         />
 
         {/* Personal Achievements Section */}
-        <PersonalAchievementsSection />
+        <PersonalAchievementsSection onBestResultClick={handleBestResultClick} />
 
         {/* My Memberships Section */}
         <MembershipsSection
@@ -200,7 +214,7 @@ export default function ProfilePage() {
         {selectedClub && (
           <ClubDetailsModal
             club={selectedClub}
-            initialTab="memberships"
+            initialTab={clubModalInitialTab}
             onClose={() => setSelectedClub(null)}
           />
         )}

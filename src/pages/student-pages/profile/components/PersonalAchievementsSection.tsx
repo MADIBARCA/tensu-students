@@ -11,7 +11,11 @@ interface PersonalRank {
   total: number;
 }
 
-export const PersonalAchievementsSection: React.FC = () => {
+interface PersonalAchievementsSectionProps {
+  onBestResultClick?: (clubId: number, clubName: string) => void;
+}
+
+export const PersonalAchievementsSection: React.FC<PersonalAchievementsSectionProps> = ({ onBestResultClick }) => {
   const [stats, setStats] = useState<AttendanceStatsResponse | null>(null);
   const [bestRank, setBestRank] = useState<PersonalRank | null>(null);
   const [loading, setLoading] = useState(true);
@@ -89,7 +93,10 @@ export const PersonalAchievementsSection: React.FC = () => {
     <div className="mb-4 space-y-3">
       {/* Best Result Card */}
       {bestRank && (
-        <Card className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 border-amber-100 relative overflow-hidden">
+        <Card
+          className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 border-amber-100 relative overflow-hidden cursor-pointer active:scale-[0.99] transition-transform"
+          onClick={() => onBestResultClick?.(bestRank.clubId, bestRank.clubName)}
+        >
           <div className="absolute top-0 right-0 p-4 opacity-10">
             <Trophy size={64} className="text-amber-600" />
           </div>
