@@ -31,6 +31,7 @@ import { FreezeMembershipModal } from '../../profile/components/FreezeMembership
 import { RequestPriceModal } from './RequestPriceModal';
 import { PaymentMethodModal } from './PaymentMethodModal';
 import { CashPaymentForm } from './CashPaymentForm';
+import { ClubLeaderboard } from './ClubLeaderboard';
 import { clubsApi, membershipsApi, priceRequestsApi } from '@/functions/axios/axiosFunctions';
 import type { ClubDetailResponse, ClubSectionResponse, ClubTariffResponse, ClubCoachResponse, MembershipResponse, IndividualPriceResponse, PriceRequestResponse } from '@/functions/axios/responses';
 import type { Club } from '../ClubsPage';
@@ -75,7 +76,7 @@ interface Coach {
 interface ClubDetailsModalProps {
   club: Club;
   isMember?: boolean;
-  initialTab?: 'info' | 'memberships';
+  initialTab?: 'info' | 'memberships' | 'leaderboard';
   onClose: () => void;
 }
 
@@ -113,7 +114,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, initia
   const [showPaymentMethodModal, setShowPaymentMethodModal] = useState(false);
   const [showCashPaymentForm, setShowCashPaymentForm] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'info' | 'memberships'>(initialTab);
+  const [activeTab, setActiveTab] = useState<'info' | 'memberships' | 'leaderboard'>(initialTab);
   // Current active membership in this club (if any) - primary one for display
   const [activeMembershipForClub, setActiveMembershipForClub] = useState<ActiveMembershipInfo | null>(null);
   // All active memberships in this club (for filtering out from buy options)
@@ -781,6 +782,21 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, initia
                 }`} 
               />
             </button>
+            <button
+              onClick={() => setActiveTab('leaderboard')}
+              className={`flex-1 py-3 text-sm font-medium transition-colors relative ${
+                activeTab === 'leaderboard' 
+                  ? 'text-amber-600' 
+                  : 'text-gray-400 hover:text-gray-600'
+              }`}
+            >
+              🏆 Рейтинг
+              <div 
+                className={`absolute bottom-0 left-0 right-0 h-[3px] bg-amber-500 rounded-t-full transition-all duration-300 ${
+                  activeTab === 'leaderboard' ? 'opacity-100' : 'opacity-0 scale-x-50'
+                }`} 
+              />
+            </button>
           </div>
         </div>
 
@@ -932,7 +948,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, initia
                 </div>
               )}
             </div>
-          ) : (
+          ) : activeTab === 'memberships' ? (
             <div className="p-4 space-y-5 pb-10">
               {/* Active Memberships Section - Show ALL active memberships */}
               {allActiveMembershipsForClub.length > 0 && (
@@ -1544,7 +1560,9 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, initia
                 </div>
               )}
             </div>
-          )}
+          ) : activeTab === 'leaderboard' ? (
+            <ClubLeaderboard clubId={club.id} />
+          ) : null}
         </div>
       </div>
 

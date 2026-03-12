@@ -52,6 +52,7 @@ export const ENDPOINTS = {
     MY: '/students/clubs/my',
     NEAREST: '/students/clubs/nearest',
     BY_ID: (clubId: number | string) => `/students/clubs/${clubId}`,
+    LEADERBOARD: (clubId: number | string) => `/students/clubs/${clubId}/leaderboard`,
   },
 
   PRICE_REQUESTS: {

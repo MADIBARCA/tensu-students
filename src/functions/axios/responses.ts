@@ -371,6 +371,22 @@ export interface NearestClubResponse {
   distance_meters: number | null;
 }
 
+export interface LeaderboardEntry {
+  student_id: number;
+  first_name: string;
+  last_name: string | null;
+  photo_url: string | null;
+  trainings_count: number;
+  rank: number;
+}
+
+export interface LeaderboardResponse {
+  club_id: number;
+  entries: LeaderboardEntry[];
+  current_student: LeaderboardEntry | null;
+  total_participants: number;
+}
+
 // Kaspi Order responses
 export interface KaspiOrderResponse {
   order_code: string;

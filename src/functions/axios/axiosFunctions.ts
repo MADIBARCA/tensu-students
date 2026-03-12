@@ -42,6 +42,7 @@ import type {
   PaymentRequestListResponse,
   PendingCountResponse,
   KaspiOrderResponse,
+  LeaderboardResponse,
 } from './responses';
 
 // Student Profile API
@@ -281,6 +282,13 @@ export const clubsApi = {
 
   getMyClubIds: (token: string | null) =>
     axiosRequest<number[]>(ENDPOINTS.CLUBS.MY, 'GET', token),
+
+  getLeaderboard: (clubId: number | string, token: string | null, limit: number = 50) =>
+    axiosRequest<LeaderboardResponse>(
+      `${ENDPOINTS.CLUBS.LEADERBOARD(clubId)}?limit=${limit}`,
+      'GET',
+      token
+    ),
 };
 
 // Price Requests API

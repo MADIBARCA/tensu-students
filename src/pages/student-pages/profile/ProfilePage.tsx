@@ -9,6 +9,7 @@ import { MembershipsSection } from './components/MembershipsSection';
 import { MembershipHistorySection } from './components/MembershipHistorySection';
 import { AttendanceHistorySection } from './components/AttendanceHistorySection';
 import { PaymentHistorySection } from './components/PaymentHistorySection';
+import { PersonalAchievementsSection } from './components/PersonalAchievementsSection';
 
 import { SettingsSection } from './components/SettingsSection';
 import { EditProfileModal } from './components/EditProfileModal';
@@ -141,6 +142,9 @@ export default function ProfilePage() {
           student={studentData}
           onEdit={handleEditProfile}
         />
+
+        {/* Personal Achievements Section */}
+        <PersonalAchievementsSection />
 
         {/* My Memberships Section */}
         <MembershipsSection
