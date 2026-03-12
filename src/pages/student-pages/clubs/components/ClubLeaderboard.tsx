@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useI18n } from '@/i18n/i18n';
 import { Trophy, Medal, Award } from 'lucide-react';
 import { clubsApi } from '@/functions/axios/axiosFunctions';
 import type { LeaderboardResponse } from '@/functions/axios/responses';
@@ -8,6 +9,7 @@ interface ClubLeaderboardProps {
 }
 
 export const ClubLeaderboard: React.FC<ClubLeaderboardProps> = ({ clubId }) => {
+  const { t } = useI18n();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<LeaderboardResponse | null>(null);
 
@@ -43,7 +45,7 @@ export const ClubLeaderboard: React.FC<ClubLeaderboardProps> = ({ clubId }) => {
         <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
           <Trophy size={28} className="text-blue-300" />
         </div>
-        <p className="text-gray-500 font-medium">Пока нет данных для рейтинга</p>
+        <p className="text-gray-500 font-medium">{t('clubs.leaderboard.empty')}</p>
       </div>
     );
   }
@@ -77,9 +79,9 @@ export const ClubLeaderboard: React.FC<ClubLeaderboardProps> = ({ clubId }) => {
       <div className="text-center mb-6">
         <h3 className="text-lg font-bold text-gray-900 flex items-center justify-center gap-2">
           <Award size={20} className="text-blue-600" />
-          Рейтинг посещаемости
+          {t('clubs.leaderboard.title')}
         </h3>
-        <p className="text-xs text-gray-500 mt-1">Рейтинг внутри клуба</p>
+        <p className="text-xs text-gray-500 mt-1">{t('clubs.leaderboard.subtitle')}</p>
       </div>
 
       <div className="space-y-3">
@@ -107,7 +109,7 @@ export const ClubLeaderboard: React.FC<ClubLeaderboardProps> = ({ clubId }) => {
                 <p className={`text-sm font-semibold text-gray-900 line-clamp-1`}>
                   {entry.first_name} {entry.last_name}
                   {data.current_student?.student_id === entry.student_id && (
-                    <span className="ml-2 text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">Вы</span>
+                    <span className="ml-2 text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">{t('schedule.participants.you')}</span>
                   )}
                 </p>
               </div>
@@ -115,7 +117,7 @@ export const ClubLeaderboard: React.FC<ClubLeaderboardProps> = ({ clubId }) => {
             
             <div className="text-right shrink-0">
               <p className="text-lg font-bold text-gray-900">{entry.trainings_count}</p>
-              <p className="text-[10px] text-gray-500">тренировок</p>
+              <p className="text-[10px] text-gray-500">{t('clubs.leaderboard.trainings')}</p>
             </div>
           </div>
         ))}
@@ -125,10 +127,10 @@ export const ClubLeaderboard: React.FC<ClubLeaderboardProps> = ({ clubId }) => {
         <div className="mt-6 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-xl">
           <div className="flex items-center justify-between pl-1">
             <div>
-              <p className="text-sm font-medium text-blue-900">Ваш результат</p>
+              <p className="text-sm font-medium text-blue-900">{t('clubs.leaderboard.yourResult')}</p>
               <p className="text-2xl font-bold text-blue-600">#{data.current_student.rank}</p>
               <p className="text-xs text-blue-700/80 mt-1">
-                из {data.total_participants} участников
+                {t('clubs.leaderboard.ofParticipants', { count: data.total_participants })}
               </p>
             </div>
             <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm">

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useI18n } from '@/i18n/i18n';
 import { Card } from '@/components/ui';
 import { Trophy, Flame, Medal, TrendingUp } from 'lucide-react';
 import { attendanceApi, clubsApi } from '@/functions/axios/axiosFunctions';
@@ -16,6 +17,7 @@ interface PersonalAchievementsSectionProps {
 }
 
 export const PersonalAchievementsSection: React.FC<PersonalAchievementsSectionProps> = ({ onBestResultClick }) => {
+  const { t } = useI18n();
   const [stats, setStats] = useState<AttendanceStatsResponse | null>(null);
   const [bestRank, setBestRank] = useState<PersonalRank | null>(null);
   const [loading, setLoading] = useState(true);
@@ -104,19 +106,19 @@ export const PersonalAchievementsSection: React.FC<PersonalAchievementsSectionPr
           <div className="relative z-10">
             <h3 className="text-sm font-semibold text-amber-900 flex items-center gap-2 mb-3">
               <Trophy size={16} className="text-amber-500" />
-              Лучший результат
+              {t('profile.achievements.bestResult')}
             </h3>
             
             <p className="text-xs font-medium text-amber-700 mb-1">{bestRank.clubName}</p>
             <div className="flex items-baseline gap-2">
               <span className="text-2xl font-bold text-amber-600">#{bestRank.rank}</span>
-              <span className="text-sm text-amber-800/70">из {bestRank.total}</span>
+              <span className="text-sm text-amber-800/70">{t('profile.achievements.ofTotal', { total: bestRank.total })}</span>
             </div>
             
             {bestRank.rank <= 5 && (
               <div className="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-100 text-amber-800 rounded-lg text-xs font-medium">
                 <Medal size={12} className="text-amber-600" />
-                Top {bestRank.rank <= 3 ? '3' : '5'} клуба
+                {t(bestRank.rank <= 3 ? 'profile.achievements.top3' : 'profile.achievements.top5')}
               </div>
             )}
           </div>
@@ -126,14 +128,14 @@ export const PersonalAchievementsSection: React.FC<PersonalAchievementsSectionPr
       {/* Achievements Card */}
       {stats && (stats.streak_days > 0 || stats.total_visits > 0) && (
         <Card className="p-4 bg-white border-gray-100">
-          <h3 className="text-sm font-semibold text-gray-900 mb-3">Ваши достижения</h3>
+          <h3 className="text-sm font-semibold text-gray-900 mb-3">{t('profile.achievements.title')}</h3>
           
           <div className="grid grid-cols-2 gap-3">
             {stats.streak_days > 0 && (
               <div className="p-3 bg-orange-50 rounded-xl border border-orange-100 flex flex-col items-center text-center">
                 <Flame size={20} className="text-orange-500 mb-1" />
                 <p className="text-lg font-bold text-orange-700">{stats.streak_days}</p>
-                <p className="text-[10px] text-orange-600/80 font-medium leading-tight mt-0.5">тренировок подряд</p>
+                <p className="text-[10px] text-orange-600/80 font-medium leading-tight mt-0.5">{t('profile.achievements.streakInRow')}</p>
               </div>
             )}
             
@@ -141,7 +143,7 @@ export const PersonalAchievementsSection: React.FC<PersonalAchievementsSectionPr
               <div className="p-3 bg-blue-50 rounded-xl border border-blue-100 flex flex-col items-center text-center">
                 <TrendingUp size={20} className="text-blue-500 mb-1" />
                 <p className="text-lg font-bold text-blue-700">{stats.total_visits}</p>
-                <p className="text-[10px] text-blue-600/80 font-medium leading-tight mt-0.5">посещений всего</p>
+                <p className="text-[10px] text-blue-600/80 font-medium leading-tight mt-0.5">{t('profile.achievements.totalVisits')}</p>
               </div>
             )}
           </div>
