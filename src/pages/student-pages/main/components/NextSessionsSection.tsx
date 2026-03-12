@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useI18n } from '@/i18n/i18n';
-import { Ban, CheckCircle, Loader2 } from 'lucide-react';
+import { Ban, Loader2, QrCode } from 'lucide-react';
 import { scheduleApi } from '@/functions/axios/axiosFunctions';
 import type { SessionResponse, SessionStatus } from '@/functions/axios/responses';
 import { getTrainingLiveStatus, type LiveTrainingStatus } from '@/lib/utils/trainingStatus';
@@ -327,11 +327,7 @@ export const NextSessionsSection: React.FC = () => {
                     </span>
                   )}
                   
-                  {session.is_booked && (
-                    <span className="flex items-center gap-1 text-[13px] font-bold text-[#10B981]">
-                      <CheckCircle size={14} /> {t('home.sessions.youAreBooked')}
-                    </span>
-                  )}
+                  {/* Removing duplication here to put emphasis in the custom QR banner below */}
                 </div>
 
                 <h3 className="text-[20px] font-bold text-gray-900 leading-tight mb-1 tracking-tight">
@@ -359,6 +355,22 @@ export const NextSessionsSection: React.FC = () => {
                     </p>
                   )}
                 </div>
+
+                {session.is_booked && !isCompleted && (
+                  <div className="mb-4 bg-emerald-50 rounded-xl p-3 border border-emerald-100 flex items-start gap-3">
+                    <div className="mt-0.5 bg-emerald-100 p-1.5 rounded-full text-emerald-600 shrink-0">
+                      <QrCode size={18} />
+                    </div>
+                    <div>
+                      <p className="text-[14px] font-bold text-emerald-800 leading-tight">
+                        {t('home.sessions.youAreBooked')}
+                      </p>
+                      <p className="text-[13px] font-medium text-emerald-600/90 mt-0.5 leading-tight">
+                        {t('home.sessions.scanQr')}
+                      </p>
+                    </div>
+                  </div>
+                )}
 
                 <div className="mt-auto pt-2">
                   {isActive ? (

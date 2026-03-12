@@ -1,6 +1,6 @@
 import React from 'react';
 import { useI18n } from '@/i18n/i18n';
-import { Bell, Loader2 } from 'lucide-react';
+import { Bell, Loader2, QrCode } from 'lucide-react';
 import { getTrainingLiveStatus, type LiveTrainingStatus } from '@/lib/utils/trainingStatus';
 import { AvatarGroup } from '@/components/ui/AvatarGroup';
 import type { Training } from '../SchedulePage';
@@ -147,11 +147,7 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
             {t('schedule.completed')}
           </span>
         )}
-        {!isActive && !isCompleted && training.is_booked && (
-          <span className="shrink-0 text-[12px] font-medium text-[#059669] bg-[#ECFDF5] px-2.5 py-1 rounded-full">
-            ✓ {t('schedule.booked')}
-          </span>
-        )}
+        {/* Removing duplication here to put emphasis in the custom QR banner below */}
         {!isActive && !isCompleted && training.is_in_waitlist && !training.is_booked && (
           <span className="shrink-0 text-[12px] font-medium text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full">
             {t('schedule.inWaitlist')}
@@ -217,6 +213,23 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
         <p className="text-[12px] text-[#6B7280] bg-gray-50 rounded-xl px-3 py-2 mb-3">
           {training.notes}
         </p>
+      )}
+
+      {/* ── QR Banner ─────────────────────────────────── */}
+      {training.is_booked && !isCompleted && (
+        <div className="mb-4 bg-emerald-50 rounded-xl p-3 border border-emerald-100 flex items-start gap-3">
+          <div className="mt-0.5 bg-emerald-100 p-1.5 rounded-full text-emerald-600 shrink-0">
+            <QrCode size={18} />
+          </div>
+          <div>
+            <p className="text-[14px] font-bold text-emerald-800 leading-tight">
+              {t('schedule.booked')}
+            </p>
+            <p className="text-[13px] font-medium text-emerald-600/90 mt-0.5 leading-tight">
+              {t('home.sessions.scanQr')}
+            </p>
+          </div>
+        </div>
       )}
 
       {/* ── Actions ───────────────────────────────────── */}
