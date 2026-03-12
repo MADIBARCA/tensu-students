@@ -799,7 +799,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, initia
                     : 'text-gray-400 hover:text-gray-600'
                 }`}
               >
-                🏆 {t('clubs.details.leaderboard')}
+                🏆 
                 <div 
                   className={`absolute bottom-0 left-0 right-0 h-[3px] bg-amber-500 rounded-t-full transition-all duration-300 ${
                     activeTab === 'leaderboard' ? 'opacity-100' : 'opacity-0 scale-x-50'
