@@ -119,6 +119,7 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, initia
   const [activeMembershipForClub, setActiveMembershipForClub] = useState<ActiveMembershipInfo | null>(null);
   // All active memberships in this club (for filtering out from buy options)
   const [allActiveMembershipsForClub, setAllActiveMembershipsForClub] = useState<ActiveMembershipInfo[]>([]);
+  const hasActiveMembership = allActiveMembershipsForClub.length > 0;
   // Scheduled memberships (purchased but starting later)
   const [scheduledMemberships, setScheduledMemberships] = useState<ActiveMembershipInfo[]>([]);
   // Track purchased plans during this session (fallback for immediate UI update)
@@ -259,6 +260,13 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, initia
 
     loadClubDetails();
   }, [club.id]);
+
+  // Redirect from leaderboard tab if user has no active membership (tab is hidden)
+  useEffect(() => {
+    if (!loading && !hasActiveMembership && activeTab === 'leaderboard') {
+      setActiveTab('info');
+    }
+  }, [loading, hasActiveMembership, activeTab]);
 
   const { openTgLink } = useTelegram();
 
@@ -782,21 +790,23 @@ export const ClubDetailsModal: React.FC<ClubDetailsModalProps> = ({ club, initia
                 }`} 
               />
             </button>
-            <button
-              onClick={() => setActiveTab('leaderboard')}
-              className={`flex-1 py-3 text-sm font-medium transition-colors relative ${
-                activeTab === 'leaderboard' 
-                  ? 'text-amber-600' 
-                  : 'text-gray-400 hover:text-gray-600'
-              }`}
-            >
-              🏆 Рейтинг
-              <div 
-                className={`absolute bottom-0 left-0 right-0 h-[3px] bg-amber-500 rounded-t-full transition-all duration-300 ${
-                  activeTab === 'leaderboard' ? 'opacity-100' : 'opacity-0 scale-x-50'
-                }`} 
-              />
-            </button>
+            {hasActiveMembership && (
+              <button
+                onClick={() => setActiveTab('leaderboard')}
+                className={`flex-1 py-3 text-sm font-medium transition-colors relative ${
+                  activeTab === 'leaderboard' 
+                    ? 'text-amber-600' 
+                    : 'text-gray-400 hover:text-gray-600'
+                }`}
+              >
+                🏆 Рейтинг
+                <div 
+                  className={`absolute bottom-0 left-0 right-0 h-[3px] bg-amber-500 rounded-t-full transition-all duration-300 ${
+                    activeTab === 'leaderboard' ? 'opacity-100' : 'opacity-0 scale-x-50'
+                  }`} 
+                />
+              </button>
+            )}
           </div>
         </div>
 
