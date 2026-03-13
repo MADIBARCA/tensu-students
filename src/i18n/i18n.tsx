@@ -415,6 +415,9 @@ const RU: Dict = {
 
   // Kaspi order flow
   'kaspi.order.title': 'Оплата через Kaspi',
+  'kaspi.order.openKaspi': 'Открыть Kaspi',
+  'kaspi.order.orManual': 'или оплатите вручную',
+  'kaspi.order.manualFallback': 'Не получилось открыть Kaspi? Оплатите вручную по номеру заказа',
   'kaspi.order.yourOrderId': 'Номер заказа',
   'kaspi.order.tapToCopy': 'Нажмите, чтобы скопировать',
   'kaspi.order.copied': 'Скопировано!',
@@ -897,6 +900,9 @@ const KK: Dict = {
 
   // Kaspi order flow
   'kaspi.order.title': 'Kaspi арқылы төлеу',
+  'kaspi.order.openKaspi': 'Kaspi ашу',
+  'kaspi.order.orManual': 'немесе қолмен төлеңіз',
+  'kaspi.order.manualFallback': 'Kaspi ашылмады ма? Тапсырыс нөмірі бойынша қолмен төлеңіз',
   'kaspi.order.yourOrderId': 'Тапсырыс нөмірі',
   'kaspi.order.tapToCopy': 'Көшіру үшін басыңыз',
   'kaspi.order.copied': 'Көшірілді!',
@@ -1367,6 +1373,9 @@ const EN: Dict = {
   'payment.method.coming_soon': 'Kaspi QR coming soon',
   'payment.method.coming_soon.text': 'We are working on Kaspi QR integration. For now you can pay in cash or by transfer and confirm in the app.',
   'kaspi.order.title': 'Pay via Kaspi',
+  'kaspi.order.openKaspi': 'Open Kaspi',
+  'kaspi.order.orManual': 'or pay manually',
+  'kaspi.order.manualFallback': "Couldn't open Kaspi? Pay manually by order number",
   'kaspi.order.yourOrderId': 'Order number',
   'kaspi.order.tapToCopy': 'Tap to copy',
   'kaspi.order.copied': 'Copied!',
