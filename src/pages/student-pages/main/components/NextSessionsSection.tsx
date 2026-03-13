@@ -330,7 +330,11 @@ export const NextSessionsSection: React.FC = () => {
                     </span>
                   )}
                   
-                  {/* Removing duplication here to put emphasis in the custom QR banner below */}
+                  {session.is_attended && (
+                    <span className="flex items-center gap-1 text-[13px] font-bold text-[#10B981]">
+                      <CheckCircle size={14} /> {t('home.sessions.attended')}
+                    </span>
+                  )}
                 </div>
 
                 <h3 className="text-[20px] font-bold text-gray-900 leading-tight mb-1 tracking-tight">
@@ -360,21 +364,7 @@ export const NextSessionsSection: React.FC = () => {
                 </div>
 
                 {/* ── Attendance/QR Banner ─────────────────────────────────── */}
-                {session.is_attended ? (
-                  <div className="mb-4 bg-emerald-50 rounded-xl p-3 border border-emerald-100 flex items-start gap-3">
-                    <div className="mt-0.5 bg-emerald-100 p-1.5 rounded-full text-emerald-600 shrink-0">
-                      <CheckCircle size={18} />
-                    </div>
-                    <div>
-                      <p className="text-[14px] font-bold text-emerald-800 leading-tight">
-                        {t('home.sessions.attended')}
-                      </p>
-                      <p className="text-[13px] font-medium text-emerald-600/90 mt-0.5 leading-tight">
-                        {t('home.sessions.trainingCounted')}
-                      </p>
-                    </div>
-                  </div>
-                ) : session.is_booked && !isCompleted ? (
+                {!session.is_attended && session.is_booked && !isCompleted && (
                    <div className="mb-4 bg-blue-50 rounded-xl p-3 border border-blue-100 flex flex-col gap-2">
                      <div className="flex items-center gap-2 text-[13px] font-bold">
                        <span className="text-emerald-600">{t('home.sessions.bookingDone')} ✓</span>
@@ -392,7 +382,7 @@ export const NextSessionsSection: React.FC = () => {
                        </p>
                      )}
                    </div>
-                ) : null}
+                )}
 
                 <div className="mt-auto pt-2">
                   {isActive ? (

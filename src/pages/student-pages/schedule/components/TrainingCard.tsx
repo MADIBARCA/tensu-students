@@ -147,7 +147,11 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
             {t('schedule.completed')}
           </span>
         )}
-        {/* Removing duplication here to put emphasis in the custom QR banner below */}
+        {training.is_attended && (
+          <span className="shrink-0 flex items-center gap-1 text-[13px] font-bold text-[#10B981]">
+            <CheckCircle size={14} /> {t('home.sessions.attended')}
+          </span>
+        )}
         {!isActive && !isCompleted && training.is_in_waitlist && !training.is_booked && (
           <span className="shrink-0 text-[12px] font-medium text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full">
             {t('schedule.inWaitlist')}
@@ -216,21 +220,7 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
       )}
 
       {/* ── Attendance/QR Banner ─────────────────────────────────── */}
-      {training.is_attended ? (
-        <div className="mb-4 bg-emerald-50 rounded-xl p-3 border border-emerald-100 flex items-start gap-3">
-          <div className="mt-0.5 bg-emerald-100 p-1.5 rounded-full text-emerald-600 shrink-0">
-            <CheckCircle size={18} />
-          </div>
-          <div>
-            <p className="text-[14px] font-bold text-emerald-800 leading-tight">
-              {t('home.sessions.attended')}
-            </p>
-            <p className="text-[13px] font-medium text-emerald-600/90 mt-0.5 leading-tight">
-              {t('home.sessions.trainingCounted')}
-            </p>
-          </div>
-        </div>
-      ) : training.is_booked && !isCompleted ? (
+      {!training.is_attended && training.is_booked && !isCompleted && (
          <div className="mb-4 bg-blue-50 rounded-xl p-3 border border-blue-100 flex flex-col gap-2">
            <div className="flex items-center gap-2 text-[13px] font-bold">
              <span className="text-emerald-600">{t('home.sessions.bookingDone')} ✓</span>
@@ -248,7 +238,7 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
              </p>
            )}
          </div>
-      ) : null}
+      )}
 
       {/* ── Actions ───────────────────────────────────── */}
       {isCompleted ? null : isActive ? (
