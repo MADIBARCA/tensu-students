@@ -247,6 +247,7 @@ export interface SessionResponse {
   max_participants: number | null;
   status: SessionStatus;
   is_booked: boolean;
+  is_attended?: boolean;
   is_in_waitlist: boolean;
   participants_preview?: ParticipantResponse[];
   notes: string | null;

@@ -36,6 +36,7 @@ export interface Training {
   participants_preview?: ParticipantResponse[];
   notes?: string | null;
   is_booked: boolean;
+  is_attended?: boolean;
   is_in_waitlist: boolean;
   is_membership_expired?: boolean;
 }
@@ -136,6 +137,7 @@ export default function SchedulePage() {
           participants_preview: s.participants_preview,
           notes: s.notes,
           is_booked: s.is_booked,
+          is_attended: s.is_attended,
           is_in_waitlist: s.is_in_waitlist,
           is_membership_expired: membershipExpiryByClub.get(s.club_id) ?? false,
         }));
@@ -201,6 +203,7 @@ export default function SchedulePage() {
           participants_preview: s.participants_preview,
           notes: s.notes,
           is_booked: s.is_booked,
+          is_attended: s.is_attended,
           is_in_waitlist: s.is_in_waitlist,
           is_membership_expired: membershipExpiryByClub.get(s.club_id) ?? false,
         }));
