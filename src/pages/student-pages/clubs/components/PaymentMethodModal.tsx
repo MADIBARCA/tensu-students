@@ -2,10 +2,10 @@ import React, { useState, useCallback } from 'react';
 import { useI18n } from '@/i18n/i18n';
 import { useTelegramBackButton } from '@/hooks/useTelegramBackButton';
 import { QrCode, Banknote, ChevronRight, Loader2, Copy, Check } from 'lucide-react';
-
-const KASPI_DEEPLINK_BASE = 'https://kaspi.kz/pay/Tensukz?19089=';
 import { kaspiOrdersApi } from '@/functions/axios/axiosFunctions';
 import type { KaspiOrderResponse } from '@/functions/axios/responses';
+
+const KASPI_DEEPLINK_BASE = 'https://kaspi.kz/pay/Tensukz?19089=';
 
 interface MembershipPlan {
   id: number;
@@ -30,6 +30,7 @@ export const PaymentMethodModal: React.FC<PaymentMethodModalProps> = ({
 }) => {
   const { t } = useI18n();
   const [kaspiOrder, setKaspiOrder] = useState<KaspiOrderResponse | null>(null);
+  const [showManualFallback, setShowManualFallback] = useState(false);
 
   const handleBackButtonClick = useCallback(() => {
     if (kaspiOrder) {
@@ -49,7 +50,6 @@ export const PaymentMethodModal: React.FC<PaymentMethodModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [copied, setCopied] = useState(false);
-  const [showManualFallback, setShowManualFallback] = useState(false);
 
   const token = window.Telegram?.WebApp?.initData || null;
 
