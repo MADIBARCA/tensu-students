@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useI18n } from '@/i18n/i18n';
-import { Ban, CheckCircle, Loader2, QrCode } from 'lucide-react';
+import { Ban, CheckCircle, Loader2 } from 'lucide-react';
 import { scheduleApi } from '@/functions/axios/axiosFunctions';
 import type { SessionResponse, SessionStatus } from '@/functions/axios/responses';
 import { getTrainingLiveStatus, type LiveTrainingStatus } from '@/lib/utils/trainingStatus';
@@ -335,6 +335,11 @@ export const NextSessionsSection: React.FC = () => {
                       <CheckCircle size={14} /> {t('home.sessions.attended')}
                     </span>
                   )}
+                  {!session.is_attended && session.is_booked && !isCompleted && (
+                    <span className={`flex items-center gap-1 text-[13px] font-bold ${isActive ? 'text-amber-500' : 'text-blue-500'}`}>
+                      {t('home.sessions.checkinPending')} ⏳
+                    </span>
+                  )}
                 </div>
 
                 <h3 className="text-[20px] font-bold text-gray-900 leading-tight mb-1 tracking-tight">
@@ -362,27 +367,6 @@ export const NextSessionsSection: React.FC = () => {
                     </p>
                   )}
                 </div>
-
-                {/* ── Attendance/QR Banner ─────────────────────────────────── */}
-                {!session.is_attended && session.is_booked && !isCompleted && (
-                   <div className="mb-4 bg-blue-50 rounded-xl p-3 border border-blue-100 flex flex-col gap-2">
-                     <div className="flex items-center gap-2 text-[13px] font-bold">
-                       <span className="text-emerald-600">{t('home.sessions.bookingDone')} ✓</span>
-                       <span className="text-blue-300">→</span>
-                       <span className={isActive ? "text-amber-500" : "text-blue-500"}>{t('home.sessions.checkinPending')} ⏳</span>
-                     </div>
-                     {isActive ? (
-                       <button className="mt-1 w-full py-2 bg-[#1E3A8A] text-white rounded-[10px] font-semibold text-[13px] hover:bg-blue-900 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
-                         <QrCode size={16} />
-                         {t('home.sessions.scanQrBtn')}
-                       </button>
-                     ) : (
-                       <p className="text-[12px] font-medium text-blue-600/90 leading-tight">
-                         {t('home.sessions.attendanceExpected')}
-                       </p>
-                     )}
-                   </div>
-                )}
 
                 <div className="mt-auto pt-2">
                   {isActive ? (

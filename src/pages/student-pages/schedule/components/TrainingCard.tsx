@@ -1,6 +1,6 @@
 import React from 'react';
 import { useI18n } from '@/i18n/i18n';
-import { Bell, CheckCircle, Loader2, QrCode } from 'lucide-react';
+import { Bell, CheckCircle, Loader2 } from 'lucide-react';
 import { getTrainingLiveStatus, type LiveTrainingStatus } from '@/lib/utils/trainingStatus';
 import { AvatarGroup } from '@/components/ui/AvatarGroup';
 import type { Training } from '../SchedulePage';
@@ -152,6 +152,11 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
             <CheckCircle size={14} /> {t('home.sessions.attended')}
           </span>
         )}
+        {!training.is_attended && training.is_booked && !isCompleted && (
+          <span className={`shrink-0 flex items-center gap-1 text-[13px] font-bold ${isActive ? 'text-amber-500' : 'text-blue-500'}`}>
+            {t('home.sessions.checkinPending')} ⏳
+          </span>
+        )}
         {!isActive && !isCompleted && training.is_in_waitlist && !training.is_booked && (
           <span className="shrink-0 text-[12px] font-medium text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full">
             {t('schedule.inWaitlist')}
@@ -217,27 +222,6 @@ export const TrainingCard: React.FC<TrainingCardProps> = ({
         <p className="text-[12px] text-[#6B7280] bg-gray-50 rounded-xl px-3 py-2 mb-3">
           {training.notes}
         </p>
-      )}
-
-      {/* ── Attendance/QR Banner ─────────────────────────────────── */}
-      {!training.is_attended && training.is_booked && !isCompleted && (
-         <div className="mb-4 bg-blue-50 rounded-xl p-3 border border-blue-100 flex flex-col gap-2">
-           <div className="flex items-center gap-2 text-[13px] font-bold">
-             <span className="text-emerald-600">{t('home.sessions.bookingDone')} ✓</span>
-             <span className="text-blue-300">→</span>
-             <span className={isActive ? "text-amber-500" : "text-blue-500"}>{t('home.sessions.checkinPending')} ⏳</span>
-           </div>
-           {isActive ? (
-             <button className="mt-1 w-full py-2 bg-[#1E3A8A] text-white rounded-[10px] font-semibold text-[13px] hover:bg-blue-900 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
-               <QrCode size={16} />
-               {t('home.sessions.scanQrBtn')}
-             </button>
-           ) : (
-             <p className="text-[12px] font-medium text-blue-600/90 leading-tight">
-               {t('home.sessions.attendanceExpected')}
-             </p>
-           )}
-         </div>
       )}
 
       {/* ── Actions ───────────────────────────────────── */}
