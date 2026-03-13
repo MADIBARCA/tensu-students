@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useI18n } from '@/i18n/i18n';
 import { ScanLine, Loader2 } from 'lucide-react';
 import { attendanceApi, scheduleApi } from '@/functions/axios/axiosFunctions';
-import { toLocalDateString } from '@/lib/utils/dateUtils';
 import { getTrainingLiveStatus } from '@/lib/utils/trainingStatus';
 import { toast } from 'react-toastify';
 import type { SessionResponse } from '@/functions/axios/responses';
